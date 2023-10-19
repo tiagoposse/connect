@@ -1,0 +1,19 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "ogent/ogent/helper/delete" }}
+  // Add Wiring
+  if err := h.wires.Delete{{ $.Name }}Wire(ctx, params); err != nil {
+    return &R500{
+      Code: http.StatusInternalServerError,
+      Status: http.StatusText(http.StatusConflict),
+      Errors: rawError(err),
+    }, nil
+  }
+	err := h.client.{{ $.Name }}.DeleteOneID({{ ogenToEnt $.ID (print "params." $.ID.StructField) (printf "%sCreate" $.Name) }}).Exec(ctx)
+	{{-
+		template "ogent/ogent/helper/error"
+		extend $
+	"Errors" (list "not-found" "constraint")
+	-}}
+	return new(Delete{{ $.Name }}NoContent), nil
+{{ end }}

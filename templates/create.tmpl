@@ -1,0 +1,75 @@
+{{ define "ogent/ogent/helper/create" }}{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+	b := h.client.{{ $.Name }}.Create()
+	// Add all fields.
+	{{- range $f := $.Fields }}
+		{{- $a := fieldAnnotation $f }}
+		{{- if or (not $a) (and (not $a.ReadOnly) (not $a.SkipCreate)) }}
+			{{- if $f.Optional }}
+				{{- if or $f.IsBytes }}
+					if req.{{ $f.StructField }} != nil {
+						b.Set{{ $f.StructField }}(req.{{ $f.StructField }})
+					}
+				{{- else }}
+					if v, ok := req.{{ $f.StructField}}.Get(); ok {
+						{{- $x := "v" }}
+						{{- if $f.IsEnum -}}
+							{{ $x = convertTo $f.Type.String $x }}
+						{{- else -}}
+							{{ $x = ogenToEnt $f $x (printf "%sCreate" $.Name) }}
+						{{- end }}
+						b.Set{{ $f.StructField }}({{ $x }})
+					}
+				{{- end }}
+			{{- else }}
+				{{- $x := print "req." $f.StructField }}
+				{{- if $f.IsEnum -}}
+					{{ $x = convertTo $f.Type.String $x }}
+				{{- else -}}
+					{{ $x = ogenToEnt $f $x (printf "%sCreate" $.Name) }}
+				{{- end }}
+				b.Set{{ $f.StructField }}({{ $x }})
+			{{- end }}
+		{{- end }}
+	{{- end }}
+	// Add all edges.
+	{{- range $e := $.Edges }}
+		{{- if not $e.Unique }}
+			b.{{ $e.MutationAdd }}(req.{{ $e.StructField }}...)
+		{{- else }}
+			{{- if $e.Optional }}
+				if v, ok := req.{{ $e.StructField }}.Get(); ok {
+					b.{{ $e.MutationSet }}(v)
+				}
+			{{- else }}
+				b.{{ $e.MutationSet }}(req.{{ $e.StructField }})
+			{{- end }}
+		{{- end }}
+	{{- end }}
+  // Add Wiring
+  if err := h.wires.Create{{ $.Name }}Wire(ctx, b, req); err != nil {
+    return &R500{
+      Code: http.StatusInternalServerError,
+      Status: http.StatusText(http.StatusInternalServerError),
+      Errors: rawError(err),
+    }, nil
+  }
+	// Persist to storage.
+	e, err := b.Save(ctx)
+	{{-
+		template "ogent/ogent/helper/error"
+		extend $
+		"Errors" (list "not-singular" "constraint")
+	-}}
+	// Reload the entity to attach all eager-loaded edges.
+	q := h.client.{{ $.Name }}.Query().Where({{ $.Package }}.ID(e.{{ $.ID.StructField }}))
+	{{- with eagerLoad $ "create" }}
+		// Eager load edges that are required on create operation.
+		q{{ . }}
+	{{- end }}
+	e, err = q.Only(ctx)
+	if err != nil {
+		// This should never happen.
+		return nil, err
+	}
+	return New{{ viewName $ "create"  }}(e), nil
+{{- end }}

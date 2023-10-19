@@ -1,0 +1,157 @@
+{{/* gotype: entgo.io/ent/entc/gen.Graph */}}
+
+{{ define "ogent/ogent" }}
+	{{- with extend $ "Package" "ogent" }}{{ template "header" . }}{{ end }}
+	{{- $pkg := base $.Config.Package }}
+
+	import (
+		"context"
+		"net/http"
+    "encoding/json"
+
+    "github.com/tiagoposse/connect/internal/types"
+
+		"{{ $.Config.Package }}"
+	)
+
+  type OgentHandlerWiring struct {
+    {{- range $n := $.Nodes }}
+      {{- $root := print "/" ($n.Name | plural | kebab) }}
+      {{- range $op := nodeOperations $n }}
+        {{- $opID := print ($op | toString | pascal) $n.Name }}
+        {{- $sig := "" }}
+        {{- if isCreate $op }}
+          {{- $sig = printf "e *ent.%sCreate, req *%sReq" $n.Name $opID }}
+        {{- else if isRead $op }}
+          {{- $sig = printf "e *ent.%s, params %sParams" $n.Name $opID }}
+        {{- else if isUpdate $op }}
+          {{- $sig = printf "e *ent.%sUpdateOne, req *%sReq, params %sParams" $n.Name $opID $opID }}
+        {{- else if isDelete $op }}
+          {{- $sig = printf "params %sParams" $opID }}
+        {{- else if isList $op }}
+          {{- $sig = printf "es []*ent.%s, params %sParams" $n.Name $opID }}
+        {{- else }}
+          panic("unimplemented")
+        {{- end }}
+        {{- printf "%sWire func(ctx context.Context, %s) error" $opID $sig }}
+      {{ end }}
+    {{ end }}
+  }
+
+  func newOgentHandlerWiring() *OgentHandlerWiring {
+    return &OgentHandlerWiring{
+      {{- range $n := $.Nodes }}
+        {{- $root := print "/" ($n.Name | plural | kebab) }}
+        {{- range $op := nodeOperations $n }}
+          {{- $opID := print ($op | toString | pascal) $n.Name }}
+          {{- $sig := "" }}
+          {{- if isCreate $op }}
+            {{- $sig = printf "e *ent.%sCreate, req *%sReq" $n.Name $opID }}
+          {{- else if isRead $op }}
+            {{- $sig = printf "e *ent.%s, params %sParams" $n.Name $opID }}
+          {{- else if isUpdate $op }}
+            {{- $sig = printf "e *ent.%sUpdateOne, req *%sReq, params %sParams" $n.Name $opID $opID }}
+          {{- else if isDelete $op }}
+            {{- $sig = printf "params %sParams" $opID }}
+          {{- else if isList $op }}
+            {{- $sig = printf "es []*ent.%s, params %sParams" $n.Name $opID }}
+          {{- else }}
+            panic("unimplemented")
+          {{- end }}
+          {{- printf "%sWire: func(ctx context.Context, %s) error { return nil }," $opID $sig }}
+        {{ end }}
+      {{ end }}
+    }
+  }
+
+	// OgentHandler implements the ogen generated Handler interface and uses Ent as data layer.
+	type OgentHandler struct {
+		client *{{ $pkg }}.Client
+    wires *OgentHandlerWiring
+	}
+
+	// NewOgentHandler returns a new OgentHandler.
+	func NewOgentHandler(c *{{ $pkg }}.Client) *OgentHandler { return &OgentHandler{client: c, wires: newOgentHandlerWiring()} }
+
+  func (h *OgentHandler) SetWiring(wires *OgentHandlerWiring) {
+    {{- range $n := $.Nodes }}
+      {{- $root := print "/" ($n.Name | plural | kebab) }}
+      {{- range $op := nodeOperations $n }}
+        {{- $opID := print ($op | toString | pascal) $n.Name }}
+        {{- $sig := "" }}
+        {{- if isCreate $op }}
+          {{- $sig = printf "e *ent.%sCreate, req *%sReq" $n.Name $opID }}
+        {{- else if isRead $op }}
+          {{- $sig = printf "e *ent.%s, params %sParams" $n.Name $opID }}
+        {{- else if isUpdate $op }}
+          {{- $sig = printf "e *ent.%sUpdateOne, req *%sReq, params %sParams" $n.Name $opID $opID }}
+        {{- else if isDelete $op }}
+          {{- $sig = printf "params %sParams" $opID }}
+        {{- else if isList $op }}
+          {{- $sig = printf "es []*ent.%s, params %sParams" $n.Name $opID }}
+        {{- else }}
+          panic("unimplemented")
+        {{- end }}
+        if wires.{{- printf "%sWire" $opID }} != nil {
+          h.wires.{{- printf "%sWire" $opID }} = wires.{{- printf "%sWire" $opID }}
+        }
+      {{ end }}
+    {{ end }}
+  }
+
+	// rawError renders err as json string.
+	func rawError(err error) jx.Raw {
+		var e jx.Encoder
+		e.Str(err.Error())
+		return e.Bytes()
+	}
+
+  func JsonConvert(from interface{}, to interface{}) interface{} {
+    bs, err := json.Marshal(from)
+    if err != nil {
+      panic(err)
+    }
+
+    if err := json.Unmarshal(bs, to); err != nil {
+      panic(err)
+    }
+
+    return to
+  }
+
+	{{- range $n := $.Nodes }}
+		{{- $root := print "/" ($n.Name | plural | kebab) }}
+		{{- range $op := nodeOperations $n }}
+			{{- $opID := print ($op | toString | pascal) $n.Name }}
+			// {{ $opID }} handles {{ httpVerb $op }} {{ httpRoute $root $op }} requests.
+			func (h *OgentHandler) {{ $opID }}(ctx context.Context
+				{{- if hasRequestBody $op }}, req *{{ $opID }}Req{{ end }}
+				{{- if hasParams $op }}, params {{ $opID }}Params{{ end }}) ({{ $opID }}Res, error) {
+				{{- if isCreate $op }}
+					{{- template "ogent/ogent/helper/create" $n -}}
+				{{- else if isRead $op }}
+					{{- template "ogent/ogent/helper/read" $n -}}
+				{{- else if isUpdate $op }}
+					{{- template "ogent/ogent/helper/update" $n -}}
+				{{- else if isDelete $op }}
+					{{- template "ogent/ogent/helper/delete" $n -}}
+				{{- else if isList $op }}
+					{{- template "ogent/ogent/helper/list" $n -}}
+				{{- else }}
+					panic("unimplemented")
+				{{- end }}
+			}
+		{{ end }}
+		{{- range $e := $n.Edges }}
+			{{- range $op := edgeOperations $e }}
+				{{- if or (isRead $op) (isList $op) }}
+					{{- $opID := print ($op | toString | pascal) $n.Name ($e.Name | pascal) }}
+					// {{ $opID }} handles {{ httpVerb $op }} {{ printf "%s/{id}/%s" $root ($e.Name | kebab) }} requests.
+					func (h *OgentHandler) {{ $opID }}(ctx context.Context, params {{ $opID }}Params) ({{ $opID }}Res, error) {
+						{{- xtemplate (printf "ogent/ogent/helper/%s/sub" $op) (extend $n "Edge" $e) -}}
+					}
+				{{ end }}
+			{{ end }}
+		{{ end }}
+	{{ end }}
+{{ end }}
