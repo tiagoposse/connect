@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  dev:
+    image: wg:dev
+    container_name: portal
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE #optional
+    volumes:
+      - ../:/project
+      - ./entrypoint-dev-wg.sh:/custom-services.d/entrypoint-dev-wg.sh
+      - $HOME/.aws:/root/aws
+    environment:
+      - SERVERURL=127.0.0.1
+      - SERVERPORT=51820
+      - INTERNAL_SUBNET=10.254.0.0/16
+      - PEERS=0
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Vienna
+      - PERSISTENTKEEPALIVE_PEERS=
+    ports:
+      - 8000:8000
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+
+    working_dir: /project
+    networks:
+      - wireguard
+
+  db:
+    image: postgres
+    container_name: db
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    volumes:
+      - ../tmp/db:/db
+    environment:
+      - PGDATA=/db
+      - POSTGRES_PASSWORD=wireguard
+      - POSTGRES_USER=wireguard
+      - POSTGRES_DB=wireguard
+    networks:
+      - wireguard
+
+networks:
+  wireguard: {}

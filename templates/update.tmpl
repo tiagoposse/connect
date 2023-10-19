@@ -1,0 +1,65 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "ogent/ogent/helper/update" }}
+	b := h.client.{{ $.Name }}.UpdateOneID({{ ogenToEnt $.ID (print "params." $.ID.StructField) (printf "%sCreate" $.Name) }})
+	// Add all fields.
+	{{- range $f := $.Fields }}
+		{{- $a := fieldAnnotation $f }}
+		{{- if and (not $f.Immutable) (or (not $a) (and (not $a.ReadOnly) (not $a.SkipUpdate)))  }}
+			{{- if $f.IsBytes }}
+				if req.{{ $f.StructField }} != nil {
+					b.Set{{ $f.StructField }}(req.{{ $f.StructField }})
+				}
+			{{- else }}
+				if v, ok := req.{{ $f.StructField}}.Get(); ok {
+					{{- $x := "v" }}
+					{{- if $f.IsEnum -}}
+						{{ $x = convertTo $f.Type.String $x }}
+					{{- else -}}
+						{{ $x = ogenToEnt $f $x (printf "%sCreate" $.Name) }}
+					{{- end }}
+					b.Set{{ $f.StructField }}({{ $x }})
+				}
+			{{- end }}
+		{{- end }}
+	{{- end }}
+	// Add all edges.
+	{{- range $e := $.Edges }}
+		{{- if and (not $e.Unique) (not $e.Immutable) }}
+			if req.{{ $e.StructField }} != nil {
+			    b.{{ $e.MutationClear }}().{{ $e.MutationAdd }}(req.{{ $e.StructField }}...)
+			}
+		{{- else if not $e.Immutable }}
+			if v, ok := req.{{ $e.StructField }}.Get(); ok {
+				b.{{ $e.MutationSet }}(v)
+			}
+		{{- end }}
+	{{- end }}
+  // Add Wiring
+  if err := h.wires.Update{{ $.Name }}Wire(ctx, b, req, params); err != nil {
+    return &R500{
+      Code: http.StatusInternalServerError,
+      Status: http.StatusText(http.StatusConflict),
+      Errors: rawError(err),
+    }, nil
+  }
+	// Persist to storage.
+	e, err := b.Save(ctx)
+	{{-
+		template "ogent/ogent/helper/error"
+		extend $
+		"Errors" (list "not-found" "constraint")
+	-}}
+	// Reload the entity to attach all eager-loaded edges.
+	q := h.client.{{ $.Name }}.Query().Where({{ $.Package }}.ID(e.{{ $.ID.StructField }}))
+	{{- with eagerLoad $ "update" }}
+		// Eager load edges that are required on update operation.
+		q{{ . }}
+	{{- end }}
+	e, err = q.Only(ctx)
+	if err != nil {
+		// This should never happen.
+		return nil, err
+	}
+	return New{{ viewName $ "update"  }}(e), nil
+{{- end }}

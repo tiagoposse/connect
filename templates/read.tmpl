@@ -1,0 +1,35 @@
+{{/* gotype: entgo.io/ent/entc/gen.Type */}}
+
+{{ define "ogent/ogent/helper/read" }}
+	{{- $id := ogenToEnt $.ID (print "params." $.ID.StructField) (printf "%sCreate" $.Name) }}
+	q := h.client.{{ $.Name }}.Query().Where({{ $.Package }}.IDEQ({{ $id }}))
+	{{- with eagerLoad $ "read" }}{{ . }}{{- end }}
+	e, err := q.Only(ctx)
+	{{-
+		template "ogent/ogent/helper/error"
+		extend $
+		"Errors" (list "not-found" "not-singular")
+	-}}
+  // Add Wiring
+  if err := h.wires.Read{{ $.Name }}Wire(ctx, e, params); err != nil {
+    return &R500{
+      Code: http.StatusInternalServerError,
+      Status: http.StatusText(http.StatusConflict),
+      Errors: rawError(err),
+    }, nil
+  }
+	return New{{ viewName $ "read"  }}(e), nil
+{{- end }}
+
+{{ define "ogent/ogent/helper/read/sub" }}{{/* gotype: entgo.io/ent/entc/gen.typeScope */}}
+	{{- $id := ogenToEnt $.Type.ID (print "params." $.Type.ID.StructField) (printf "%sCreate" $.Name) }}
+	q := h.client.{{ $.Type.Name }}.Query().Where({{ $.Type.Package }}.IDEQ({{ $id }})).Query{{ $.Scope.Edge.Name | pascal }}()
+	{{- with eagerLoad $.Scope.Edge.Type "read" }}{{ . }}{{- end }}
+	e, err := q.Only(ctx)
+	{{-
+		template "ogent/ogent/helper/error"
+		extend $
+		"Errors" (list "not-found" "not-singular")
+	-}}
+	return New{{ replaceAll (edgeViewName $.Type $.Scope.Edge "read") "_" "" }}(e), nil
+{{ end }}
