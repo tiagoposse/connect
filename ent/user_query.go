@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/predicate"
@@ -28,9 +29,11 @@ type UserQuery struct {
 	withGroup        *GroupQuery
 	withDevices      *DeviceQuery
 	withKeys         *ApiKeyQuery
+	withAudit        *AuditQuery
 	withFKs          bool
 	withNamedDevices map[string]*DeviceQuery
 	withNamedKeys    map[string]*ApiKeyQuery
+	withNamedAudit   map[string]*AuditQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -126,6 +129,28 @@ func (uq *UserQuery) QueryKeys() *ApiKeyQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(apikey.Table, apikey.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.KeysTable, user.KeysColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAudit chains the current query on the "audit" edge.
+func (uq *UserQuery) QueryAudit() *AuditQuery {
+	query := (&AuditClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(audit.Table, audit.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AuditTable, user.AuditColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -328,6 +353,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withGroup:   uq.withGroup.Clone(),
 		withDevices: uq.withDevices.Clone(),
 		withKeys:    uq.withKeys.Clone(),
+		withAudit:   uq.withAudit.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -364,6 +390,17 @@ func (uq *UserQuery) WithKeys(opts ...func(*ApiKeyQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withKeys = query
+	return uq
+}
+
+// WithAudit tells the query-builder to eager-load the nodes that are connected to
+// the "audit" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithAudit(opts ...func(*AuditQuery)) *UserQuery {
+	query := (&AuditClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withAudit = query
 	return uq
 }
 
@@ -446,10 +483,11 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		nodes       = []*User{}
 		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			uq.withGroup != nil,
 			uq.withDevices != nil,
 			uq.withKeys != nil,
+			uq.withAudit != nil,
 		}
 	)
 	if uq.withGroup != nil {
@@ -496,6 +534,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := uq.withAudit; query != nil {
+		if err := uq.loadAudit(ctx, query, nodes,
+			func(n *User) { n.Edges.Audit = []*Audit{} },
+			func(n *User, e *Audit) { n.Edges.Audit = append(n.Edges.Audit, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range uq.withNamedDevices {
 		if err := uq.loadDevices(ctx, query, nodes,
 			func(n *User) { n.appendNamedDevices(name) },
@@ -507,6 +552,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadKeys(ctx, query, nodes,
 			func(n *User) { n.appendNamedKeys(name) },
 			func(n *User, e *ApiKey) { n.appendNamedKeys(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range uq.withNamedAudit {
+		if err := uq.loadAudit(ctx, query, nodes,
+			func(n *User) { n.appendNamedAudit(name) },
+			func(n *User, e *Audit) { n.appendNamedAudit(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -602,6 +654,37 @@ func (uq *UserQuery) loadKeys(ctx context.Context, query *ApiKeyQuery, nodes []*
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_keys" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadAudit(ctx context.Context, query *AuditQuery, nodes []*User, init func(*User), assign func(*User, *Audit)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Audit(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AuditColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_audit
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_audit" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_audit" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -714,6 +797,20 @@ func (uq *UserQuery) WithNamedKeys(name string, opts ...func(*ApiKeyQuery)) *Use
 		uq.withNamedKeys = make(map[string]*ApiKeyQuery)
 	}
 	uq.withNamedKeys[name] = query
+	return uq
+}
+
+// WithNamedAudit tells the query-builder to eager-load the nodes that are connected to the "audit"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithNamedAudit(name string, opts ...func(*AuditQuery)) *UserQuery {
+	query := (&AuditClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if uq.withNamedAudit == nil {
+		uq.withNamedAudit = make(map[string]*AuditQuery)
+	}
+	uq.withNamedAudit[name] = query
 	return uq
 }
 

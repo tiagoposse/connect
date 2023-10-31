@@ -125,6 +125,98 @@ func (u *ApiKeyUserRead) Elem() ApiKeyUserRead {
 	return *u
 }
 
+func NewAuditList(e *ent.Audit) *AuditList {
+	if e == nil {
+		return nil
+	}
+	var ret AuditList
+	ret.ID = e.ID
+	ret.Action = e.Action
+	ret.Author = e.Author
+	return &ret
+}
+
+func NewAuditLists(es []*ent.Audit) []AuditList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]AuditList, len(es))
+	for i, e := range es {
+		r[i] = NewAuditList(e).Elem()
+	}
+	return r
+}
+
+func (a *AuditList) Elem() AuditList {
+	if a == nil {
+		return AuditList{}
+	}
+	return *a
+}
+
+func NewAuditRead(e *ent.Audit) *AuditRead {
+	if e == nil {
+		return nil
+	}
+	var ret AuditRead
+	ret.ID = e.ID
+	ret.Action = e.Action
+	ret.Author = e.Author
+	return &ret
+}
+
+func NewAuditReads(es []*ent.Audit) []AuditRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]AuditRead, len(es))
+	for i, e := range es {
+		r[i] = NewAuditRead(e).Elem()
+	}
+	return r
+}
+
+func (a *AuditRead) Elem() AuditRead {
+	if a == nil {
+		return AuditRead{}
+	}
+	return *a
+}
+
+func NewAuditUserRead(e *ent.User) *AuditUserRead {
+	if e == nil {
+		return nil
+	}
+	var ret AuditUserRead
+	ret.ID = e.ID
+	ret.Email = e.Email
+	ret.Firstname = e.Firstname
+	ret.Lastname = e.Lastname
+	ret.Provider = e.Provider
+	ret.PhotoURL = NewOptString(e.PhotoURL)
+	ret.Disabled = e.Disabled
+	ret.DisabledReason = NewOptString(e.DisabledReason)
+	return &ret
+}
+
+func NewAuditUserReads(es []*ent.User) []AuditUserRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]AuditUserRead, len(es))
+	for i, e := range es {
+		r[i] = NewAuditUserRead(e).Elem()
+	}
+	return r
+}
+
+func (u *AuditUserRead) Elem() AuditUserRead {
+	if u == nil {
+		return AuditUserRead{}
+	}
+	return *u
+}
+
 func NewDeviceCreate(e *ent.Device) *DeviceCreate {
 	if e == nil {
 		return nil
@@ -134,6 +226,7 @@ func NewDeviceCreate(e *ent.Device) *DeviceCreate {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
+	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
 	ret.PublicKey = e.PublicKey
 	ret.PresharedKey = e.PresharedKey
 	ret.Endpoint = e.Endpoint.String()
@@ -168,6 +261,7 @@ func NewDeviceList(e *ent.Device) *DeviceList {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
+	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
 	ret.PublicKey = e.PublicKey
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = e.AllowedIps
@@ -201,6 +295,7 @@ func NewDeviceRead(e *ent.Device) *DeviceRead {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
+	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
 	ret.PublicKey = e.PublicKey
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = e.AllowedIps
@@ -234,6 +329,7 @@ func NewDeviceUpdate(e *ent.Device) *DeviceUpdate {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
+	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
 	ret.PublicKey = e.PublicKey
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = e.AllowedIps
@@ -298,6 +394,7 @@ func NewGroupCreate(e *ent.Group) *GroupCreate {
 	}
 	var ret GroupCreate
 	ret.ID = e.ID
+	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]GroupCreateScopesItem{}).(*[]GroupCreateScopesItem)
 	ret.Cidr = e.Cidr.String()
 	ret.Rules = *JsonConvert(e.Rules, &[]GroupCreateRulesItem{}).(*[]GroupCreateRulesItem)
@@ -328,6 +425,7 @@ func NewGroupList(e *ent.Group) *GroupList {
 	}
 	var ret GroupList
 	ret.ID = e.ID
+	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]GroupListScopesItem{}).(*[]GroupListScopesItem)
 	ret.Cidr = e.Cidr.String()
 	ret.Rules = *JsonConvert(e.Rules, &[]GroupListRulesItem{}).(*[]GroupListRulesItem)
@@ -358,6 +456,7 @@ func NewGroupRead(e *ent.Group) *GroupRead {
 	}
 	var ret GroupRead
 	ret.ID = e.ID
+	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]GroupReadScopesItem{}).(*[]GroupReadScopesItem)
 	ret.Cidr = e.Cidr.String()
 	ret.Rules = *JsonConvert(e.Rules, &[]GroupReadRulesItem{}).(*[]GroupReadRulesItem)
@@ -378,6 +477,37 @@ func NewGroupReads(es []*ent.Group) []GroupRead {
 func (gr *GroupRead) Elem() GroupRead {
 	if gr == nil {
 		return GroupRead{}
+	}
+	return *gr
+}
+
+func NewGroupUpdate(e *ent.Group) *GroupUpdate {
+	if e == nil {
+		return nil
+	}
+	var ret GroupUpdate
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.Scopes = *JsonConvert(e.Scopes, &[]GroupUpdateScopesItem{}).(*[]GroupUpdateScopesItem)
+	ret.Cidr = e.Cidr.String()
+	ret.Rules = *JsonConvert(e.Rules, &[]GroupUpdateRulesItem{}).(*[]GroupUpdateRulesItem)
+	return &ret
+}
+
+func NewGroupUpdates(es []*ent.Group) []GroupUpdate {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]GroupUpdate, len(es))
+	for i, e := range es {
+		r[i] = NewGroupUpdate(e).Elem()
+	}
+	return r
+}
+
+func (gr *GroupUpdate) Elem() GroupUpdate {
+	if gr == nil {
+		return GroupUpdate{}
 	}
 	return *gr
 }
@@ -425,6 +555,7 @@ func NewUserCreate(e *ent.User) *UserCreate {
 	ret.Email = e.Email
 	ret.Firstname = e.Firstname
 	ret.Lastname = e.Lastname
+	ret.Provider = e.Provider
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
@@ -526,6 +657,7 @@ func NewUserUpdate(e *ent.User) *UserUpdate {
 	ret.Email = e.Email
 	ret.Firstname = e.Firstname
 	ret.Lastname = e.Lastname
+	ret.Provider = e.Provider
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
@@ -550,6 +682,35 @@ func (u *UserUpdate) Elem() UserUpdate {
 	return *u
 }
 
+func NewUserAuditList(e *ent.Audit) *UserAuditList {
+	if e == nil {
+		return nil
+	}
+	var ret UserAuditList
+	ret.ID = e.ID
+	ret.Action = e.Action
+	ret.Author = e.Author
+	return &ret
+}
+
+func NewUserAuditLists(es []*ent.Audit) []UserAuditList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]UserAuditList, len(es))
+	for i, e := range es {
+		r[i] = NewUserAuditList(e).Elem()
+	}
+	return r
+}
+
+func (a *UserAuditList) Elem() UserAuditList {
+	if a == nil {
+		return UserAuditList{}
+	}
+	return *a
+}
+
 func NewUserDevicesList(e *ent.Device) *UserDevicesList {
 	if e == nil {
 		return nil
@@ -559,6 +720,7 @@ func NewUserDevicesList(e *ent.Device) *UserDevicesList {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
+	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
 	ret.PublicKey = e.PublicKey
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = e.AllowedIps
@@ -589,6 +751,7 @@ func NewUserGroupRead(e *ent.Group) *UserGroupRead {
 	}
 	var ret UserGroupRead
 	ret.ID = e.ID
+	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]UserGroupReadScopesItem{}).(*[]UserGroupReadScopesItem)
 	ret.Cidr = e.Cidr.String()
 	ret.Rules = *JsonConvert(e.Rules, &[]UserGroupReadRulesItem{}).(*[]UserGroupReadRulesItem)

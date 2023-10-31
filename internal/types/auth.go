@@ -42,3 +42,19 @@ const (
 	UserDevicesReadOnly   authz.Scope = "user.devices.readonly"
 	UserAll               authz.Scope = "user.*"
 )
+
+var AllScopes = authz.Scopes{
+	AdminUsersWrite,
+	AdminUsersReadOnly,
+	AdminDevicesWrite,
+	AdminDevicesReadOnly,
+	AdminGroupsWrite,
+	AdminGroupsReadOnly,
+	AdminSettingsWrite,
+	AdminSettingsReadOnly,
+	AdminAll,
+	UserDevicesWrite,
+	UserApiKeyWrite,
+	UserDevicesReadOnly,
+	UserAll,
+}

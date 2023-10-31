@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/tiagoposse/connect/filter"
 )
 
 // User holds the schema definition for the User entity.
@@ -21,6 +22,7 @@ func (User) Annotations() []schema.Annotation {
 		entoas.ListOperation(entoas.OperationGroups("list")),
 		entoas.ReadOperation(entoas.OperationGroups("read")),
 		entoas.UpdateOperation(entoas.OperationGroups("update")),
+		filter.WithFieldFilter("id"),
 	}
 }
 
@@ -35,9 +37,7 @@ func (User) Fields() []ent.Field {
 		field.String("email").NotEmpty().Unique(),
 		field.String("firstname").NotEmpty(),
 		field.String("lastname").NotEmpty(),
-		field.String("provider").Immutable().Annotations(
-			entoas.Groups("read", "list"),
-		),
+		field.String("provider").Immutable().NotEmpty(),
 		field.String("password").Optional().NotEmpty().Sensitive(),
 		field.String("salt").Optional().NotEmpty().Sensitive(),
 		field.String("photo_url").Optional(),
@@ -80,5 +80,9 @@ func (User) Edges() []ent.Edge {
 			entoas.UpdateOperation(entoas.OperationGroups("update")),
 		),
 		edge.To("keys", ApiKey.Type),
+		edge.To("audit", Audit.Type).Annotations(
+			entoas.CreateOperation(entoas.OperationPolicy(entoas.PolicyExclude)),
+			entoas.UpdateOperation(entoas.OperationPolicy(entoas.PolicyExclude)),
+		),
 	}
 }

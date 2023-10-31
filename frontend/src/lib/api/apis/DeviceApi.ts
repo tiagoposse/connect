@@ -48,25 +48,25 @@ export interface CreateDeviceOperationRequest {
 }
 
 export interface DeleteDeviceRequest {
-    id: number;
+    id: string;
 }
 
 export interface ListDeviceRequest {
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
+    user?: string;
 }
 
 export interface ReadDeviceRequest {
-    id: number;
+    id: string;
 }
 
 export interface ReadDeviceUserRequest {
-    id: number;
+    id: string;
 }
 
 export interface UpdateDeviceOperationRequest {
-    id: number;
+    id: string;
     updateDeviceRequest: UpdateDeviceRequest;
 }
 
@@ -156,19 +156,19 @@ export class DeviceApi extends runtime.BaseAPI {
     async listDeviceRaw(requestParameters: ListDeviceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<DeviceList>>> {
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
+        }
+
+        if (requestParameters.user !== undefined) {
+            queryParameters['user'] = requestParameters.user;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         if (this.configuration && this.configuration.apiKey) {
             headerParameters["x-api-key"] = this.configuration.apiKey("x-api-key"); // ApiKeyAuth authentication

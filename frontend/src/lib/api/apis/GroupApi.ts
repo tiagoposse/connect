@@ -19,8 +19,10 @@ import type {
   GroupCreate,
   GroupList,
   GroupRead,
+  GroupUpdate,
   GroupUsersList,
   ListApiKey400Response,
+  UpdateGroupRequest,
 } from '../models/index';
 import {
     CreateGroupRequestFromJSON,
@@ -31,10 +33,14 @@ import {
     GroupListToJSON,
     GroupReadFromJSON,
     GroupReadToJSON,
+    GroupUpdateFromJSON,
+    GroupUpdateToJSON,
     GroupUsersListFromJSON,
     GroupUsersListToJSON,
     ListApiKey400ResponseFromJSON,
     ListApiKey400ResponseToJSON,
+    UpdateGroupRequestFromJSON,
+    UpdateGroupRequestToJSON,
 } from '../models/index';
 
 export interface CreateGroupOperationRequest {
@@ -48,18 +54,21 @@ export interface DeleteGroupRequest {
 export interface ListGroupRequest {
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
 }
 
 export interface ListGroupUsersRequest {
     id: string;
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
 }
 
 export interface ReadGroupRequest {
     id: string;
+}
+
+export interface UpdateGroupOperationRequest {
+    id: string;
+    updateGroupRequest: UpdateGroupRequest;
 }
 
 /**
@@ -148,19 +157,15 @@ export class GroupApi extends runtime.BaseAPI {
     async listGroupRaw(requestParameters: ListGroupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GroupList>>> {
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         if (this.configuration && this.configuration.apiKey) {
             headerParameters["x-api-key"] = this.configuration.apiKey("x-api-key"); // ApiKeyAuth authentication
@@ -196,19 +201,15 @@ export class GroupApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         const response = await this.request({
             path: `/groups/{id}/users`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
@@ -262,6 +263,45 @@ export class GroupApi extends runtime.BaseAPI {
      */
     async readGroup(requestParameters: ReadGroupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GroupRead> {
         const response = await this.readGroupRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Updates a Group and persists changes to storage.
+     * Updates a Group
+     */
+    async updateGroupRaw(requestParameters: UpdateGroupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GroupUpdate>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling updateGroup.');
+        }
+
+        if (requestParameters.updateGroupRequest === null || requestParameters.updateGroupRequest === undefined) {
+            throw new runtime.RequiredError('updateGroupRequest','Required parameter requestParameters.updateGroupRequest was null or undefined when calling updateGroup.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/groups/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateGroupRequestToJSON(requestParameters.updateGroupRequest),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GroupUpdateFromJSON(jsonValue));
+    }
+
+    /**
+     * Updates a Group and persists changes to storage.
+     * Updates a Group
+     */
+    async updateGroup(requestParameters: UpdateGroupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GroupUpdate> {
+        const response = await this.updateGroupRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

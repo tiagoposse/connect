@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// ApiKey is the client for interacting with the ApiKey builders.
 	ApiKey *ApiKeyClient
+	// Audit is the client for interacting with the Audit builders.
+	Audit *AuditClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
 	// Group is the client for interacting with the Group builders.
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ApiKey = NewApiKeyClient(tx.config)
+	tx.Audit = NewAuditClient(tx.config)
 	tx.Device = NewDeviceClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
 	tx.User = NewUserClient(tx.config)

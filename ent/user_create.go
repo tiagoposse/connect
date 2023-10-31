@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/user"
@@ -145,14 +147,14 @@ func (uc *UserCreate) SetGroup(g *Group) *UserCreate {
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
-func (uc *UserCreate) AddDeviceIDs(ids ...int) *UserCreate {
+func (uc *UserCreate) AddDeviceIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddDeviceIDs(ids...)
 	return uc
 }
 
 // AddDevices adds the "devices" edges to the Device entity.
 func (uc *UserCreate) AddDevices(d ...*Device) *UserCreate {
-	ids := make([]int, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -172,6 +174,21 @@ func (uc *UserCreate) AddKeys(a ...*ApiKey) *UserCreate {
 		ids[i] = a[i].ID
 	}
 	return uc.AddKeyIDs(ids...)
+}
+
+// AddAuditIDs adds the "audit" edge to the Audit entity by IDs.
+func (uc *UserCreate) AddAuditIDs(ids ...string) *UserCreate {
+	uc.mutation.AddAuditIDs(ids...)
+	return uc
+}
+
+// AddAudit adds the "audit" edges to the Audit entity.
+func (uc *UserCreate) AddAudit(a ...*Audit) *UserCreate {
+	ids := make([]string, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uc.AddAuditIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -247,6 +264,11 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.Provider(); !ok {
 		return &ValidationError{Name: "provider", err: errors.New(`ent: missing required field "User.provider"`)}
+	}
+	if v, ok := uc.mutation.Provider(); ok {
+		if err := user.ProviderValidator(v); err != nil {
+			return &ValidationError{Name: "provider", err: fmt.Errorf(`ent: validator failed for field "User.provider": %w`, err)}
+		}
 	}
 	if v, ok := uc.mutation.Password(); ok {
 		if err := user.PasswordValidator(v); err != nil {
@@ -361,7 +383,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.DevicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -378,6 +400,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.AuditIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuditTable,
+			Columns: []string{user.AuditColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(audit.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

@@ -75,16 +75,22 @@ export interface UpdateUserRequest {
     group?: string;
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof UpdateUserRequest
      */
-    devices?: Array<number>;
+    devices?: Array<string>;
     /**
      * 
      * @type {Array<number>}
      * @memberof UpdateUserRequest
      */
     keys?: Array<number>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof UpdateUserRequest
+     */
+    audit?: Array<string>;
 }
 
 /**
@@ -117,6 +123,7 @@ export function UpdateUserRequestFromJSONTyped(json: any, ignoreDiscriminator: b
         'group': !exists(json, 'group') ? undefined : json['group'],
         'devices': !exists(json, 'devices') ? undefined : json['devices'],
         'keys': !exists(json, 'keys') ? undefined : json['keys'],
+        'audit': !exists(json, 'audit') ? undefined : json['audit'],
     };
 }
 
@@ -140,6 +147,7 @@ export function UpdateUserRequestToJSON(value?: UpdateUserRequest | null): any {
         'group': value.group,
         'devices': value.devices,
         'keys': value.keys,
+        'audit': value.audit,
     };
 }
 

@@ -26,6 +26,7 @@ var (
 		"edgeOperations":  entoas.EdgeOperations,
 		"edgeViewName":    entoas.EdgeViewName,
 		"fieldAnnotation": fieldAnnotation,
+		"isComplexType": isComplexType,
 		"hasParams":       hasParams,
 		"hasRequestBody":  hasRequestBody,
 		"httpRoute":       httpRoute,
@@ -314,7 +315,6 @@ func ogenToEnt(f *gen.Field, expr string, name string) string {
 	case field.TypeJSON, field.TypeOther:
 		// bs, _ := json.Marshal(f.Type)
 		// fmt.Println(string(bs))
-		fmt.Println(name)
 		return fmt.Sprintf("JsonConvert(%s, %s{}).(%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
 	default:
 		return expr
@@ -337,7 +337,7 @@ func entToOgen(f *gen.Field, expr, schemaName string) string {
 		return fmt.Sprintf("int64(%s)", expr) // TODO: possibly losing information here for uint64
 	case field.TypeJSON, field.TypeOther:
 		if oasAnnotations, ok := f.Annotations["EntOAS"]; ok {
-			if schema, ok := oasAnnotations.(map[string]interface{})["Schema"]; ok {
+			if schema, ok := oasAnnotations.(map[string]interface{})["Schema"]; ok && schema != nil {
 				s := schema.(map[string]interface{})
 				if s["type"] == "array" {
 					items := s["items"].(map[string]interface{})
@@ -449,4 +449,20 @@ func returnTotal(as gen.Annotations, nodeName string) bool {
 	}
 
 	return ant.ReturnTotal != nil
+}
+
+func isComplexType(f *gen.Field) bool {
+	switch f.Type.Type {
+	case field.TypeJSON, field.TypeOther:
+		if oasAnnotations, ok := f.Annotations["EntOAS"]; ok {
+			if schema, ok := oasAnnotations.(map[string]interface{})["Schema"]; ok && schema != nil {
+				s := schema.(map[string]interface{})
+				if s["type"] == "array" {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }

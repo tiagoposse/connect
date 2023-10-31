@@ -294,13 +294,111 @@ func (s CreateGroupReqRulesItemType) Validate() error {
 
 func (s CreateGroupReqScopesItem) Validate() error {
 	switch s {
-	case "user.*":
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
 		return nil
 	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s *DeviceCreate) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.DNS == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "dns",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *DeviceList) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.DNS == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "dns",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *DeviceRead) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.DNS == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "dns",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *DeviceUpdate) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.DNS == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "dns",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
 }
 
 func (s *GroupCreate) Validate() error {
@@ -399,9 +497,31 @@ func (s GroupCreateRulesItemType) Validate() error {
 
 func (s GroupCreateScopesItem) Validate() error {
 	switch s {
-	case "user.*":
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
 		return nil
 	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -504,9 +624,31 @@ func (s GroupListRulesItemType) Validate() error {
 
 func (s GroupListScopesItem) Validate() error {
 	switch s {
-	case "user.*":
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
 		return nil
 	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -609,23 +751,45 @@ func (s GroupReadRulesItemType) Validate() error {
 
 func (s GroupReadScopesItem) Validate() error {
 	switch s {
-	case "user.*":
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
 		return nil
 	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
 
-func (s *ListApiKeyOKHeaders) Validate() error {
+func (s *GroupUpdate) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Response == nil {
+		if s.Scopes == nil {
 			return errors.New("nil is invalid value")
 		}
 		var failures []validate.FieldError
-		for i, elem := range s.Response {
+		for i, elem := range s.Scopes {
 			if err := func() error {
 				if err := elem.Validate(); err != nil {
 					return err
@@ -644,43 +808,16 @@ func (s *ListApiKeyOKHeaders) Validate() error {
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "Response",
+			Name:  "scopes",
 			Error: err,
 		})
 	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s *ListDeviceOKHeaders) Validate() error {
-	var failures []validate.FieldError
 	if err := func() error {
-		if s.Response == nil {
-			return errors.New("nil is invalid value")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "Response",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s *ListGroupOKHeaders) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if s.Response == nil {
+		if s.Rules == nil {
 			return errors.New("nil is invalid value")
 		}
 		var failures []validate.FieldError
-		for i, elem := range s.Response {
+		for i, elem := range s.Rules {
 			if err := func() error {
 				if err := elem.Validate(); err != nil {
 					return err
@@ -699,7 +836,7 @@ func (s *ListGroupOKHeaders) Validate() error {
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "Response",
+			Name:  "rules",
 			Error: err,
 		})
 	}
@@ -709,16 +846,16 @@ func (s *ListGroupOKHeaders) Validate() error {
 	return nil
 }
 
-func (s *ListGroupUsersOKHeaders) Validate() error {
+func (s *GroupUpdateRulesItem) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Response == nil {
-			return errors.New("nil is invalid value")
+		if err := s.Type.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "Response",
+			Name:  "type",
 			Error: err,
 		})
 	}
@@ -728,18 +865,68 @@ func (s *ListGroupUsersOKHeaders) Validate() error {
 	return nil
 }
 
-func (s *ListUserDevicesOKHeaders) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if s.Response == nil {
-			return errors.New("nil is invalid value")
-		}
+func (s GroupUpdateRulesItemType) Validate() error {
+	switch s {
+	case "allow":
 		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "Response",
-			Error: err,
-		})
+	case "deny":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s GroupUpdateScopesItem) Validate() error {
+	switch s {
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
+		return nil
+	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s ListApiKeyOKApplicationJSON) Validate() error {
+	alias := ([]ApiKeyList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
@@ -747,14 +934,143 @@ func (s *ListUserDevicesOKHeaders) Validate() error {
 	return nil
 }
 
-func (s *ListUserKeysOKHeaders) Validate() error {
+func (s ListAuditOKApplicationJSON) Validate() error {
+	alias := ([]AuditList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s ListDeviceOKApplicationJSON) Validate() error {
+	alias := ([]DeviceList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ListGroupOKApplicationJSON) Validate() error {
+	alias := ([]GroupList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ListGroupUsersOKApplicationJSON) Validate() error {
+	alias := ([]GroupUsersList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s ListUserAuditOKApplicationJSON) Validate() error {
+	alias := ([]UserAuditList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s ListUserDevicesOKApplicationJSON) Validate() error {
+	alias := ([]UserDevicesList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ListUserKeysOKApplicationJSON) Validate() error {
+	alias := ([]UserKeysList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ListUserOKApplicationJSON) Validate() error {
+	alias := ([]UserList)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s *UpdateGroupReq) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Response == nil {
-			return errors.New("nil is invalid value")
-		}
 		var failures []validate.FieldError
-		for i, elem := range s.Response {
+		for i, elem := range s.Scopes {
 			if err := func() error {
 				if err := elem.Validate(); err != nil {
 					return err
@@ -773,7 +1089,32 @@ func (s *ListUserKeysOKHeaders) Validate() error {
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "Response",
+			Name:  "scopes",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		var failures []validate.FieldError
+		for i, elem := range s.Rules {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "rules",
 			Error: err,
 		})
 	}
@@ -783,16 +1124,79 @@ func (s *ListUserKeysOKHeaders) Validate() error {
 	return nil
 }
 
-func (s *ListUserOKHeaders) Validate() error {
+func (s *UpdateGroupReqRulesItem) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Response == nil {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s UpdateGroupReqRulesItemType) Validate() error {
+	switch s {
+	case "allow":
+		return nil
+	case "deny":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s UpdateGroupReqScopesItem) Validate() error {
+	switch s {
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
+		return nil
+	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *UserDevicesList) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.DNS == nil {
 			return errors.New("nil is invalid value")
 		}
 		return nil
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
-			Name:  "Response",
+			Name:  "dns",
 			Error: err,
 		})
 	}
@@ -898,9 +1302,31 @@ func (s UserGroupReadRulesItemType) Validate() error {
 
 func (s UserGroupReadScopesItem) Validate() error {
 	switch s {
-	case "user.*":
+	case "admin.users.write":
+		return nil
+	case "admin.users.readonly":
+		return nil
+	case "admin.groups.write":
+		return nil
+	case "admin.groups.readonly":
+		return nil
+	case "admin.devices.write":
+		return nil
+	case "admin.devices.readonly":
+		return nil
+	case "admin.settings.write":
+		return nil
+	case "admin.settings.readonly":
 		return nil
 	case "admin.*":
+		return nil
+	case "user.devices.write":
+		return nil
+	case "user.apikey.write":
+		return nil
+	case "user.devices.readonly":
+		return nil
+	case "user.*":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

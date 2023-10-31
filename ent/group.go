@@ -19,6 +19,8 @@ type Group struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// Scopes holds the value of the "scopes" field.
 	Scopes controller.Scopes `json:"scopes,omitempty"`
 	// Cidr holds the value of the "cidr" field.
@@ -59,7 +61,7 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case group.FieldScopes:
 			values[i] = new(controller.Scopes)
-		case group.FieldID:
+		case group.FieldID, group.FieldName:
 			values[i] = new(sql.NullString)
 		case group.FieldCidr:
 			values[i] = new(types.Cidr)
@@ -83,6 +85,12 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				gr.ID = value.String
+			}
+		case group.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				gr.Name = value.String
 			}
 		case group.FieldScopes:
 			if value, ok := values[i].(*controller.Scopes); !ok {
@@ -145,6 +153,9 @@ func (gr *Group) String() string {
 	var builder strings.Builder
 	builder.WriteString("Group(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", gr.ID))
+	builder.WriteString("name=")
+	builder.WriteString(gr.Name)
+	builder.WriteString(", ")
 	builder.WriteString("scopes=")
 	builder.WriteString(fmt.Sprintf("%v", gr.Scopes))
 	builder.WriteString(", ")

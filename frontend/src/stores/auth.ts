@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { AuthAPI } from '@/lib/apis';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -7,24 +8,22 @@ export const useAuthStore = defineStore('auth', {
     email: '',
     userID: '',
     displayName: '',
-    token: '',
-    photoUrl: ''
+    photoUrl: '',
+    scopes: [] as string[],
   }),
   actions: {
-    setUser(data: any) {
-      this.isAdmin = data.isAdmin;
-      this.email = data.email
+    logout() {
+      AuthAPI.logout();
+      this.$reset();
+    },
+    async status() {
+      const data = await AuthAPI.status();
+      this.scopes = data.scopes;
+      this.email = data.email;
       this.userID = data.id
       this.displayName = `${data.firstname} ${data.lastname}`;
       this.photoUrl = data.photoUrl
-      this.isAuthenticated = true;
-    },
-    logout() {
-      this.$reset()
-    },
-    login(token: string) {
       this.isAuthenticated = true
-      this.token = token
     }
   }
 });

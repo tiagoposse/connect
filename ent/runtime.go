@@ -3,7 +3,10 @@
 package ent
 
 import (
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
+	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/schema"
 	"github.com/tiagoposse/connect/ent/user"
@@ -24,12 +27,36 @@ func init() {
 	apikeyDescScopes := apikeyFields[2].Descriptor()
 	// apikey.DefaultScopes holds the default value on creation for the scopes field.
 	apikey.DefaultScopes = apikeyDescScopes.Default.(controller.Scopes)
+	auditFields := schema.Audit{}.Fields()
+	_ = auditFields
+	// auditDescAction is the schema descriptor for action field.
+	auditDescAction := auditFields[1].Descriptor()
+	// audit.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	audit.ActionValidator = auditDescAction.Validators[0].(func(string) error)
+	// auditDescAuthor is the schema descriptor for author field.
+	auditDescAuthor := auditFields[2].Descriptor()
+	// audit.AuthorValidator is a validator for the "author" field. It is called by the builders before save.
+	audit.AuthorValidator = auditDescAuthor.Validators[0].(func(string) error)
+	// auditDescID is the schema descriptor for id field.
+	auditDescID := auditFields[0].Descriptor()
+	// audit.DefaultID holds the default value on creation for the id field.
+	audit.DefaultID = auditDescID.Default.(func() string)
+	deviceFields := schema.Device{}.Fields()
+	_ = deviceFields
+	// deviceDescID is the schema descriptor for id field.
+	deviceDescID := deviceFields[0].Descriptor()
+	// device.DefaultID holds the default value on creation for the id field.
+	device.DefaultID = deviceDescID.Default.(func() uuid.UUID)
 	groupFields := schema.Group{}.Fields()
 	_ = groupFields
 	// groupDescScopes is the schema descriptor for scopes field.
-	groupDescScopes := groupFields[1].Descriptor()
+	groupDescScopes := groupFields[2].Descriptor()
 	// group.DefaultScopes holds the default value on creation for the scopes field.
 	group.DefaultScopes = groupDescScopes.Default.(controller.Scopes)
+	// groupDescID is the schema descriptor for id field.
+	groupDescID := groupFields[0].Descriptor()
+	// group.DefaultID holds the default value on creation for the id field.
+	group.DefaultID = groupDescID.Default.(func() string)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEmail is the schema descriptor for email field.
@@ -44,6 +71,10 @@ func init() {
 	userDescLastname := userFields[3].Descriptor()
 	// user.LastnameValidator is a validator for the "lastname" field. It is called by the builders before save.
 	user.LastnameValidator = userDescLastname.Validators[0].(func(string) error)
+	// userDescProvider is the schema descriptor for provider field.
+	userDescProvider := userFields[4].Descriptor()
+	// user.ProviderValidator is a validator for the "provider" field. It is called by the builders before save.
+	user.ProviderValidator = userDescProvider.Validators[0].(func(string) error)
 	// userDescPassword is the schema descriptor for password field.
 	userDescPassword := userFields[5].Descriptor()
 	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.

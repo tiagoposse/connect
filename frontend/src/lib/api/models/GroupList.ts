@@ -34,6 +34,12 @@ export interface GroupList {
     id: string;
     /**
      * 
+     * @type {string}
+     * @memberof GroupList
+     */
+    name: string;
+    /**
+     * 
      * @type {Array<string>}
      * @memberof GroupList
      */
@@ -57,8 +63,19 @@ export interface GroupList {
  * @export
  */
 export const GroupListScopesEnum = {
-    User: 'user.*',
-    Admin: 'admin.*'
+    AdminUsersWrite: 'admin.users.write',
+    AdminUsersReadonly: 'admin.users.readonly',
+    AdminGroupsWrite: 'admin.groups.write',
+    AdminGroupsReadonly: 'admin.groups.readonly',
+    AdminDevicesWrite: 'admin.devices.write',
+    AdminDevicesReadonly: 'admin.devices.readonly',
+    AdminSettingsWrite: 'admin.settings.write',
+    AdminSettingsReadonly: 'admin.settings.readonly',
+    Admin: 'admin.*',
+    UserDevicesWrite: 'user.devices.write',
+    UserApikeyWrite: 'user.apikey.write',
+    UserDevicesReadonly: 'user.devices.readonly',
+    User: 'user.*'
 } as const;
 export type GroupListScopesEnum = typeof GroupListScopesEnum[keyof typeof GroupListScopesEnum];
 
@@ -69,6 +86,7 @@ export type GroupListScopesEnum = typeof GroupListScopesEnum[keyof typeof GroupL
 export function instanceOfGroupList(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "name" in value;
     isInstance = isInstance && "scopes" in value;
     isInstance = isInstance && "cidr" in value;
     isInstance = isInstance && "rules" in value;
@@ -87,6 +105,7 @@ export function GroupListFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'id': json['id'],
+        'name': json['name'],
         'scopes': json['scopes'],
         'cidr': json['cidr'],
         'rules': ((json['rules'] as Array<any>).map(CreateGroupRequestRulesInnerFromJSON)),
@@ -103,6 +122,7 @@ export function GroupListToJSON(value?: GroupList | null): any {
     return {
         
         'id': value.id,
+        'name': value.name,
         'scopes': value.scopes,
         'cidr': value.cidr,
         'rules': ((value.rules as Array<any>).map(CreateGroupRequestRulesInnerToJSON)),

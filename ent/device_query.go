@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/predicate"
 	"github.com/tiagoposse/connect/ent/user"
@@ -106,8 +107,8 @@ func (dq *DeviceQuery) FirstX(ctx context.Context) *Device {
 
 // FirstID returns the first Device ID from the query.
 // Returns a *NotFoundError when no Device ID was found.
-func (dq *DeviceQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (dq *DeviceQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = dq.Limit(1).IDs(setContextOp(ctx, dq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +120,7 @@ func (dq *DeviceQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (dq *DeviceQuery) FirstIDX(ctx context.Context) int {
+func (dq *DeviceQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := dq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +158,8 @@ func (dq *DeviceQuery) OnlyX(ctx context.Context) *Device {
 // OnlyID is like Only, but returns the only Device ID in the query.
 // Returns a *NotSingularError when more than one Device ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (dq *DeviceQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (dq *DeviceQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = dq.Limit(2).IDs(setContextOp(ctx, dq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +175,7 @@ func (dq *DeviceQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (dq *DeviceQuery) OnlyIDX(ctx context.Context) int {
+func (dq *DeviceQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := dq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +203,7 @@ func (dq *DeviceQuery) AllX(ctx context.Context) []*Device {
 }
 
 // IDs executes the query and returns a list of Device IDs.
-func (dq *DeviceQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (dq *DeviceQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if dq.ctx.Unique == nil && dq.path != nil {
 		dq.Unique(true)
 	}
@@ -214,7 +215,7 @@ func (dq *DeviceQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (dq *DeviceQuery) IDsX(ctx context.Context) []int {
+func (dq *DeviceQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := dq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -451,7 +452,7 @@ func (dq *DeviceQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (dq *DeviceQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	_spec.From = dq.sql
 	if unique := dq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

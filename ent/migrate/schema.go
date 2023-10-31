@@ -30,12 +30,34 @@ var (
 			},
 		},
 	}
+	// AuditsColumns holds the columns for the "audits" table.
+	AuditsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "author", Type: field.TypeString},
+		{Name: "user_audit", Type: field.TypeString},
+	}
+	// AuditsTable holds the schema information for the "audits" table.
+	AuditsTable = &schema.Table{
+		Name:       "audits",
+		Columns:    AuditsColumns,
+		PrimaryKey: []*schema.Column{AuditsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "audits_users_audit",
+				Columns:    []*schema.Column{AuditsColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// DevicesColumns holds the columns for the "devices" table.
 	DevicesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "type", Type: field.TypeString},
+		{Name: "dns", Type: field.TypeJSON},
 		{Name: "public_key", Type: field.TypeString, Unique: true},
 		{Name: "preshared_key", Type: field.TypeString, Unique: true},
 		{Name: "endpoint", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "inet"}},
@@ -50,7 +72,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "devices_users_devices",
-				Columns:    []*schema.Column{DevicesColumns[8]},
+				Columns:    []*schema.Column{DevicesColumns[9]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -59,6 +81,7 @@ var (
 	// GroupsColumns holds the columns for the "groups" table.
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
 		{Name: "scopes", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "varchar"}},
 		{Name: "cidr", Type: field.TypeString, SchemaType: map[string]string{"postgres": "cidr"}},
 		{Name: "rules", Type: field.TypeJSON},
@@ -100,6 +123,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		APIKeysTable,
+		AuditsTable,
 		DevicesTable,
 		GroupsTable,
 		UsersTable,
@@ -108,6 +132,7 @@ var (
 
 func init() {
 	APIKeysTable.ForeignKeys[0].RefTable = UsersTable
+	AuditsTable.ForeignKeys[0].RefTable = UsersTable
 	DevicesTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = GroupsTable
 }

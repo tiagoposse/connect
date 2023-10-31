@@ -21,10 +21,10 @@ import { exists, mapValues } from '../runtime';
 export interface UserDevicesList {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof UserDevicesList
      */
-    id: number;
+    id: string;
     /**
      * 
      * @type {string}
@@ -43,6 +43,12 @@ export interface UserDevicesList {
      * @memberof UserDevicesList
      */
     type: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof UserDevicesList
+     */
+    dns: Array<string>;
     /**
      * 
      * @type {string}
@@ -71,6 +77,7 @@ export function instanceOfUserDevicesList(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "dns" in value;
     isInstance = isInstance && "publicKey" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
@@ -92,6 +99,7 @@ export function UserDevicesListFromJSONTyped(json: any, ignoreDiscriminator: boo
         'name': json['name'],
         'description': !exists(json, 'description') ? undefined : json['description'],
         'type': json['type'],
+        'dns': json['dns'],
         'publicKey': json['public_key'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
@@ -111,6 +119,7 @@ export function UserDevicesListToJSON(value?: UserDevicesList | null): any {
         'name': value.name,
         'description': value.description,
         'type': value.type,
+        'dns': value.dns,
         'public_key': value.publicKey,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,

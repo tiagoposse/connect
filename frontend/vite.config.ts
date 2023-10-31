@@ -4,6 +4,8 @@ import fs from 'fs';
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+// import wasm from "vite-plugin-wasm";
+// import topLevelAwait from "vite-plugin-top-level-await";
 
 // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
 import vuetify from 'vite-plugin-vuetify'
@@ -13,7 +15,9 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-    vuetify({ autoImport: true })
+    vuetify({ autoImport: true }),
+    // topLevelAwait(),
+    // wasm()
   ],
   server: {
     host: "127.0.0.1",

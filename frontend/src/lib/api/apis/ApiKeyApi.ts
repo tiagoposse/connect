@@ -48,7 +48,6 @@ export interface DeleteApiKeyRequest {
 export interface ListApiKeyRequest {
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
 }
 
 export interface ReadApiKeyRequest {
@@ -137,19 +136,15 @@ export class ApiKeyApi extends runtime.BaseAPI {
     async listApiKeyRaw(requestParameters: ListApiKeyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<ApiKeyList>>> {
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         const response = await this.request({
             path: `/api-keys`,

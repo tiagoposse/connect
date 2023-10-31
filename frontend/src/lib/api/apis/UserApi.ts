@@ -18,6 +18,7 @@ import type {
   CreateUserRequest,
   ListApiKey400Response,
   UpdateUserRequest,
+  UserAuditList,
   UserCreate,
   UserDevicesList,
   UserGroupRead,
@@ -33,6 +34,8 @@ import {
     ListApiKey400ResponseToJSON,
     UpdateUserRequestFromJSON,
     UpdateUserRequestToJSON,
+    UserAuditListFromJSON,
+    UserAuditListToJSON,
     UserCreateFromJSON,
     UserCreateToJSON,
     UserDevicesListFromJSON,
@@ -60,21 +63,25 @@ export interface DeleteUserRequest {
 export interface ListUserRequest {
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
+    id?: string;
+}
+
+export interface ListUserAuditRequest {
+    id: string;
+    page?: number;
+    itemsPerPage?: number;
 }
 
 export interface ListUserDevicesRequest {
     id: string;
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
 }
 
 export interface ListUserKeysRequest {
     id: string;
     page?: number;
     itemsPerPage?: number;
-    sort?: string;
 }
 
 export interface ReadUserRequest {
@@ -168,19 +175,19 @@ export class UserApi extends runtime.BaseAPI {
     async listUserRaw(requestParameters: ListUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<UserList>>> {
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
+        }
+
+        if (requestParameters.id !== undefined) {
+            queryParameters['id'] = requestParameters.id;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         const response = await this.request({
             path: `/users`,
@@ -202,6 +209,46 @@ export class UserApi extends runtime.BaseAPI {
     }
 
     /**
+     * List attached Audits.
+     * List attached Audits
+     */
+    async listUserAuditRaw(requestParameters: ListUserAuditRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<UserAuditList>>> {
+        if (requestParameters.id === null || requestParameters.id === undefined) {
+            throw new runtime.RequiredError('id','Required parameter requestParameters.id was null or undefined when calling listUserAudit.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/users/{id}/audit`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserAuditListFromJSON));
+    }
+
+    /**
+     * List attached Audits.
+     * List attached Audits
+     */
+    async listUserAudit(requestParameters: ListUserAuditRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<UserAuditList>> {
+        const response = await this.listUserAuditRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * List attached Devices.
      * List attached Devices
      */
@@ -212,19 +259,15 @@ export class UserApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         const response = await this.request({
             path: `/users/{id}/devices`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),
@@ -256,19 +299,15 @@ export class UserApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters.sort !== undefined) {
-            queryParameters['sort'] = requestParameters.sort;
+        if (requestParameters.page !== undefined) {
+            queryParameters['page'] = requestParameters.page;
+        }
+
+        if (requestParameters.itemsPerPage !== undefined) {
+            queryParameters['itemsPerPage'] = requestParameters.itemsPerPage;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters.page !== undefined && requestParameters.page !== null) {
-            headerParameters['x-page'] = String(requestParameters.page);
-        }
-
-        if (requestParameters.itemsPerPage !== undefined && requestParameters.itemsPerPage !== null) {
-            headerParameters['x-items-per-page'] = String(requestParameters.itemsPerPage);
-        }
 
         const response = await this.request({
             path: `/users/{id}/keys`.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters.id))),

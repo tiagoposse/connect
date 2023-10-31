@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/internal/types"
@@ -49,6 +51,12 @@ func (dc *DeviceCreate) SetType(s string) *DeviceCreate {
 	return dc
 }
 
+// SetDNS sets the "dns" field.
+func (dc *DeviceCreate) SetDNS(s []string) *DeviceCreate {
+	dc.mutation.SetDNS(s)
+	return dc
+}
+
 // SetPublicKey sets the "public_key" field.
 func (dc *DeviceCreate) SetPublicKey(s string) *DeviceCreate {
 	dc.mutation.SetPublicKey(s)
@@ -70,6 +78,20 @@ func (dc *DeviceCreate) SetEndpoint(t types.Inet) *DeviceCreate {
 // SetAllowedIps sets the "allowed_ips" field.
 func (dc *DeviceCreate) SetAllowedIps(s string) *DeviceCreate {
 	dc.mutation.SetAllowedIps(s)
+	return dc
+}
+
+// SetID sets the "id" field.
+func (dc *DeviceCreate) SetID(u uuid.UUID) *DeviceCreate {
+	dc.mutation.SetID(u)
+	return dc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (dc *DeviceCreate) SetNillableID(u *uuid.UUID) *DeviceCreate {
+	if u != nil {
+		dc.SetID(*u)
+	}
 	return dc
 }
 
@@ -99,6 +121,7 @@ func (dc *DeviceCreate) Mutation() *DeviceMutation {
 
 // Save creates the Device in the database.
 func (dc *DeviceCreate) Save(ctx context.Context) (*Device, error) {
+	dc.defaults()
 	return withHooks(ctx, dc.sqlSave, dc.mutation, dc.hooks)
 }
 
@@ -124,6 +147,14 @@ func (dc *DeviceCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (dc *DeviceCreate) defaults() {
+	if _, ok := dc.mutation.ID(); !ok {
+		v := device.DefaultID()
+		dc.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (dc *DeviceCreate) check() error {
 	if _, ok := dc.mutation.Name(); !ok {
@@ -131,6 +162,9 @@ func (dc *DeviceCreate) check() error {
 	}
 	if _, ok := dc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Device.type"`)}
+	}
+	if _, ok := dc.mutation.DNS(); !ok {
+		return &ValidationError{Name: "dns", err: errors.New(`ent: missing required field "Device.dns"`)}
 	}
 	if _, ok := dc.mutation.PublicKey(); !ok {
 		return &ValidationError{Name: "public_key", err: errors.New(`ent: missing required field "Device.public_key"`)}
@@ -158,8 +192,13 @@ func (dc *DeviceCreate) sqlSave(ctx context.Context) (*Device, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	dc.mutation.id = &_node.ID
 	dc.mutation.done = true
 	return _node, nil
@@ -168,9 +207,13 @@ func (dc *DeviceCreate) sqlSave(ctx context.Context) (*Device, error) {
 func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Device{config: dc.config}
-		_spec = sqlgraph.NewCreateSpec(device.Table, sqlgraph.NewFieldSpec(device.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(device.Table, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = dc.conflict
+	if id, ok := dc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := dc.mutation.Name(); ok {
 		_spec.SetField(device.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -182,6 +225,10 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 	if value, ok := dc.mutation.GetType(); ok {
 		_spec.SetField(device.FieldType, field.TypeString, value)
 		_node.Type = value
+	}
+	if value, ok := dc.mutation.DNS(); ok {
+		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+		_node.DNS = value
 	}
 	if value, ok := dc.mutation.PublicKey(); ok {
 		_spec.SetField(device.FieldPublicKey, field.TypeString, value)
@@ -310,6 +357,18 @@ func (u *DeviceUpsert) UpdateType() *DeviceUpsert {
 	return u
 }
 
+// SetDNS sets the "dns" field.
+func (u *DeviceUpsert) SetDNS(v []string) *DeviceUpsert {
+	u.Set(device.FieldDNS, v)
+	return u
+}
+
+// UpdateDNS sets the "dns" field to the value that was provided on create.
+func (u *DeviceUpsert) UpdateDNS() *DeviceUpsert {
+	u.SetExcluded(device.FieldDNS)
+	return u
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (u *DeviceUpsert) SetEndpoint(v types.Inet) *DeviceUpsert {
 	u.Set(device.FieldEndpoint, v)
@@ -334,17 +393,23 @@ func (u *DeviceUpsert) UpdateAllowedIps() *DeviceUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Device.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(device.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *DeviceUpsertOne) UpdateNewValues() *DeviceUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(device.FieldID)
+		}
 		if _, exists := u.create.mutation.PublicKey(); exists {
 			s.SetIgnore(device.FieldPublicKey)
 		}
@@ -431,6 +496,20 @@ func (u *DeviceUpsertOne) UpdateType() *DeviceUpsertOne {
 	})
 }
 
+// SetDNS sets the "dns" field.
+func (u *DeviceUpsertOne) SetDNS(v []string) *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetDNS(v)
+	})
+}
+
+// UpdateDNS sets the "dns" field to the value that was provided on create.
+func (u *DeviceUpsertOne) UpdateDNS() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateDNS()
+	})
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (u *DeviceUpsertOne) SetEndpoint(v types.Inet) *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
@@ -475,7 +554,12 @@ func (u *DeviceUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *DeviceUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *DeviceUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: DeviceUpsertOne.ID is not supported by MySQL driver. Use DeviceUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -484,7 +568,7 @@ func (u *DeviceUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *DeviceUpsertOne) IDX(ctx context.Context) int {
+func (u *DeviceUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -511,6 +595,7 @@ func (dcb *DeviceCreateBulk) Save(ctx context.Context) ([]*Device, error) {
 	for i := range dcb.builders {
 		func(i int, root context.Context) {
 			builder := dcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DeviceMutation)
 				if !ok {
@@ -538,10 +623,6 @@ func (dcb *DeviceCreateBulk) Save(ctx context.Context) ([]*Device, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -628,12 +709,18 @@ type DeviceUpsertBulk struct {
 //	client.Device.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(device.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *DeviceUpsertBulk) UpdateNewValues() *DeviceUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(device.FieldID)
+			}
 			if _, exists := b.mutation.PublicKey(); exists {
 				s.SetIgnore(device.FieldPublicKey)
 			}
@@ -718,6 +805,20 @@ func (u *DeviceUpsertBulk) SetType(v string) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateType() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateType()
+	})
+}
+
+// SetDNS sets the "dns" field.
+func (u *DeviceUpsertBulk) SetDNS(v []string) *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetDNS(v)
+	})
+}
+
+// UpdateDNS sets the "dns" field to the value that was provided on create.
+func (u *DeviceUpsertBulk) UpdateDNS() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateDNS()
 	})
 }
 

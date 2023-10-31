@@ -58,6 +58,15 @@ func (UnimplementedHandler) DeleteApiKey(ctx context.Context, params DeleteApiKe
 	return r, ht.ErrNotImplemented
 }
 
+// DeleteAudit implements deleteAudit operation.
+//
+// Deletes the Audit with the requested ID.
+//
+// DELETE /audits/{id}
+func (UnimplementedHandler) DeleteAudit(ctx context.Context, params DeleteAuditParams) (r DeleteAuditRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // DeleteDevice implements deleteDevice operation.
 //
 // Deletes the Device with the requested ID.
@@ -95,7 +104,7 @@ func (UnimplementedHandler) GoogleAuthCallback(ctx context.Context, req OptGoogl
 // GoogleAuthStart implements googleAuthStart operation.
 //
 // GET /auth/google/start
-func (UnimplementedHandler) GoogleAuthStart(ctx context.Context, params GoogleAuthStartParams) (r GoogleAuthStartRes, _ error) {
+func (UnimplementedHandler) GoogleAuthStart(ctx context.Context) (r GoogleAuthStartRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -114,6 +123,15 @@ func (UnimplementedHandler) GoogleAuthSync(ctx context.Context) (r GoogleAuthSyn
 //
 // GET /api-keys
 func (UnimplementedHandler) ListApiKey(ctx context.Context, params ListApiKeyParams) (r ListApiKeyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListAudit implements listAudit operation.
+//
+// List Audits.
+//
+// GET /audits
+func (UnimplementedHandler) ListAudit(ctx context.Context, params ListAuditParams) (r ListAuditRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -153,6 +171,15 @@ func (UnimplementedHandler) ListUser(ctx context.Context, params ListUserParams)
 	return r, ht.ErrNotImplemented
 }
 
+// ListUserAudit implements listUserAudit operation.
+//
+// List attached Audits.
+//
+// GET /users/{id}/audit
+func (UnimplementedHandler) ListUserAudit(ctx context.Context, params ListUserAuditParams) (r ListUserAuditRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListUserDevices implements listUserDevices operation.
 //
 // List attached Devices.
@@ -171,6 +198,15 @@ func (UnimplementedHandler) ListUserKeys(ctx context.Context, params ListUserKey
 	return r, ht.ErrNotImplemented
 }
 
+// Logout implements logout operation.
+//
+// Logout.
+//
+// GET /logout
+func (UnimplementedHandler) Logout(ctx context.Context) (r LogoutRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ReadApiKey implements readApiKey operation.
 //
 // Finds the ApiKey with the requested ID and returns it.
@@ -186,6 +222,24 @@ func (UnimplementedHandler) ReadApiKey(ctx context.Context, params ReadApiKeyPar
 //
 // GET /api-keys/{id}/user
 func (UnimplementedHandler) ReadApiKeyUser(ctx context.Context, params ReadApiKeyUserParams) (r ReadApiKeyUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ReadAudit implements readAudit operation.
+//
+// Finds the Audit with the requested ID and returns it.
+//
+// GET /audits/{id}
+func (UnimplementedHandler) ReadAudit(ctx context.Context, params ReadAuditParams) (r ReadAuditRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ReadAuditUser implements readAuditUser operation.
+//
+// Find the attached User of the Audit with the given ID.
+//
+// GET /audits/{id}/user
+func (UnimplementedHandler) ReadAuditUser(ctx context.Context, params ReadAuditUserParams) (r ReadAuditUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -236,7 +290,7 @@ func (UnimplementedHandler) ReadUserGroup(ctx context.Context, params ReadUserGr
 
 // Status implements status operation.
 //
-// Ping the database and report.
+// Check authentication status.
 //
 // GET /status
 func (UnimplementedHandler) Status(ctx context.Context) (r StatusRes, _ error) {
@@ -249,6 +303,15 @@ func (UnimplementedHandler) Status(ctx context.Context) (r StatusRes, _ error) {
 //
 // PATCH /devices/{id}
 func (UnimplementedHandler) UpdateDevice(ctx context.Context, req *UpdateDeviceReq, params UpdateDeviceParams) (r UpdateDeviceRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateGroup implements updateGroup operation.
+//
+// Updates a Group and persists changes to storage.
+//
+// PATCH /groups/{id}
+func (UnimplementedHandler) UpdateGroup(ctx context.Context, req *UpdateGroupReq, params UpdateGroupParams) (r UpdateGroupRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

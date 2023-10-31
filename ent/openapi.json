@@ -16,8 +16,8 @@
         "operationId": "listApiKey",
         "parameters": [
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -25,34 +25,19 @@
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
               "maximum": 255,
               "minimum": 1
             }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
           "200": {
             "description": "result ApiKey list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -272,6 +257,204 @@
         }
       }
     },
+    "/audits": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "List Audits",
+        "description": "List Audits.",
+        "operationId": "listAudit",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer",
+              "maximum": 255,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Audit list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditList"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/audits/{id}": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Find a Audit by ID",
+        "description": "Finds the Audit with the requested ID and returns it.",
+        "operationId": "readAudit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Audit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Deletes a Audit by ID",
+        "description": "Deletes the Audit with the requested ID.",
+        "operationId": "deleteAudit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Audit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Audit with requested ID was deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/audits/{id}/user": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Find the attached User",
+        "description": "Find the attached User of the Audit with the given ID",
+        "operationId": "readAuditUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Audit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User attached to Audit with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audit_UserRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
     "/auth/google/callback": {
       "description": "Callback endpoint for google SAML login process",
       "post": {
@@ -306,12 +489,14 @@
             "description": "Authentication Successful",
             "headers": {
               "Location": {
+                "required": true,
                 "schema": {
                   "type": "string",
                   "format": "uri"
                 }
               },
               "Set-Cookie": {
+                "required": true,
                 "schema": {
                   "type": "string"
                 }
@@ -337,21 +522,12 @@
           "Auth"
         ],
         "operationId": "googleAuthStart",
-        "parameters": [
-          {
-            "name": "after",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "301": {
             "description": "Starting Authentication",
             "headers": {
               "Location": {
+                "required": true,
                 "schema": {
                   "type": "string",
                   "format": "uri"
@@ -426,6 +602,7 @@
             "description": "Authentication Successful",
             "headers": {
               "Set-Cookie": {
+                "required": true,
                 "schema": {
                   "type": "string"
                 }
@@ -451,8 +628,8 @@
         "operationId": "listDevice",
         "parameters": [
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -460,8 +637,8 @@
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
@@ -470,7 +647,7 @@
             }
           },
           {
-            "name": "sort",
+            "name": "user",
             "in": "query",
             "schema": {
               "type": "string"
@@ -480,14 +657,6 @@
         "responses": {
           "200": {
             "description": "result Device list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -607,7 +776,8 @@
             "description": "ID of the Device",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -658,7 +828,8 @@
             "description": "ID of the Device",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -702,7 +873,8 @@
             "description": "ID of the Device",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -721,6 +893,12 @@
                   },
                   "type": {
                     "type": "string"
+                  },
+                  "dns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "endpoint": {
                     "type": "string"
@@ -778,7 +956,8 @@
             "description": "ID of the Device",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -818,8 +997,8 @@
         "operationId": "listGroup",
         "parameters": [
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -827,34 +1006,19 @@
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
               "maximum": 255,
               "minimum": 1
             }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
           "200": {
             "description": "result Group list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -902,13 +1066,27 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
                   "scopes": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "enum": [
-                        "user.*",
-                        "admin.*"
+                        "admin.users.write",
+                        "admin.users.readonly",
+                        "admin.groups.write",
+                        "admin.groups.readonly",
+                        "admin.devices.write",
+                        "admin.devices.readonly",
+                        "admin.settings.write",
+                        "admin.settings.readonly",
+                        "admin.*",
+                        "user.devices.write",
+                        "user.apikey.write",
+                        "user.devices.readonly",
+                        "user.*"
                       ]
                     }
                   },
@@ -949,6 +1127,7 @@
                   }
                 },
                 "required": [
+                  "name",
                   "scopes",
                   "cidr",
                   "rules"
@@ -1084,6 +1263,121 @@
             "CookieAuth": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "Group"
+        ],
+        "summary": "Updates a Group",
+        "description": "Updates a Group and persists changes to storage.",
+        "operationId": "updateGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Group properties to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "admin.users.write",
+                        "admin.users.readonly",
+                        "admin.groups.write",
+                        "admin.groups.readonly",
+                        "admin.devices.write",
+                        "admin.devices.readonly",
+                        "admin.settings.write",
+                        "admin.settings.readonly",
+                        "admin.*",
+                        "user.devices.write",
+                        "user.apikey.write",
+                        "user.devices.readonly",
+                        "user.*"
+                      ]
+                    }
+                  },
+                  "cidr": {
+                    "type": "string"
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "target": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "allow",
+                            "deny"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "target"
+                      ]
+                    }
+                  },
+                  "users": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Group updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
       }
     },
     "/groups/{id}/users": {
@@ -1105,40 +1399,25 @@
             }
           },
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Groups list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1165,13 +1444,47 @@
         }
       }
     },
+    "/logout": {
+      "description": "Logout",
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "logout",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "headers": {
+              "Set-Cookie": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is unauthorized"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
+      }
+    },
     "/status": {
       "description": "Check auth status",
       "get": {
         "tags": [
           "Auth"
         ],
-        "summary": "Ping the database and report",
+        "summary": "Check authentication status",
         "operationId": "status",
         "responses": {
           "200": {
@@ -1200,8 +1513,39 @@
                     },
                     "group": {
                       "type": "string"
+                    },
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "admin.users.write",
+                          "admin.users.readonly",
+                          "admin.groups.write",
+                          "admin.groups.readonly",
+                          "admin.devices.write",
+                          "admin.devices.readonly",
+                          "admin.settings.write",
+                          "admin.settings.readonly",
+                          "admin.*",
+                          "user.devices.write",
+                          "user.apikey.write",
+                          "user.devices.readonly",
+                          "user.*"
+                        ]
+                      }
                     }
-                  }
+                  },
+                  "required": [
+                    "id",
+                    "photo_url",
+                    "provider",
+                    "email",
+                    "lastname",
+                    "firstname",
+                    "group",
+                    "scopes"
+                  ]
                 }
               }
             }
@@ -1233,8 +1577,8 @@
         "operationId": "listUser",
         "parameters": [
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -1242,8 +1586,8 @@
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
@@ -1252,7 +1596,7 @@
             }
           },
           {
-            "name": "sort",
+            "name": "id",
             "in": "query",
             "schema": {
               "type": "string"
@@ -1262,14 +1606,6 @@
         "responses": {
           "200": {
             "description": "result User list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1342,13 +1678,20 @@
                   "devices": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string",
+                      "format": "uuid"
                     }
                   },
                   "keys": {
                     "type": "array",
                     "items": {
                       "type": "integer"
+                    }
+                  },
+                  "audit": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
                     }
                   }
                 },
@@ -1523,13 +1866,20 @@
                   "devices": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string",
+                      "format": "uuid"
                     }
                   },
                   "keys": {
                     "type": "array",
                     "items": {
                       "type": "integer"
+                    }
+                  },
+                  "audit": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
                     }
                   }
                 }
@@ -1545,6 +1895,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/users/{id}/audit": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "List attached Audits",
+        "description": "List attached Audits.",
+        "operationId": "listUserAudit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the User",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User_AuditList"
+                  }
                 }
               }
             }
@@ -1583,40 +1997,25 @@
             }
           },
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Users list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1707,40 +2106,25 @@
             }
           },
           {
-            "name": "x-page",
-            "in": "header",
+            "name": "page",
+            "in": "query",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "x-items-per-page",
-            "in": "header",
+            "name": "itemsPerPage",
+            "in": "query",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Users list",
-            "headers": {
-              "x-total": {
-                "required": true,
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1919,11 +2303,110 @@
           "disabled"
         ]
       },
+      "Audit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "author",
+          "user"
+        ]
+      },
+      "AuditList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "author"
+        ]
+      },
+      "AuditRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "author"
+        ]
+      },
+      "Audit_UserRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "disabled_reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstname",
+          "lastname",
+          "provider",
+          "disabled"
+        ]
+      },
       "Device": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -1933,6 +2416,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -1954,6 +2443,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "preshared_key",
           "endpoint",
@@ -1964,7 +2454,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -1974,6 +2465,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -1992,6 +2489,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "preshared_key",
           "endpoint",
@@ -2002,7 +2500,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -2012,6 +2511,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -2027,6 +2532,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "endpoint",
           "allowed_ips"
@@ -2036,7 +2542,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -2046,6 +2553,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -2061,6 +2574,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "endpoint",
           "allowed_ips"
@@ -2070,7 +2584,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -2080,6 +2595,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -2095,6 +2616,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "endpoint",
           "allowed_ips"
@@ -2143,13 +2665,27 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "scopes": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "user.*",
-                "admin.*"
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
               ]
             }
           },
@@ -2191,6 +2727,7 @@
         },
         "required": [
           "id",
+          "name",
           "scopes",
           "cidr",
           "rules"
@@ -2202,13 +2739,27 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "scopes": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "user.*",
-                "admin.*"
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
               ]
             }
           },
@@ -2244,6 +2795,7 @@
         },
         "required": [
           "id",
+          "name",
           "scopes",
           "cidr",
           "rules"
@@ -2255,13 +2807,27 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "scopes": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "user.*",
-                "admin.*"
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
               ]
             }
           },
@@ -2297,6 +2863,7 @@
         },
         "required": [
           "id",
+          "name",
           "scopes",
           "cidr",
           "rules"
@@ -2308,13 +2875,27 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "scopes": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "user.*",
-                "admin.*"
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
               ]
             }
           },
@@ -2350,6 +2931,75 @@
         },
         "required": [
           "id",
+          "name",
+          "scopes",
+          "cidr",
+          "rules"
+        ]
+      },
+      "GroupUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
+              ]
+            }
+          },
+          "cidr": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "allow",
+                    "deny"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "target"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
           "scopes",
           "cidr",
           "rules"
@@ -2439,6 +3089,12 @@
             "items": {
               "$ref": "#/components/schemas/ApiKey"
             }
+          },
+          "audit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Audit"
+            }
           }
         },
         "required": [
@@ -2466,6 +3122,9 @@
           "lastname": {
             "type": "string"
           },
+          "provider": {
+            "type": "string"
+          },
           "photo_url": {
             "type": "string"
           },
@@ -2481,6 +3140,7 @@
           "email",
           "firstname",
           "lastname",
+          "provider",
           "disabled"
         ]
       },
@@ -2573,6 +3233,9 @@
           "lastname": {
             "type": "string"
           },
+          "provider": {
+            "type": "string"
+          },
           "photo_url": {
             "type": "string"
           },
@@ -2588,14 +3251,35 @@
           "email",
           "firstname",
           "lastname",
+          "provider",
           "disabled"
+        ]
+      },
+      "User_AuditList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "author"
         ]
       },
       "User_DevicesList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string",
+            "format": "uuid"
           },
           "name": {
             "type": "string"
@@ -2605,6 +3289,12 @@
           },
           "type": {
             "type": "string"
+          },
+          "dns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "public_key": {
             "type": "string"
@@ -2620,6 +3310,7 @@
           "id",
           "name",
           "type",
+          "dns",
           "public_key",
           "endpoint",
           "allowed_ips"
@@ -2631,13 +3322,27 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "scopes": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "user.*",
-                "admin.*"
+                "admin.users.write",
+                "admin.users.readonly",
+                "admin.groups.write",
+                "admin.groups.readonly",
+                "admin.devices.write",
+                "admin.devices.readonly",
+                "admin.settings.write",
+                "admin.settings.readonly",
+                "admin.*",
+                "user.devices.write",
+                "user.apikey.write",
+                "user.devices.readonly",
+                "user.*"
               ]
             }
           },
@@ -2673,6 +3378,7 @@
         },
         "required": [
           "id",
+          "name",
           "scopes",
           "cidr",
           "rules"

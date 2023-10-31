@@ -1,47 +1,84 @@
 <template>
-  <v-app app>
-    <v-app-bar v-if="authStore.isAuthenticated">
-      <v-toolbar>
-        <v-toolbar>
-          <v-spacer></v-spacer>
-          <v-toolbar-title>{{ useRoute().name }}</v-toolbar-title>
-        </v-toolbar>
+  <v-layout ref="app" style="height: 100vh; width: 100vw;">
+    <v-app-bar v-if="auth.isAuthenticated">
+      <v-toolbar density="compact">
+        <v-spacer></v-spacer>
+        <v-toolbar-title>{{ useRoute().name }}</v-toolbar-title>
       </v-toolbar>
     </v-app-bar>
 
-    <Navigation v-if="authStore.isAuthenticated" />
-    <v-main app class="app mt-0 pr-0">
-      <v-container fluid class="pt-0 pl-0 ma-0">
-        <v-row align="stretch">
-          <v-col cols="12">
-            <router-view></router-view>
-          </v-col>
-        </v-row>
-      </v-container>
+    <Navigation v-if="auth.isAuthenticated" />
+    <v-main app class="mt-0 pr-0" >
+      <router-view></router-view>
     </v-main>
 
-    <v-footer>
-      <div>Copyright 2023</div>
-    </v-footer>
-  </v-app>
+  </v-layout>
+  <v-overlay
+      :model-value="globals.progress"
+      class="align-center justify-center"
+    >
+    <v-progress-circular
+      color="primary"
+      indeterminate
+      size="64"
+    />
+  </v-overlay>
+
+  <v-snackbar
+      v-for="(notification) in notificationsStore.notifications"
+      :key="notification.id"
+      v-model="notification.isShow"
+      location="bottom end"
+      variant="flat"
+      :color="notification.color"
+      :style="{ bottom: `${notification.position}px` }"
+      timeout="2000"
+    >
+    {{ notification.message }}
+
+    <template v-slot:actions>
+      <v-btn color="blue" variant="text" @click="notificationsStore.remove(notification.id)">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
+
+  <v-dialog :model-value="globals.confirm.open" width="70vw">
+    <v-card>
+      <v-card-text>
+        <span class="text-h5">{{ globals.confirm.title }}</span>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue-darken-1" variant="text" @click="globals.closeConfirm">
+          Cancel
+        </v-btn>
+        <v-btn @click="globals.confirm.callback" color="blue-darken-1" variant="text" >
+          Confirm
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import Navigation from './components/AppNavigation.vue'
-import { AuthAPI } from './lib/apis';
-import { useAuthStore } from './stores/auth';
+import Navigation from '@/components/AppNavigation.vue'
+import { useAuthStore } from '@/stores/auth';
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
+import { useGlobalsStore } from '@/stores/globals';
+import { useNotificationsStore } from '@/stores/notifications';
 
-const authStore = useAuthStore();
+const auth = useAuthStore();
+const globals = useGlobalsStore();
+const notificationsStore = useNotificationsStore();
 const router = useRouter();
 
 onMounted(async () => {
   try {
-    const user = await AuthAPI.status();
-    authStore.setUser(user)
+    await auth.status()
   } catch {
-    authStore.logout()
+    auth.logout()
     router.push('/login')
   }
 })
@@ -49,21 +86,14 @@ onMounted(async () => {
 </script>
 
 <style>
-html,
-body {
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-}
-
 
 #app {
   max-width: 100vw !important;
-  margin-left: 6px !important;
+  min-width: 100vw !important;
   padding: 0px !important;
 }
 
-.app {
+.v-application {
   max-width: 100vw !important;
   min-width: 100vw !important;
 }

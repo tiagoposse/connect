@@ -73,16 +73,17 @@ func main() {
 func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 	secReqs := []ogen.SecurityRequirement{map[string][]string{"ApiKeyAuth": {}}, map[string][]string{"CookieAuth": {}}}
 	authHeader := map[string]*ogen.Parameter{
-		"Set-Cookie": {Schema: &ogen.Schema{Type: "string"}},
+		"Set-Cookie": {Schema: ogen.String(), Required: true},
+
 	}
 
 	locationHeader := map[string]*ogen.Parameter{
-		"Location": {Schema: &ogen.Schema{Type: "string", Format: "uri"}},
+		"Location": {Schema: &ogen.Schema{Type: "string", Format: "uri"}, Required: true},
 	}
 
 	samlAuthHeader := map[string]*ogen.Parameter{
-		"Set-Cookie": {Schema: &ogen.Schema{Type: "string"}},
-		"Location":   {Schema: &ogen.Schema{Type: "string", Format: "uri"}},
+		"Set-Cookie": {Schema: ogen.String(), Required: true},
+		"Location":   {Schema: &ogen.Schema{Type: "string", Format: "uri"}, Required: true},
 	}
 
 	spec.Paths["/status"] = new(ogen.PathItem).
@@ -90,22 +91,35 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 		SetGet(ogen.NewOperation().
 			SetTags([]string{"Auth"}).
 			SetOperationID("status").
-			SetSummary("Ping the database and report").
+			SetSummary("Check authentication status").
 			AddResponse("200", ogen.NewResponse().SetDescription("User is valid").AddContent("application/json", &ogen.Schema{
 				Properties: []ogen.Property{
-					{ Name: "id", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "photo_url", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "provider", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "email", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "lastname", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "firstname", Schema: &ogen.Schema{ Type: "string" } },
-					{ Name: "group", Schema: &ogen.Schema{ Type: "string" } },
+					{ Name: "id", Schema: ogen.String() },
+					{ Name: "photo_url", Schema: ogen.String() },
+					{ Name: "provider", Schema: ogen.String() },
+					{ Name: "email", Schema: ogen.String() },
+					{ Name: "lastname", Schema: ogen.String() },
+					{ Name: "firstname", Schema: ogen.String() },
+					{ Name: "group", Schema: ogen.String() },
+					{ Name: "scopes", Schema: ogen.String().AsEnum(nil, types.AllScopes.ToRaw()...).AsArray() },
 				},
+				Required: []string{"id", "photo_url", "provider", "email", "lastname", "firstname", "group", "scopes" },
 			})).
 			AddResponse("401", ogen.NewResponse().SetDescription("User is unauthorized")).
 			AddResponse("400", ogen.NewResponse().SetDescription("Bad request")),
 		)
 	spec.Paths["/status"].Get.Security = secReqs
+
+	spec.Paths["/logout"] = new(ogen.PathItem).
+		SetDescription("Logout").
+		SetGet(ogen.NewOperation().
+			SetTags([]string{"Auth"}).
+			SetOperationID("logout").
+			SetSummary("logout").
+			AddResponse("200", ogen.NewResponse().SetHeaders(authHeader).SetDescription("Logout successful")).
+			AddResponse("401", ogen.NewResponse().SetDescription("User is unauthorized")),
+		)
+	spec.Paths["/logout"].Get.Security = secReqs
 
 	spec.Paths["/auth/userpass/login"] = new(ogen.PathItem).
 		SetDescription("Login using username and password combination").
@@ -120,8 +134,8 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 						Schema: &ogen.Schema{
 							Type: "object",
 							Properties: ogen.Properties{
-								ogen.Property{Name: "username", Schema: &ogen.Schema{Type: "string"}},
-								ogen.Property{Name: "password", Schema: &ogen.Schema{Type: "string"}},
+								ogen.Property{Name: "username", Schema: ogen.String()},
+								ogen.Property{Name: "password", Schema: ogen.String()},
 							},
 							Required: []string{"username", "password"},
 						},
@@ -138,7 +152,6 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 		SetGet(ogen.NewOperation().
 			SetOperationID("googleAuthStart").
 			SetTags([]string{"Auth"}).
-			AddParameters(&ogen.Parameter{Name: "after", In: "query", Required: true, Schema: &ogen.Schema{Type: "string"}}).
 			AddResponse("301", ogen.NewResponse().SetHeaders(locationHeader).SetDescription("Starting Authentication")).
 			AddResponse("400", ogen.NewResponse().SetDescription("Bad request")),
 		)
@@ -155,8 +168,8 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 						Schema: &ogen.Schema{
 							Type: "object",
 							Properties: ogen.Properties{
-								ogen.Property{Name: "SAMLResponse", Schema: &ogen.Schema{Type: "string"}},
-								ogen.Property{Name: "RelayState", Schema: &ogen.Schema{Type: "string"}},
+								ogen.Property{Name: "SAMLResponse", Schema: ogen.String()},
+								ogen.Property{Name: "RelayState", Schema: ogen.String()},
 							},
 							Required: []string{"SAMLResponse", "RelayState"},
 						},

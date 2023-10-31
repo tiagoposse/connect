@@ -30,10 +30,6 @@ export interface GoogleAuthCallbackRequest {
     relayState: string;
 }
 
-export interface GoogleAuthStartRequest {
-    after: string;
-}
-
 export interface UserpassLoginOperationRequest {
     userpassLoginRequest?: UserpassLoginRequest;
 }
@@ -99,16 +95,8 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async googleAuthStartRaw(requestParameters: GoogleAuthStartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.after === null || requestParameters.after === undefined) {
-            throw new runtime.RequiredError('after','Required parameter requestParameters.after was null or undefined when calling googleAuthStart.');
-        }
-
+    async googleAuthStartRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
-
-        if (requestParameters.after !== undefined) {
-            queryParameters['after'] = requestParameters.after;
-        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -124,8 +112,8 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async googleAuthStart(requestParameters: GoogleAuthStartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.googleAuthStartRaw(requestParameters, initOverrides);
+    async googleAuthStart(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.googleAuthStartRaw(initOverrides);
     }
 
     /**
@@ -158,7 +146,36 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Ping the database and report
+     * logout
+     */
+    async logoutRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["x-api-key"] = this.configuration.apiKey("x-api-key"); // ApiKeyAuth authentication
+        }
+
+        const response = await this.request({
+            path: `/logout`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * logout
+     */
+    async logout(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.logoutRaw(initOverrides);
+    }
+
+    /**
+     * Check authentication status
      */
     async statusRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Status200Response>> {
         const queryParameters: any = {};
@@ -180,7 +197,7 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Ping the database and report
+     * Check authentication status
      */
     async status(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Status200Response> {
         const response = await this.statusRaw(initOverrides);

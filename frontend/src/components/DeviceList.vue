@@ -5,25 +5,14 @@
       <DeviceCard :device="device" />
     </v-col>
   </v-row>
-    <v-overlay
-        :model-value="loading"
-        class="align-center justify-center"
-      >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-        size="64"
-      />
-    </v-overlay>
 </template>
 
 <script setup lang="ts">
-// Import required functions and components
-import DeviceCard from './DeviceCard.vue';
-import { type Device } from '../api/devices'
+import type { DeviceList } from '@/lib/api';
+import DeviceCard from '@/components/DeviceCard.vue';
 
 const props = defineProps<{
-  devices: Device[],
+  devices: DeviceList[],
   loading: true,
 }>()
 

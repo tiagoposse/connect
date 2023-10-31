@@ -1,31 +1,32 @@
 import { defineStore } from 'pinia'
-import type { WithID } from '@/lib/template';
-import type { UserList, GroupList } from '../lib/api/models';
-import type { Ref } from 'vue';
-import { ref } from 'vue';
+import type { CreateUserRequest, UpdateUserRequest, UserList } from '@/lib/api/models';
+import { UsersAPI } from '@/lib/apis';
 
+export const useUsersStore = defineStore('users', {
+  state: (): { users: UserList[] } => ({
+    users: []
+  }),
 
-export const storeFromTemplate = <T extends WithID>(name: string) => {
-  return defineStore({
-    id: name,
-
-    state: (): { items: Ref<T[]> } => ({
-      items: ref<T[]>([]) as Ref<T[]>,
-    }),
-
-    actions: {
-      set(newItems: T[]) {
-        this.items = newItems;
-      },
-      add(item: T) {
-        this.items.push(item);
-      },
-      remove(id: number) {
-        this.items = this.items.filter((obj: T) => obj.id !== id);
-      },
+  actions: {
+    async fetch() {
+      this.users = await UsersAPI.listUser();
     },
-  });
-};
+    async add(item: CreateUserRequest) {
+      const user = await UsersAPI.createUser({ createUserRequest: item }) as UserList
+      this.users.push(user);
+    },
+    async remove(id: string) {
+      await UsersAPI.deleteUser({ id })
+      this.users = this.users.filter((obj: UserList) => obj.id !== id);
+    },
+    async update(id: string, item: UpdateUserRequest) {
+      const user = await UsersAPI.updateUser({
+        id,
+        updateUserRequest: item
+      }) as UserList
 
-export const useGroupsStore = storeFromTemplate<GroupList>("groups");
-export const useUsersStore = storeFromTemplate<UserList>("users");
+      const index = this.users.findIndex((obj: UserList) => obj.id === id)
+      this.users.splice(index, 1, user);
+    },
+  },
+});

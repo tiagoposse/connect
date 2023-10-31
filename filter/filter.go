@@ -7,7 +7,8 @@ import (
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
 	"github.com/ogen-go/ogen"
-	"golang.org/x/exp/slices"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type OperationExtension struct {
@@ -38,13 +39,13 @@ func (ext *OperationExtension) generate() gen.Hook {
 	return func(next gen.Generator) gen.Generator {
 		return gen.GenerateFunc(func(graph *gen.Graph) error {
 			for _, node := range graph.Nodes {
-				nodeAnt := ext.GlobalAnnotation
-				filterAnt := Annotation{}
+				nodeAnt := Annotation{}
+				nodeAnt.Merge(*ext.GlobalAnnotation)
+
 				if ann, ok := node.Annotations[Annotation{}.Name()]; ok {
-					filterAnt.Decode(ann)
+					nodeAnt.Decode(ann)
 				}
-		
-				nodeAnt.Merge(filterAnt)
+
 				anns := node.Annotations
 				anns[Annotation{}.Name()] = nodeAnt
 				node.Annotations = anns
@@ -55,18 +56,32 @@ func (ext *OperationExtension) generate() gen.Hook {
 	}
 }
 
+func (ext *OperationExtension) getAnnotations(ant gen.Annotations) Annotation {
+	filterAnt := Annotation{}
+	if ann, ok := ant[Annotation{}.Name()]; ok {
+		filterAnt.Decode(ann)
+	}
+
+	return filterAnt
+}
+
 func (ext *OperationExtension) Mutator(graph *gen.Graph, spec *ogen.Spec) error {
 	filterMods := make(map[string][]*Opt)
 	opAnnotations := make(map[string]Annotation)
 
 	for _, node := range graph.Nodes {
-		filterAnt := Annotation{}
-		if ann, ok := node.Annotations[Annotation{}.Name()]; ok {
-			filterAnt.Decode(ann)
-		}
+		filterAnt := ext.getAnnotations(node.Annotations)
 		opName := fmt.Sprintf("list%s", node.Name)
 		filterMods[opName] = filterAnt.FilterFields
 		opAnnotations[opName] = filterAnt
+		
+		for _, edge := range node.Edges {
+			edgeAnt := ext.getAnnotations(edge.Annotations)
+
+			opName := fmt.Sprintf("list%s%s", node.Name, cases.Title(language.Und, cases.NoLower).String(edge.Name))
+			filterMods[opName] = edgeAnt.FilterFields
+			opAnnotations[opName] = edgeAnt
+		}
 	}
 
 	for _, pathItem := range spec.Paths {
@@ -146,81 +161,81 @@ func (ext *OperationExtension) Mutator(graph *gen.Graph, spec *ogen.Spec) error 
 
 type MutatorOpt func(*Annotation)
 
-func Mutator(opts ...MutatorOpt) func(graph *gen.Graph, spec *ogen.Spec) error {
-	return func (graph *gen.Graph, spec *ogen.Spec) error {
-		filterMods := make(map[string][]*Opt)
-		ops := make([]string, 0)
+// func Mutator(opts ...MutatorOpt) func(graph *gen.Graph, spec *ogen.Spec) error {
+// 	return func (graph *gen.Graph, spec *ogen.Spec) error {
+// 		filterMods := make(map[string][]*Opt)
+// 		ops := make([]string, 0)
 
-		globalAnt := Annotation{}
-		for _, opt := range opts {
-			opt(&globalAnt)
-		}
+// 		globalAnt := Annotation{}
+// 		for _, opt := range opts {
+// 			opt(&globalAnt)
+// 		}
 
-		for _, node := range graph.Nodes {
-			filterAnt := globalAnt
-			if ann, ok := node.Annotations[Annotation{}.Name()]; ok {
-				filterAnt.Decode(ann)
-			}
+// 		for _, node := range graph.Nodes {
+// 			filterAnt := globalAnt
+// 			if ann, ok := node.Annotations[Annotation{}.Name()]; ok {
+// 				filterAnt.Decode(ann)
+// 			}
 
-			opName := fmt.Sprintf("list%s", node.Name)
-			ops = append(ops, opName)
-			filterMods[opName] = filterAnt.FilterFields
+// 			opName := fmt.Sprintf("list%s", node.Name)
+// 			ops = append(ops, opName)
+// 			filterMods[opName] = filterAnt.FilterFields
 
-			nodeAnt := globalAnt
-			nodeAnt.Merge(filterAnt)
-			anns := node.Annotations
-			anns[Annotation{}.Name()] = nodeAnt
-			node.Annotations = anns
-		}
+// 			nodeAnt := globalAnt
+// 			nodeAnt.Merge(filterAnt)
+// 			anns := node.Annotations
+// 			anns[Annotation{}.Name()] = nodeAnt
+// 			node.Annotations = anns
+// 		}
 
-		for _, pathItem := range spec.Paths {
-			if pathItem.Get == nil || slices.Index(ops, pathItem.Get.OperationID) == -1 {
-				continue
-			}
+// 		for _, pathItem := range spec.Paths {
+// 			if pathItem.Get == nil || slices.Index(ops, pathItem.Get.OperationID) == -1 {
+// 				continue
+// 			}
 
-			newParams := make([]*ogen.Parameter, 0)
-			for _, prop := range pathItem.Get.Parameters {
-				prop := prop
-				switch prop.Name {
-				case "itemsPerPage":
-					if globalAnt.ItemsPerPage != nil {
-						globalAnt.ItemsPerPage.Set(prop)
-					}
-					if !globalAnt.NoPagination {
-						newParams = append(newParams, prop)
-					}
-				case "page":
-					if globalAnt.Page != nil {
-						globalAnt.Page.Set(prop)
-					}
-					if !globalAnt.NoPagination {
-						newParams = append(newParams, prop)
-					}
-				default:
-					newParams = append(newParams, prop)
-				}
-			}
+// 			newParams := make([]*ogen.Parameter, 0)
+// 			for _, prop := range pathItem.Get.Parameters {
+// 				prop := prop
+// 				switch prop.Name {
+// 				case "itemsPerPage":
+// 					if globalAnt.ItemsPerPage != nil {
+// 						globalAnt.ItemsPerPage.Set(prop)
+// 					}
+// 					if !globalAnt.NoPagination {
+// 						newParams = append(newParams, prop)
+// 					}
+// 				case "page":
+// 					if globalAnt.Page != nil {
+// 						globalAnt.Page.Set(prop)
+// 					}
+// 					if !globalAnt.NoPagination {
+// 						newParams = append(newParams, prop)
+// 					}
+// 				default:
+// 					newParams = append(newParams, prop)
+// 				}
+// 			}
 
-			if globalAnt.Sort != nil {
-				newParams = append(newParams, &ogen.Parameter{
-					Name: globalAnt.Sort.Name,
-					In: globalAnt.Sort.In,
-					Schema: &ogen.Schema{Type: "string"},
-				})
-			}
+// 			if globalAnt.Sort != nil {
+// 				newParams = append(newParams, &ogen.Parameter{
+// 					Name: globalAnt.Sort.Name,
+// 					In: globalAnt.Sort.In,
+// 					Schema: &ogen.Schema{Type: "string"},
+// 				})
+// 			}
 
-			if fs, ok := filterMods[pathItem.Get.OperationID]; ok {
-				for _, filter := range fs {
-					newParams = append(newParams, &ogen.Parameter{
-						Name: filter.Name,
-						In: filter.In,
-						Schema: &ogen.Schema{Type: "string"},
-					})
-				}
-			}
+// 			if fs, ok := filterMods[pathItem.Get.OperationID]; ok {
+// 				for _, filter := range fs {
+// 					newParams = append(newParams, &ogen.Parameter{
+// 						Name: filter.Name,
+// 						In: filter.In,
+// 						Schema: &ogen.Schema{Type: "string"},
+// 					})
+// 				}
+// 			}
 
-			pathItem.Get.Parameters = newParams
-		}
-		return nil
-	}
-}
+// 			pathItem.Get.Parameters = newParams
+// 		}
+// 		return nil
+// 	}
+// }

@@ -3,11 +3,13 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/internal/types"
@@ -17,13 +19,15 @@ import (
 type Device struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
+	// DNS holds the value of the "dns" field.
+	DNS []string `json:"dns,omitempty"`
 	// PublicKey holds the value of the "public_key" field.
 	PublicKey string `json:"public_key,omitempty"`
 	// PresharedKey holds the value of the "preshared_key" field.
@@ -66,12 +70,14 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case device.FieldID:
-			values[i] = new(sql.NullInt64)
+		case device.FieldDNS:
+			values[i] = new([]byte)
 		case device.FieldName, device.FieldDescription, device.FieldType, device.FieldPublicKey, device.FieldPresharedKey, device.FieldAllowedIps:
 			values[i] = new(sql.NullString)
 		case device.FieldEndpoint:
 			values[i] = new(types.Inet)
+		case device.FieldID:
+			values[i] = new(uuid.UUID)
 		case device.ForeignKeys[0]: // user_devices
 			values[i] = new(sql.NullString)
 		default:
@@ -90,11 +96,11 @@ func (d *Device) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case device.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				d.ID = *value
 			}
-			d.ID = int(value.Int64)
 		case device.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -112,6 +118,14 @@ func (d *Device) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
 				d.Type = value.String
+			}
+		case device.FieldDNS:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field dns", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &d.DNS); err != nil {
+					return fmt.Errorf("unmarshal field dns: %w", err)
+				}
 			}
 		case device.FieldPublicKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -193,6 +207,9 @@ func (d *Device) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(d.Type)
+	builder.WriteString(", ")
+	builder.WriteString("dns=")
+	builder.WriteString(fmt.Sprintf("%v", d.DNS))
 	builder.WriteString(", ")
 	builder.WriteString("public_key=")
 	builder.WriteString(d.PublicKey)

@@ -65,6 +65,11 @@ func IDContainsFold(id string) predicate.Group {
 	return predicate.Group(sql.FieldContainsFold(FieldID, id))
 }
 
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldName, v))
+}
+
 // Scopes applies equality check predicate on the "scopes" field. It's identical to ScopesEQ.
 func Scopes(v controller.Scopes) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldScopes, v))
@@ -73,6 +78,71 @@ func Scopes(v controller.Scopes) predicate.Group {
 // Cidr applies equality check predicate on the "cidr" field. It's identical to CidrEQ.
 func Cidr(v types.Cidr) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldCidr, v))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.Group {
+	return predicate.Group(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.Group {
+	return predicate.Group(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.Group {
+	return predicate.Group(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.Group {
+	return predicate.Group(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.Group {
+	return predicate.Group(sql.FieldContainsFold(FieldName, v))
 }
 
 // ScopesEQ applies the EQ predicate on the "scopes" field.

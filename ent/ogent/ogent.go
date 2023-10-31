@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-faster/jx"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/user"
@@ -24,6 +25,10 @@ type OgentHandlerWiring struct {
 	ListApiKeyWire   func(ctx context.Context, es []*ent.ApiKey, params ListApiKeyParams) error
 	ReadApiKeyWire   func(ctx context.Context, e *ent.ApiKey, params ReadApiKeyParams) error
 
+	DeleteAuditWire func(ctx context.Context, params DeleteAuditParams) error
+	ListAuditWire   func(ctx context.Context, es []*ent.Audit, params ListAuditParams) error
+	ReadAuditWire   func(ctx context.Context, e *ent.Audit, params ReadAuditParams) error
+
 	CreateDeviceWire func(ctx context.Context, e *ent.DeviceCreate, req *CreateDeviceReq) error
 	DeleteDeviceWire func(ctx context.Context, params DeleteDeviceParams) error
 	ListDeviceWire   func(ctx context.Context, es []*ent.Device, params ListDeviceParams) error
@@ -31,9 +36,10 @@ type OgentHandlerWiring struct {
 	UpdateDeviceWire func(ctx context.Context, e *ent.DeviceUpdateOne, req *UpdateDeviceReq, params UpdateDeviceParams) error
 
 	CreateGroupWire func(ctx context.Context, e *ent.GroupCreate, req *CreateGroupReq) error
+	ReadGroupWire   func(ctx context.Context, e *ent.Group, params ReadGroupParams) error
+	UpdateGroupWire func(ctx context.Context, e *ent.GroupUpdateOne, req *UpdateGroupReq, params UpdateGroupParams) error
 	DeleteGroupWire func(ctx context.Context, params DeleteGroupParams) error
 	ListGroupWire   func(ctx context.Context, es []*ent.Group, params ListGroupParams) error
-	ReadGroupWire   func(ctx context.Context, e *ent.Group, params ReadGroupParams) error
 
 	CreateUserWire func(ctx context.Context, e *ent.UserCreate, req *CreateUserReq) error
 	DeleteUserWire func(ctx context.Context, params DeleteUserParams) error
@@ -48,6 +54,10 @@ func newOgentHandlerWiring() *OgentHandlerWiring {
 		ListApiKeyWire:   func(ctx context.Context, es []*ent.ApiKey, params ListApiKeyParams) error { return nil },
 		ReadApiKeyWire:   func(ctx context.Context, e *ent.ApiKey, params ReadApiKeyParams) error { return nil },
 
+		DeleteAuditWire: func(ctx context.Context, params DeleteAuditParams) error { return nil },
+		ListAuditWire:   func(ctx context.Context, es []*ent.Audit, params ListAuditParams) error { return nil },
+		ReadAuditWire:   func(ctx context.Context, e *ent.Audit, params ReadAuditParams) error { return nil },
+
 		CreateDeviceWire: func(ctx context.Context, e *ent.DeviceCreate, req *CreateDeviceReq) error { return nil },
 		DeleteDeviceWire: func(ctx context.Context, params DeleteDeviceParams) error { return nil },
 		ListDeviceWire:   func(ctx context.Context, es []*ent.Device, params ListDeviceParams) error { return nil },
@@ -57,9 +67,12 @@ func newOgentHandlerWiring() *OgentHandlerWiring {
 		},
 
 		CreateGroupWire: func(ctx context.Context, e *ent.GroupCreate, req *CreateGroupReq) error { return nil },
+		ReadGroupWire:   func(ctx context.Context, e *ent.Group, params ReadGroupParams) error { return nil },
+		UpdateGroupWire: func(ctx context.Context, e *ent.GroupUpdateOne, req *UpdateGroupReq, params UpdateGroupParams) error {
+			return nil
+		},
 		DeleteGroupWire: func(ctx context.Context, params DeleteGroupParams) error { return nil },
 		ListGroupWire:   func(ctx context.Context, es []*ent.Group, params ListGroupParams) error { return nil },
-		ReadGroupWire:   func(ctx context.Context, e *ent.Group, params ReadGroupParams) error { return nil },
 
 		CreateUserWire: func(ctx context.Context, e *ent.UserCreate, req *CreateUserReq) error { return nil },
 		DeleteUserWire: func(ctx context.Context, params DeleteUserParams) error { return nil },
@@ -99,6 +112,18 @@ func (h *OgentHandler) SetWiring(wires *OgentHandlerWiring) {
 		h.wires.ReadApiKeyWire = wires.ReadApiKeyWire
 	}
 
+	if wires.DeleteAuditWire != nil {
+		h.wires.DeleteAuditWire = wires.DeleteAuditWire
+	}
+
+	if wires.ListAuditWire != nil {
+		h.wires.ListAuditWire = wires.ListAuditWire
+	}
+
+	if wires.ReadAuditWire != nil {
+		h.wires.ReadAuditWire = wires.ReadAuditWire
+	}
+
 	if wires.CreateDeviceWire != nil {
 		h.wires.CreateDeviceWire = wires.CreateDeviceWire
 	}
@@ -123,16 +148,20 @@ func (h *OgentHandler) SetWiring(wires *OgentHandlerWiring) {
 		h.wires.CreateGroupWire = wires.CreateGroupWire
 	}
 
+	if wires.ReadGroupWire != nil {
+		h.wires.ReadGroupWire = wires.ReadGroupWire
+	}
+
+	if wires.UpdateGroupWire != nil {
+		h.wires.UpdateGroupWire = wires.UpdateGroupWire
+	}
+
 	if wires.DeleteGroupWire != nil {
 		h.wires.DeleteGroupWire = wires.DeleteGroupWire
 	}
 
 	if wires.ListGroupWire != nil {
 		h.wires.ListGroupWire = wires.ListGroupWire
-	}
-
-	if wires.ReadGroupWire != nil {
-		h.wires.ReadGroupWire = wires.ReadGroupWire
 	}
 
 	if wires.CreateUserWire != nil {
@@ -263,11 +292,11 @@ func (h *OgentHandler) DeleteApiKey(ctx context.Context, params DeleteApiKeyPara
 func (h *OgentHandler) ListApiKey(ctx context.Context, params ListApiKeyParams) (ListApiKeyRes, error) {
 	q := h.client.ApiKey.Query()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -301,27 +330,7 @@ func (h *OgentHandler) ListApiKey(ctx context.Context, params ListApiKeyParams) 
 		}, nil
 	}
 	r := NewApiKeyLists(es)
-	countQuery, err := h.client.ApiKey.Query().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListApiKeyOKHeaders{Response: r, XTotal: countQuery}, nil
+	return (*ListApiKeyOKApplicationJSON)(&r), nil
 }
 
 // ReadApiKey handles GET /api-keys/{id} requests.
@@ -382,6 +391,145 @@ func (h *OgentHandler) ReadApiKeyUser(ctx context.Context, params ReadApiKeyUser
 		}
 	}
 	return NewApiKeyUserRead(e), nil
+}
+
+// DeleteAudit handles DELETE /audits/{id} requests.
+func (h *OgentHandler) DeleteAudit(ctx context.Context, params DeleteAuditParams) (DeleteAuditRes, error) {
+	// Add Wiring
+	if err := h.wires.DeleteAuditWire(ctx, params); err != nil {
+		return &R500{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusConflict),
+			Errors: rawError(err),
+		}, nil
+	}
+	err := h.client.Audit.DeleteOneID(params.ID).Exec(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsConstraintError(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return new(DeleteAuditNoContent), nil
+
+}
+
+// ListAudit handles GET /audits requests.
+func (h *OgentHandler) ListAudit(ctx context.Context, params ListAuditParams) (ListAuditRes, error) {
+	q := h.client.Audit.Query()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Add Wiring
+	if err := h.wires.ListAuditWire(ctx, es, params); err != nil {
+		return &R500{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusConflict),
+			Errors: rawError(err),
+		}, nil
+	}
+	r := NewAuditLists(es)
+	return (*ListAuditOKApplicationJSON)(&r), nil
+}
+
+// ReadAudit handles GET /audits/{id} requests.
+func (h *OgentHandler) ReadAudit(ctx context.Context, params ReadAuditParams) (ReadAuditRes, error) {
+	q := h.client.Audit.Query().Where(audit.IDEQ(params.ID))
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Add Wiring
+	if err := h.wires.ReadAuditWire(ctx, e, params); err != nil {
+		return &R500{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusConflict),
+			Errors: rawError(err),
+		}, nil
+	}
+	return NewAuditRead(e), nil
+}
+
+// ReadAuditUser handles GET /audits/{id}/user requests.
+func (h *OgentHandler) ReadAuditUser(ctx context.Context, params ReadAuditUserParams) (ReadAuditUserRes, error) {
+	q := h.client.Audit.Query().Where(audit.IDEQ(params.ID)).QueryUser()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewAuditUserRead(e), nil
 }
 
 // CreateDevice handles POST /devices requests.
@@ -475,11 +623,11 @@ func (h *OgentHandler) DeleteDevice(ctx context.Context, params DeleteDevicePara
 func (h *OgentHandler) ListDevice(ctx context.Context, params ListDeviceParams) (ListDeviceRes, error) {
 	q := h.client.Device.Query()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -513,27 +661,7 @@ func (h *OgentHandler) ListDevice(ctx context.Context, params ListDeviceParams) 
 		}, nil
 	}
 	r := NewDeviceLists(es)
-	countQuery, err := h.client.Device.Query().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListDeviceOKHeaders{Response: r, XTotal: countQuery}, nil
+	return (*ListDeviceOKApplicationJSON)(&r), nil
 }
 
 // ReadDevice handles GET /devices/{id} requests.
@@ -583,6 +711,10 @@ func (h *OgentHandler) UpdateDevice(ctx context.Context, req *UpdateDeviceReq, p
 	if v, ok := req.Type.Get(); ok {
 		b.SetType(v)
 	}
+	if req.DNS != nil {
+		v := req.DNS
+		b.SetDNS(JsonConvert(v, []string{}).([]string))
+	}
 	if v, ok := req.Endpoint.Get(); ok {
 		b.SetEndpoint(types.Inet{}.ParseString(v))
 	}
@@ -590,9 +722,6 @@ func (h *OgentHandler) UpdateDevice(ctx context.Context, req *UpdateDeviceReq, p
 		b.SetAllowedIps(v)
 	}
 	// Add all edges.
-	if v, ok := req.User.Get(); ok {
-		b.SetUserID(v)
-	}
 	// Add Wiring
 	if err := h.wires.UpdateDeviceWire(ctx, b, req, params); err != nil {
 		return &R500{
@@ -662,6 +791,7 @@ func (h *OgentHandler) ReadDeviceUser(ctx context.Context, params ReadDeviceUser
 func (h *OgentHandler) CreateGroup(ctx context.Context, req *CreateGroupReq) (CreateGroupRes, error) {
 	b := h.client.Group.Create()
 	// Add all fields.
+	b.SetName(req.Name)
 	b.SetScopes(JsonConvert(req.Scopes, controller.Scopes{}).(controller.Scopes))
 	b.SetCidr(types.Cidr{}.ParseString(req.Cidr))
 	b.SetRules(JsonConvert(req.Rules, []types.Rule{}).([]types.Rule))
@@ -706,6 +836,101 @@ func (h *OgentHandler) CreateGroup(ctx context.Context, req *CreateGroupReq) (Cr
 	return NewGroupCreate(e), nil
 }
 
+// ReadGroup handles GET /groups/{id} requests.
+func (h *OgentHandler) ReadGroup(ctx context.Context, params ReadGroupParams) (ReadGroupRes, error) {
+	q := h.client.Group.Query().Where(group.IDEQ(params.ID))
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Add Wiring
+	if err := h.wires.ReadGroupWire(ctx, e, params); err != nil {
+		return &R500{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusConflict),
+			Errors: rawError(err),
+		}, nil
+	}
+	return NewGroupRead(e), nil
+}
+
+// UpdateGroup handles PATCH /groups/{id} requests.
+func (h *OgentHandler) UpdateGroup(ctx context.Context, req *UpdateGroupReq, params UpdateGroupParams) (UpdateGroupRes, error) {
+	b := h.client.Group.UpdateOneID(params.ID)
+	// Add all fields.
+	if v, ok := req.Name.Get(); ok {
+		b.SetName(v)
+	}
+	if req.Scopes != nil {
+		v := req.Scopes
+		b.SetScopes(JsonConvert(v, controller.Scopes{}).(controller.Scopes))
+	}
+	if v, ok := req.Cidr.Get(); ok {
+		b.SetCidr(types.Cidr{}.ParseString(v))
+	}
+	if req.Rules != nil {
+		v := req.Rules
+		b.SetRules(JsonConvert(v, []types.Rule{}).([]types.Rule))
+	}
+	// Add all edges.
+	if req.Users != nil {
+		b.ClearUsers().AddUserIDs(req.Users...)
+	}
+	// Add Wiring
+	if err := h.wires.UpdateGroupWire(ctx, b, req, params); err != nil {
+		return &R500{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusConflict),
+			Errors: rawError(err),
+		}, nil
+	}
+	// Persist to storage.
+	e, err := b.Save(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsConstraintError(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Reload the entity to attach all eager-loaded edges.
+	q := h.client.Group.Query().Where(group.ID(e.ID))
+	e, err = q.Only(ctx)
+	if err != nil {
+		// This should never happen.
+		return nil, err
+	}
+	return NewGroupUpdate(e), nil
+}
+
 // DeleteGroup handles DELETE /groups/{id} requests.
 func (h *OgentHandler) DeleteGroup(ctx context.Context, params DeleteGroupParams) (DeleteGroupRes, error) {
 	// Add Wiring
@@ -744,11 +969,11 @@ func (h *OgentHandler) DeleteGroup(ctx context.Context, params DeleteGroupParams
 func (h *OgentHandler) ListGroup(ctx context.Context, params ListGroupParams) (ListGroupRes, error) {
 	q := h.client.Group.Query()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -782,72 +1007,18 @@ func (h *OgentHandler) ListGroup(ctx context.Context, params ListGroupParams) (L
 		}, nil
 	}
 	r := NewGroupLists(es)
-	countQuery, err := h.client.Group.Query().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListGroupOKHeaders{Response: r, XTotal: countQuery}, nil
-}
-
-// ReadGroup handles GET /groups/{id} requests.
-func (h *OgentHandler) ReadGroup(ctx context.Context, params ReadGroupParams) (ReadGroupRes, error) {
-	q := h.client.Group.Query().Where(group.IDEQ(params.ID))
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	// Add Wiring
-	if err := h.wires.ReadGroupWire(ctx, e, params); err != nil {
-		return &R500{
-			Code:   http.StatusInternalServerError,
-			Status: http.StatusText(http.StatusConflict),
-			Errors: rawError(err),
-		}, nil
-	}
-	return NewGroupRead(e), nil
+	return (*ListGroupOKApplicationJSON)(&r), nil
 }
 
 // ListGroupUsers handles GET /groups/{id}/users requests.
 func (h *OgentHandler) ListGroupUsers(ctx context.Context, params ListGroupUsersParams) (ListGroupUsersRes, error) {
 	q := h.client.Group.Query().Where(group.IDEQ(params.ID)).QueryUsers()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -872,27 +1043,7 @@ func (h *OgentHandler) ListGroupUsers(ctx context.Context, params ListGroupUsers
 		}
 	}
 	r := NewGroupUsersLists(es)
-	countQuery, err := h.client.Group.Query().Where(group.IDEQ(params.ID)).QueryUsers().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListGroupUsersOKHeaders{Response: r, XTotal: countQuery}, nil
+	return (*ListGroupUsersOKApplicationJSON)(&r), nil
 }
 
 // CreateUser handles POST /users requests.
@@ -920,6 +1071,7 @@ func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (Crea
 	b.SetGroupID(req.Group)
 	b.AddDeviceIDs(req.Devices...)
 	b.AddKeyIDs(req.Keys...)
+	b.AddAuditIDs(req.Audit...)
 	// Add Wiring
 	if err := h.wires.CreateUserWire(ctx, b, req); err != nil {
 		return &R500{
@@ -997,11 +1149,11 @@ func (h *OgentHandler) DeleteUser(ctx context.Context, params DeleteUserParams) 
 func (h *OgentHandler) ListUser(ctx context.Context, params ListUserParams) (ListUserRes, error) {
 	q := h.client.User.Query()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1035,27 +1187,7 @@ func (h *OgentHandler) ListUser(ctx context.Context, params ListUserParams) (Lis
 		}, nil
 	}
 	r := NewUserLists(es)
-	countQuery, err := h.client.User.Query().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListUserOKHeaders{Response: r, XTotal: countQuery}, nil
+	return (*ListUserOKApplicationJSON)(&r), nil
 }
 
 // ReadUser handles GET /users/{id} requests.
@@ -1130,6 +1262,9 @@ func (h *OgentHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, param
 	if req.Keys != nil {
 		b.ClearKeys().AddKeyIDs(req.Keys...)
 	}
+	if req.Audit != nil {
+		b.ClearAudit().AddAuditIDs(req.Audit...)
+	}
 	// Add Wiring
 	if err := h.wires.UpdateUserWire(ctx, b, req, params); err != nil {
 		return &R500{
@@ -1199,11 +1334,11 @@ func (h *OgentHandler) ReadUserGroup(ctx context.Context, params ReadUserGroupPa
 func (h *OgentHandler) ListUserDevices(ctx context.Context, params ListUserDevicesParams) (ListUserDevicesRes, error) {
 	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryDevices()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1228,38 +1363,18 @@ func (h *OgentHandler) ListUserDevices(ctx context.Context, params ListUserDevic
 		}
 	}
 	r := NewUserDevicesLists(es)
-	countQuery, err := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryDevices().Count(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return &ListUserDevicesOKHeaders{Response: r, XTotal: countQuery}, nil
+	return (*ListUserDevicesOKApplicationJSON)(&r), nil
 }
 
 // ListUserKeys handles GET /users/{id}/keys requests.
 func (h *OgentHandler) ListUserKeys(ctx context.Context, params ListUserKeysParams) (ListUserKeysRes, error) {
 	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryKeys()
 	page := 1
-	if v, ok := params.XPage.Get(); ok {
+	if v, ok := params.Page.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.XItemsPerPage.Get(); ok {
+	if v, ok := params.ItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1284,7 +1399,22 @@ func (h *OgentHandler) ListUserKeys(ctx context.Context, params ListUserKeysPara
 		}
 	}
 	r := NewUserKeysLists(es)
-	countQuery, err := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryKeys().Count(ctx)
+	return (*ListUserKeysOKApplicationJSON)(&r), nil
+}
+
+// ListUserAudit handles GET /users/{id}/audit requests.
+func (h *OgentHandler) ListUserAudit(ctx context.Context, params ListUserAuditParams) (ListUserAuditRes, error) {
+	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryAudit()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
 	if err != nil {
 		switch {
 		case ent.IsNotFound(err):
@@ -1304,5 +1434,6 @@ func (h *OgentHandler) ListUserKeys(ctx context.Context, params ListUserKeysPara
 			return nil, err
 		}
 	}
-	return &ListUserKeysOKHeaders{Response: r, XTotal: countQuery}, nil
+	r := NewUserAuditLists(es)
+	return (*ListUserAuditOKApplicationJSON)(&r), nil
 }

@@ -28,10 +28,10 @@ import {
 export interface Device {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof Device
      */
-    id: number;
+    id: string;
     /**
      * 
      * @type {string}
@@ -50,6 +50,12 @@ export interface Device {
      * @memberof Device
      */
     type: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof Device
+     */
+    dns: Array<string>;
     /**
      * 
      * @type {string}
@@ -90,6 +96,7 @@ export function instanceOfDevice(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "dns" in value;
     isInstance = isInstance && "publicKey" in value;
     isInstance = isInstance && "presharedKey" in value;
     isInstance = isInstance && "endpoint" in value;
@@ -112,6 +119,7 @@ export function DeviceFromJSONTyped(json: any, ignoreDiscriminator: boolean): De
         'name': json['name'],
         'description': !exists(json, 'description') ? undefined : json['description'],
         'type': json['type'],
+        'dns': json['dns'],
         'publicKey': json['public_key'],
         'presharedKey': json['preshared_key'],
         'endpoint': json['endpoint'],
@@ -133,6 +141,7 @@ export function DeviceToJSON(value?: Device | null): any {
         'name': value.name,
         'description': value.description,
         'type': value.type,
+        'dns': value.dns,
         'public_key': value.publicKey,
         'preshared_key': value.presharedKey,
         'endpoint': value.endpoint,

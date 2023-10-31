@@ -24,7 +24,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stoewer/go-strcase v1.3.0
 	github.com/tiagoposse/entoas-fields-exclusion v0.0.0-20231018111014-2cb5449ad9a3
-	github.com/tiagoposse/go-auth v0.0.0-20231018131242-3a9051ec6074
+	github.com/tiagoposse/go-auth v0.0.0-20231026103543-536eb5be9604
 	github.com/tiagoposse/ogent-auth v0.0.0-20231018145057-f07425424dd2
 	go.opentelemetry.io/otel v1.19.0
 	go.opentelemetry.io/otel/metric v1.19.0
@@ -32,6 +32,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/oauth2 v0.13.0
+	golang.org/x/text v0.13.0
 	google.golang.org/api v0.147.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -93,7 +94,6 @@ require (
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231002182017-d307bd883b97 // indirect

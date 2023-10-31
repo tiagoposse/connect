@@ -2,8 +2,8 @@ package schema
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/internal/types"
 
 	"entgo.io/contrib/entoas"
@@ -26,7 +26,6 @@ type Group struct {
 // Annotations of the Group.
 func (Group) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entoas.UpdateOperation(entoas.OperationPolicy(entoas.PolicyExclude)),
 		ogauth.WithCreateScopes(types.AdminAll, types.AdminGroupsWrite),
 		ogauth.WithUpdateScopes(types.AdminAll, types.AdminGroupsWrite),
 		ogauth.WithDeleteScopes(types.AdminAll, types.AdminGroupsWrite),
@@ -38,16 +37,18 @@ func (Group) Annotations() []schema.Annotation {
 // Fields of the Group.
 func (Group) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id"),
+		field.String("id").DefaultFunc(func() string {
+			// An example of a dumb ID generator - use a production-ready alternative instead.
+			uuid, _ := uuid.NewUUID()
+			return uuid.String()
+		}),
+		field.String("name"),
 		field.Other("scopes", authz.Scopes{}).
 			SchemaType(map[string]string{dialect.Postgres: "varchar"}).
 			Default(authz.Scopes{types.UserAll}).
 			Annotations(
 				entoas.Schema(ogen.String().
-					AsEnum(nil,
-						json.RawMessage(fmt.Sprintf(`"%s"`, types.UserAll)),
-						json.RawMessage(fmt.Sprintf(`"%s"`, types.AdminAll)),
-					).
+					AsEnum(nil, types.AllScopes.ToRaw()...).
 					AsArray(),
 				),
 			),

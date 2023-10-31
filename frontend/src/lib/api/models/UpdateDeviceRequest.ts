@@ -39,6 +39,12 @@ export interface UpdateDeviceRequest {
     type?: string;
     /**
      * 
+     * @type {Array<string>}
+     * @memberof UpdateDeviceRequest
+     */
+    dns?: Array<string>;
+    /**
+     * 
      * @type {string}
      * @memberof UpdateDeviceRequest
      */
@@ -79,6 +85,7 @@ export function UpdateDeviceRequestFromJSONTyped(json: any, ignoreDiscriminator:
         'name': !exists(json, 'name') ? undefined : json['name'],
         'description': !exists(json, 'description') ? undefined : json['description'],
         'type': !exists(json, 'type') ? undefined : json['type'],
+        'dns': !exists(json, 'dns') ? undefined : json['dns'],
         'endpoint': !exists(json, 'endpoint') ? undefined : json['endpoint'],
         'allowedIps': !exists(json, 'allowed_ips') ? undefined : json['allowed_ips'],
         'user': !exists(json, 'user') ? undefined : json['user'],
@@ -97,6 +104,7 @@ export function UpdateDeviceRequestToJSON(value?: UpdateDeviceRequest | null): a
         'name': value.name,
         'description': value.description,
         'type': value.type,
+        'dns': value.dns,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
         'user': value.user,

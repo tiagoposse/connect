@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/tiagoposse/connect/ent"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/predicate"
@@ -98,6 +99,33 @@ func (f TraverseApiKey) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ApiKeyQuery", q)
 }
 
+// The AuditFunc type is an adapter to allow the use of ordinary function as a Querier.
+type AuditFunc func(context.Context, *ent.AuditQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f AuditFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.AuditQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.AuditQuery", q)
+}
+
+// The TraverseAudit type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseAudit func(context.Context, *ent.AuditQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseAudit) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseAudit) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AuditQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.AuditQuery", q)
+}
+
 // The DeviceFunc type is an adapter to allow the use of ordinary function as a Querier.
 type DeviceFunc func(context.Context, *ent.DeviceQuery) (ent.Value, error)
 
@@ -184,6 +212,8 @@ func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
 	case *ent.ApiKeyQuery:
 		return &query[*ent.ApiKeyQuery, predicate.ApiKey, apikey.OrderOption]{typ: ent.TypeApiKey, tq: q}, nil
+	case *ent.AuditQuery:
+		return &query[*ent.AuditQuery, predicate.Audit, audit.OrderOption]{typ: ent.TypeAudit, tq: q}, nil
 	case *ent.DeviceQuery:
 		return &query[*ent.DeviceQuery, predicate.Device, device.OrderOption]{typ: ent.TypeDevice, tq: q}, nil
 	case *ent.GroupQuery:

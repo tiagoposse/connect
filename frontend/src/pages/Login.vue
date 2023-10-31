@@ -29,7 +29,6 @@ const login = async () => {
       username: loginData.value.username,
       password: loginData.value.password,
     }
-
   })
 }
 

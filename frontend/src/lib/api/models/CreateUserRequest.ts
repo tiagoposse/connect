@@ -81,16 +81,22 @@ export interface CreateUserRequest {
     group: string;
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof CreateUserRequest
      */
-    devices?: Array<number>;
+    devices?: Array<string>;
     /**
      * 
      * @type {Array<number>}
      * @memberof CreateUserRequest
      */
     keys?: Array<number>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CreateUserRequest
+     */
+    audit?: Array<string>;
 }
 
 /**
@@ -130,6 +136,7 @@ export function CreateUserRequestFromJSONTyped(json: any, ignoreDiscriminator: b
         'group': json['group'],
         'devices': !exists(json, 'devices') ? undefined : json['devices'],
         'keys': !exists(json, 'keys') ? undefined : json['keys'],
+        'audit': !exists(json, 'audit') ? undefined : json['audit'],
     };
 }
 
@@ -154,6 +161,7 @@ export function CreateUserRequestToJSON(value?: CreateUserRequest | null): any {
         'group': value.group,
         'devices': value.devices,
         'keys': value.keys,
+        'audit': value.audit,
     };
 }
 

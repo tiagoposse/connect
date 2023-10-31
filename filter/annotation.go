@@ -15,6 +15,7 @@ type Annotation struct {
 	NoPagination bool
 }
 
+
 // Merge implements ent.Merger interface.
 func (a Annotation) Merge(o schema.Annotation) schema.Annotation {
 	var ant Annotation
@@ -60,6 +61,20 @@ func (a Annotation) Merge(o schema.Annotation) schema.Annotation {
 
 func (Annotation) Name() string {
 	return "ListOperations"
+}
+
+func WithFieldFilter(fields ...string) Annotation {
+	fs := make([]*Opt, 0)
+	for _, f := range fields {
+		fs = append(fs, &Opt{
+			In: "query",
+			Name: f,
+		})
+	}
+
+	return Annotation{
+		FilterFields: fs,
+	}
 }
 
 // Decode from ent.

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
+	"github.com/google/uuid"
 )
 
 type ApiKeyAuth struct {
@@ -355,6 +356,176 @@ func (s *ApiKeyUserRead) SetDisabledReason(val OptString) {
 
 func (*ApiKeyUserRead) readApiKeyUserRes() {}
 
+// Ref: #/components/schemas/AuditList
+type AuditList struct {
+	ID     string `json:"id"`
+	Action string `json:"action"`
+	Author string `json:"author"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditList) GetID() string {
+	return s.ID
+}
+
+// GetAction returns the value of Action.
+func (s *AuditList) GetAction() string {
+	return s.Action
+}
+
+// GetAuthor returns the value of Author.
+func (s *AuditList) GetAuthor() string {
+	return s.Author
+}
+
+// SetID sets the value of ID.
+func (s *AuditList) SetID(val string) {
+	s.ID = val
+}
+
+// SetAction sets the value of Action.
+func (s *AuditList) SetAction(val string) {
+	s.Action = val
+}
+
+// SetAuthor sets the value of Author.
+func (s *AuditList) SetAuthor(val string) {
+	s.Author = val
+}
+
+// Ref: #/components/schemas/AuditRead
+type AuditRead struct {
+	ID     string `json:"id"`
+	Action string `json:"action"`
+	Author string `json:"author"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditRead) GetID() string {
+	return s.ID
+}
+
+// GetAction returns the value of Action.
+func (s *AuditRead) GetAction() string {
+	return s.Action
+}
+
+// GetAuthor returns the value of Author.
+func (s *AuditRead) GetAuthor() string {
+	return s.Author
+}
+
+// SetID sets the value of ID.
+func (s *AuditRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetAction sets the value of Action.
+func (s *AuditRead) SetAction(val string) {
+	s.Action = val
+}
+
+// SetAuthor sets the value of Author.
+func (s *AuditRead) SetAuthor(val string) {
+	s.Author = val
+}
+
+func (*AuditRead) readAuditRes() {}
+
+// Ref: #/components/schemas/Audit_UserRead
+type AuditUserRead struct {
+	ID             string    `json:"id"`
+	Email          string    `json:"email"`
+	Firstname      string    `json:"firstname"`
+	Lastname       string    `json:"lastname"`
+	Provider       string    `json:"provider"`
+	PhotoURL       OptString `json:"photo_url"`
+	Disabled       bool      `json:"disabled"`
+	DisabledReason OptString `json:"disabled_reason"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditUserRead) GetID() string {
+	return s.ID
+}
+
+// GetEmail returns the value of Email.
+func (s *AuditUserRead) GetEmail() string {
+	return s.Email
+}
+
+// GetFirstname returns the value of Firstname.
+func (s *AuditUserRead) GetFirstname() string {
+	return s.Firstname
+}
+
+// GetLastname returns the value of Lastname.
+func (s *AuditUserRead) GetLastname() string {
+	return s.Lastname
+}
+
+// GetProvider returns the value of Provider.
+func (s *AuditUserRead) GetProvider() string {
+	return s.Provider
+}
+
+// GetPhotoURL returns the value of PhotoURL.
+func (s *AuditUserRead) GetPhotoURL() OptString {
+	return s.PhotoURL
+}
+
+// GetDisabled returns the value of Disabled.
+func (s *AuditUserRead) GetDisabled() bool {
+	return s.Disabled
+}
+
+// GetDisabledReason returns the value of DisabledReason.
+func (s *AuditUserRead) GetDisabledReason() OptString {
+	return s.DisabledReason
+}
+
+// SetID sets the value of ID.
+func (s *AuditUserRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetEmail sets the value of Email.
+func (s *AuditUserRead) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetFirstname sets the value of Firstname.
+func (s *AuditUserRead) SetFirstname(val string) {
+	s.Firstname = val
+}
+
+// SetLastname sets the value of Lastname.
+func (s *AuditUserRead) SetLastname(val string) {
+	s.Lastname = val
+}
+
+// SetProvider sets the value of Provider.
+func (s *AuditUserRead) SetProvider(val string) {
+	s.Provider = val
+}
+
+// SetPhotoURL sets the value of PhotoURL.
+func (s *AuditUserRead) SetPhotoURL(val OptString) {
+	s.PhotoURL = val
+}
+
+// SetDisabled sets the value of Disabled.
+func (s *AuditUserRead) SetDisabled(val bool) {
+	s.Disabled = val
+}
+
+// SetDisabledReason sets the value of DisabledReason.
+func (s *AuditUserRead) SetDisabledReason(val OptString) {
+	s.DisabledReason = val
+}
+
+func (*AuditUserRead) readAuditUserRes() {}
+
 type CookieAuth struct {
 	APIKey string
 }
@@ -516,10 +687,16 @@ func (s *CreateDeviceReq) SetUser(val OptString) {
 }
 
 type CreateGroupReq struct {
+	Name   string                     `json:"name"`
 	Scopes []CreateGroupReqScopesItem `json:"scopes"`
 	Cidr   string                     `json:"cidr"`
 	Rules  []CreateGroupReqRulesItem  `json:"rules"`
 	Users  []string                   `json:"users"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateGroupReq) GetName() string {
+	return s.Name
 }
 
 // GetScopes returns the value of Scopes.
@@ -540,6 +717,11 @@ func (s *CreateGroupReq) GetRules() []CreateGroupReqRulesItem {
 // GetUsers returns the value of Users.
 func (s *CreateGroupReq) GetUsers() []string {
 	return s.Users
+}
+
+// SetName sets the value of Name.
+func (s *CreateGroupReq) SetName(val string) {
+	s.Name = val
 }
 
 // SetScopes sets the value of Scopes.
@@ -642,24 +824,68 @@ func (s *CreateGroupReqRulesItemType) UnmarshalText(data []byte) error {
 type CreateGroupReqScopesItem string
 
 const (
-	CreateGroupReqScopesItemUser  CreateGroupReqScopesItem = "user.*"
-	CreateGroupReqScopesItemAdmin CreateGroupReqScopesItem = "admin.*"
+	CreateGroupReqScopesItemAdminUsersWrite       CreateGroupReqScopesItem = "admin.users.write"
+	CreateGroupReqScopesItemAdminUsersReadonly    CreateGroupReqScopesItem = "admin.users.readonly"
+	CreateGroupReqScopesItemAdminGroupsWrite      CreateGroupReqScopesItem = "admin.groups.write"
+	CreateGroupReqScopesItemAdminGroupsReadonly   CreateGroupReqScopesItem = "admin.groups.readonly"
+	CreateGroupReqScopesItemAdminDevicesWrite     CreateGroupReqScopesItem = "admin.devices.write"
+	CreateGroupReqScopesItemAdminDevicesReadonly  CreateGroupReqScopesItem = "admin.devices.readonly"
+	CreateGroupReqScopesItemAdminSettingsWrite    CreateGroupReqScopesItem = "admin.settings.write"
+	CreateGroupReqScopesItemAdminSettingsReadonly CreateGroupReqScopesItem = "admin.settings.readonly"
+	CreateGroupReqScopesItemAdmin                 CreateGroupReqScopesItem = "admin.*"
+	CreateGroupReqScopesItemUserDevicesWrite      CreateGroupReqScopesItem = "user.devices.write"
+	CreateGroupReqScopesItemUserApikeyWrite       CreateGroupReqScopesItem = "user.apikey.write"
+	CreateGroupReqScopesItemUserDevicesReadonly   CreateGroupReqScopesItem = "user.devices.readonly"
+	CreateGroupReqScopesItemUser                  CreateGroupReqScopesItem = "user.*"
 )
 
 // AllValues returns all CreateGroupReqScopesItem values.
 func (CreateGroupReqScopesItem) AllValues() []CreateGroupReqScopesItem {
 	return []CreateGroupReqScopesItem{
-		CreateGroupReqScopesItemUser,
+		CreateGroupReqScopesItemAdminUsersWrite,
+		CreateGroupReqScopesItemAdminUsersReadonly,
+		CreateGroupReqScopesItemAdminGroupsWrite,
+		CreateGroupReqScopesItemAdminGroupsReadonly,
+		CreateGroupReqScopesItemAdminDevicesWrite,
+		CreateGroupReqScopesItemAdminDevicesReadonly,
+		CreateGroupReqScopesItemAdminSettingsWrite,
+		CreateGroupReqScopesItemAdminSettingsReadonly,
 		CreateGroupReqScopesItemAdmin,
+		CreateGroupReqScopesItemUserDevicesWrite,
+		CreateGroupReqScopesItemUserApikeyWrite,
+		CreateGroupReqScopesItemUserDevicesReadonly,
+		CreateGroupReqScopesItemUser,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s CreateGroupReqScopesItem) MarshalText() ([]byte, error) {
 	switch s {
-	case CreateGroupReqScopesItemUser:
+	case CreateGroupReqScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemAdminSettingsReadonly:
 		return []byte(s), nil
 	case CreateGroupReqScopesItemAdmin:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case CreateGroupReqScopesItemUser:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -669,11 +895,44 @@ func (s CreateGroupReqScopesItem) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *CreateGroupReqScopesItem) UnmarshalText(data []byte) error {
 	switch CreateGroupReqScopesItem(data) {
-	case CreateGroupReqScopesItemUser:
-		*s = CreateGroupReqScopesItemUser
+	case CreateGroupReqScopesItemAdminUsersWrite:
+		*s = CreateGroupReqScopesItemAdminUsersWrite
+		return nil
+	case CreateGroupReqScopesItemAdminUsersReadonly:
+		*s = CreateGroupReqScopesItemAdminUsersReadonly
+		return nil
+	case CreateGroupReqScopesItemAdminGroupsWrite:
+		*s = CreateGroupReqScopesItemAdminGroupsWrite
+		return nil
+	case CreateGroupReqScopesItemAdminGroupsReadonly:
+		*s = CreateGroupReqScopesItemAdminGroupsReadonly
+		return nil
+	case CreateGroupReqScopesItemAdminDevicesWrite:
+		*s = CreateGroupReqScopesItemAdminDevicesWrite
+		return nil
+	case CreateGroupReqScopesItemAdminDevicesReadonly:
+		*s = CreateGroupReqScopesItemAdminDevicesReadonly
+		return nil
+	case CreateGroupReqScopesItemAdminSettingsWrite:
+		*s = CreateGroupReqScopesItemAdminSettingsWrite
+		return nil
+	case CreateGroupReqScopesItemAdminSettingsReadonly:
+		*s = CreateGroupReqScopesItemAdminSettingsReadonly
 		return nil
 	case CreateGroupReqScopesItemAdmin:
 		*s = CreateGroupReqScopesItemAdmin
+		return nil
+	case CreateGroupReqScopesItemUserDevicesWrite:
+		*s = CreateGroupReqScopesItemUserDevicesWrite
+		return nil
+	case CreateGroupReqScopesItemUserApikeyWrite:
+		*s = CreateGroupReqScopesItemUserApikeyWrite
+		return nil
+	case CreateGroupReqScopesItemUserDevicesReadonly:
+		*s = CreateGroupReqScopesItemUserDevicesReadonly
+		return nil
+	case CreateGroupReqScopesItemUser:
+		*s = CreateGroupReqScopesItemUser
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -681,18 +940,19 @@ func (s *CreateGroupReqScopesItem) UnmarshalText(data []byte) error {
 }
 
 type CreateUserReq struct {
-	Email          string    `json:"email"`
-	Firstname      string    `json:"firstname"`
-	Lastname       string    `json:"lastname"`
-	Provider       string    `json:"provider"`
-	Password       OptString `json:"password"`
-	Salt           OptString `json:"salt"`
-	PhotoURL       OptString `json:"photo_url"`
-	Disabled       bool      `json:"disabled"`
-	DisabledReason OptString `json:"disabled_reason"`
-	Group          string    `json:"group"`
-	Devices        []int     `json:"devices"`
-	Keys           []int     `json:"keys"`
+	Email          string      `json:"email"`
+	Firstname      string      `json:"firstname"`
+	Lastname       string      `json:"lastname"`
+	Provider       string      `json:"provider"`
+	Password       OptString   `json:"password"`
+	Salt           OptString   `json:"salt"`
+	PhotoURL       OptString   `json:"photo_url"`
+	Disabled       bool        `json:"disabled"`
+	DisabledReason OptString   `json:"disabled_reason"`
+	Group          string      `json:"group"`
+	Devices        []uuid.UUID `json:"devices"`
+	Keys           []int       `json:"keys"`
+	Audit          []string    `json:"audit"`
 }
 
 // GetEmail returns the value of Email.
@@ -746,13 +1006,18 @@ func (s *CreateUserReq) GetGroup() string {
 }
 
 // GetDevices returns the value of Devices.
-func (s *CreateUserReq) GetDevices() []int {
+func (s *CreateUserReq) GetDevices() []uuid.UUID {
 	return s.Devices
 }
 
 // GetKeys returns the value of Keys.
 func (s *CreateUserReq) GetKeys() []int {
 	return s.Keys
+}
+
+// GetAudit returns the value of Audit.
+func (s *CreateUserReq) GetAudit() []string {
+	return s.Audit
 }
 
 // SetEmail sets the value of Email.
@@ -806,7 +1071,7 @@ func (s *CreateUserReq) SetGroup(val string) {
 }
 
 // SetDevices sets the value of Devices.
-func (s *CreateUserReq) SetDevices(val []int) {
+func (s *CreateUserReq) SetDevices(val []uuid.UUID) {
 	s.Devices = val
 }
 
@@ -815,10 +1080,20 @@ func (s *CreateUserReq) SetKeys(val []int) {
 	s.Keys = val
 }
 
+// SetAudit sets the value of Audit.
+func (s *CreateUserReq) SetAudit(val []string) {
+	s.Audit = val
+}
+
 // DeleteApiKeyNoContent is response for DeleteApiKey operation.
 type DeleteApiKeyNoContent struct{}
 
 func (*DeleteApiKeyNoContent) deleteApiKeyRes() {}
+
+// DeleteAuditNoContent is response for DeleteAudit operation.
+type DeleteAuditNoContent struct{}
+
+func (*DeleteAuditNoContent) deleteAuditRes() {}
 
 // DeleteDeviceNoContent is response for DeleteDevice operation.
 type DeleteDeviceNoContent struct{}
@@ -837,10 +1112,11 @@ func (*DeleteUserNoContent) deleteUserRes() {}
 
 // Ref: #/components/schemas/DeviceCreate
 type DeviceCreate struct {
-	ID           int       `json:"id"`
+	ID           uuid.UUID `json:"id"`
 	Name         string    `json:"name"`
 	Description  OptString `json:"description"`
 	Type         string    `json:"type"`
+	DNS          []string  `json:"dns"`
 	PublicKey    string    `json:"public_key"`
 	PresharedKey string    `json:"preshared_key"`
 	Endpoint     string    `json:"endpoint"`
@@ -848,7 +1124,7 @@ type DeviceCreate struct {
 }
 
 // GetID returns the value of ID.
-func (s *DeviceCreate) GetID() int {
+func (s *DeviceCreate) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -865,6 +1141,11 @@ func (s *DeviceCreate) GetDescription() OptString {
 // GetType returns the value of Type.
 func (s *DeviceCreate) GetType() string {
 	return s.Type
+}
+
+// GetDNS returns the value of DNS.
+func (s *DeviceCreate) GetDNS() []string {
+	return s.DNS
 }
 
 // GetPublicKey returns the value of PublicKey.
@@ -888,7 +1169,7 @@ func (s *DeviceCreate) GetAllowedIps() string {
 }
 
 // SetID sets the value of ID.
-func (s *DeviceCreate) SetID(val int) {
+func (s *DeviceCreate) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -905,6 +1186,11 @@ func (s *DeviceCreate) SetDescription(val OptString) {
 // SetType sets the value of Type.
 func (s *DeviceCreate) SetType(val string) {
 	s.Type = val
+}
+
+// SetDNS sets the value of DNS.
+func (s *DeviceCreate) SetDNS(val []string) {
+	s.DNS = val
 }
 
 // SetPublicKey sets the value of PublicKey.
@@ -931,17 +1217,18 @@ func (*DeviceCreate) createDeviceRes() {}
 
 // Ref: #/components/schemas/DeviceList
 type DeviceList struct {
-	ID          int       `json:"id"`
+	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	Type        string    `json:"type"`
+	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  string    `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
-func (s *DeviceList) GetID() int {
+func (s *DeviceList) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -960,6 +1247,11 @@ func (s *DeviceList) GetType() string {
 	return s.Type
 }
 
+// GetDNS returns the value of DNS.
+func (s *DeviceList) GetDNS() []string {
+	return s.DNS
+}
+
 // GetPublicKey returns the value of PublicKey.
 func (s *DeviceList) GetPublicKey() string {
 	return s.PublicKey
@@ -976,7 +1268,7 @@ func (s *DeviceList) GetAllowedIps() string {
 }
 
 // SetID sets the value of ID.
-func (s *DeviceList) SetID(val int) {
+func (s *DeviceList) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -993,6 +1285,11 @@ func (s *DeviceList) SetDescription(val OptString) {
 // SetType sets the value of Type.
 func (s *DeviceList) SetType(val string) {
 	s.Type = val
+}
+
+// SetDNS sets the value of DNS.
+func (s *DeviceList) SetDNS(val []string) {
+	s.DNS = val
 }
 
 // SetPublicKey sets the value of PublicKey.
@@ -1012,17 +1309,18 @@ func (s *DeviceList) SetAllowedIps(val string) {
 
 // Ref: #/components/schemas/DeviceRead
 type DeviceRead struct {
-	ID          int       `json:"id"`
+	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	Type        string    `json:"type"`
+	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  string    `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
-func (s *DeviceRead) GetID() int {
+func (s *DeviceRead) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -1041,6 +1339,11 @@ func (s *DeviceRead) GetType() string {
 	return s.Type
 }
 
+// GetDNS returns the value of DNS.
+func (s *DeviceRead) GetDNS() []string {
+	return s.DNS
+}
+
 // GetPublicKey returns the value of PublicKey.
 func (s *DeviceRead) GetPublicKey() string {
 	return s.PublicKey
@@ -1057,7 +1360,7 @@ func (s *DeviceRead) GetAllowedIps() string {
 }
 
 // SetID sets the value of ID.
-func (s *DeviceRead) SetID(val int) {
+func (s *DeviceRead) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -1074,6 +1377,11 @@ func (s *DeviceRead) SetDescription(val OptString) {
 // SetType sets the value of Type.
 func (s *DeviceRead) SetType(val string) {
 	s.Type = val
+}
+
+// SetDNS sets the value of DNS.
+func (s *DeviceRead) SetDNS(val []string) {
+	s.DNS = val
 }
 
 // SetPublicKey sets the value of PublicKey.
@@ -1095,17 +1403,18 @@ func (*DeviceRead) readDeviceRes() {}
 
 // Ref: #/components/schemas/DeviceUpdate
 type DeviceUpdate struct {
-	ID          int       `json:"id"`
+	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	Type        string    `json:"type"`
+	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  string    `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
-func (s *DeviceUpdate) GetID() int {
+func (s *DeviceUpdate) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -1124,6 +1433,11 @@ func (s *DeviceUpdate) GetType() string {
 	return s.Type
 }
 
+// GetDNS returns the value of DNS.
+func (s *DeviceUpdate) GetDNS() []string {
+	return s.DNS
+}
+
 // GetPublicKey returns the value of PublicKey.
 func (s *DeviceUpdate) GetPublicKey() string {
 	return s.PublicKey
@@ -1140,7 +1454,7 @@ func (s *DeviceUpdate) GetAllowedIps() string {
 }
 
 // SetID sets the value of ID.
-func (s *DeviceUpdate) SetID(val int) {
+func (s *DeviceUpdate) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -1157,6 +1471,11 @@ func (s *DeviceUpdate) SetDescription(val OptString) {
 // SetType sets the value of Type.
 func (s *DeviceUpdate) SetType(val string) {
 	s.Type = val
+}
+
+// SetDNS sets the value of DNS.
+func (s *DeviceUpdate) SetDNS(val []string) {
+	s.DNS = val
 }
 
 // SetPublicKey sets the value of PublicKey.
@@ -1282,27 +1601,27 @@ func (*GoogleAuthCallbackInternalServerError) googleAuthCallbackRes() {}
 
 // GoogleAuthCallbackMovedPermanently is response for GoogleAuthCallback operation.
 type GoogleAuthCallbackMovedPermanently struct {
-	Location  OptURI
-	SetCookie OptString
+	Location  url.URL
+	SetCookie string
 }
 
 // GetLocation returns the value of Location.
-func (s *GoogleAuthCallbackMovedPermanently) GetLocation() OptURI {
+func (s *GoogleAuthCallbackMovedPermanently) GetLocation() url.URL {
 	return s.Location
 }
 
 // GetSetCookie returns the value of SetCookie.
-func (s *GoogleAuthCallbackMovedPermanently) GetSetCookie() OptString {
+func (s *GoogleAuthCallbackMovedPermanently) GetSetCookie() string {
 	return s.SetCookie
 }
 
 // SetLocation sets the value of Location.
-func (s *GoogleAuthCallbackMovedPermanently) SetLocation(val OptURI) {
+func (s *GoogleAuthCallbackMovedPermanently) SetLocation(val url.URL) {
 	s.Location = val
 }
 
 // SetSetCookie sets the value of SetCookie.
-func (s *GoogleAuthCallbackMovedPermanently) SetSetCookie(val OptString) {
+func (s *GoogleAuthCallbackMovedPermanently) SetSetCookie(val string) {
 	s.SetCookie = val
 }
 
@@ -1345,16 +1664,16 @@ func (*GoogleAuthStartBadRequest) googleAuthStartRes() {}
 
 // GoogleAuthStartMovedPermanently is response for GoogleAuthStart operation.
 type GoogleAuthStartMovedPermanently struct {
-	Location OptURI
+	Location url.URL
 }
 
 // GetLocation returns the value of Location.
-func (s *GoogleAuthStartMovedPermanently) GetLocation() OptURI {
+func (s *GoogleAuthStartMovedPermanently) GetLocation() url.URL {
 	return s.Location
 }
 
 // SetLocation sets the value of Location.
-func (s *GoogleAuthStartMovedPermanently) SetLocation(val OptURI) {
+func (s *GoogleAuthStartMovedPermanently) SetLocation(val url.URL) {
 	s.Location = val
 }
 
@@ -1373,6 +1692,7 @@ func (*GoogleAuthSyncOK) googleAuthSyncRes() {}
 // Ref: #/components/schemas/GroupCreate
 type GroupCreate struct {
 	ID     string                  `json:"id"`
+	Name   string                  `json:"name"`
 	Scopes []GroupCreateScopesItem `json:"scopes"`
 	Cidr   string                  `json:"cidr"`
 	Rules  []GroupCreateRulesItem  `json:"rules"`
@@ -1381,6 +1701,11 @@ type GroupCreate struct {
 // GetID returns the value of ID.
 func (s *GroupCreate) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *GroupCreate) GetName() string {
+	return s.Name
 }
 
 // GetScopes returns the value of Scopes.
@@ -1401,6 +1726,11 @@ func (s *GroupCreate) GetRules() []GroupCreateRulesItem {
 // SetID sets the value of ID.
 func (s *GroupCreate) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *GroupCreate) SetName(val string) {
+	s.Name = val
 }
 
 // SetScopes sets the value of Scopes.
@@ -1500,24 +1830,68 @@ func (s *GroupCreateRulesItemType) UnmarshalText(data []byte) error {
 type GroupCreateScopesItem string
 
 const (
-	GroupCreateScopesItemUser  GroupCreateScopesItem = "user.*"
-	GroupCreateScopesItemAdmin GroupCreateScopesItem = "admin.*"
+	GroupCreateScopesItemAdminUsersWrite       GroupCreateScopesItem = "admin.users.write"
+	GroupCreateScopesItemAdminUsersReadonly    GroupCreateScopesItem = "admin.users.readonly"
+	GroupCreateScopesItemAdminGroupsWrite      GroupCreateScopesItem = "admin.groups.write"
+	GroupCreateScopesItemAdminGroupsReadonly   GroupCreateScopesItem = "admin.groups.readonly"
+	GroupCreateScopesItemAdminDevicesWrite     GroupCreateScopesItem = "admin.devices.write"
+	GroupCreateScopesItemAdminDevicesReadonly  GroupCreateScopesItem = "admin.devices.readonly"
+	GroupCreateScopesItemAdminSettingsWrite    GroupCreateScopesItem = "admin.settings.write"
+	GroupCreateScopesItemAdminSettingsReadonly GroupCreateScopesItem = "admin.settings.readonly"
+	GroupCreateScopesItemAdmin                 GroupCreateScopesItem = "admin.*"
+	GroupCreateScopesItemUserDevicesWrite      GroupCreateScopesItem = "user.devices.write"
+	GroupCreateScopesItemUserApikeyWrite       GroupCreateScopesItem = "user.apikey.write"
+	GroupCreateScopesItemUserDevicesReadonly   GroupCreateScopesItem = "user.devices.readonly"
+	GroupCreateScopesItemUser                  GroupCreateScopesItem = "user.*"
 )
 
 // AllValues returns all GroupCreateScopesItem values.
 func (GroupCreateScopesItem) AllValues() []GroupCreateScopesItem {
 	return []GroupCreateScopesItem{
-		GroupCreateScopesItemUser,
+		GroupCreateScopesItemAdminUsersWrite,
+		GroupCreateScopesItemAdminUsersReadonly,
+		GroupCreateScopesItemAdminGroupsWrite,
+		GroupCreateScopesItemAdminGroupsReadonly,
+		GroupCreateScopesItemAdminDevicesWrite,
+		GroupCreateScopesItemAdminDevicesReadonly,
+		GroupCreateScopesItemAdminSettingsWrite,
+		GroupCreateScopesItemAdminSettingsReadonly,
 		GroupCreateScopesItemAdmin,
+		GroupCreateScopesItemUserDevicesWrite,
+		GroupCreateScopesItemUserApikeyWrite,
+		GroupCreateScopesItemUserDevicesReadonly,
+		GroupCreateScopesItemUser,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s GroupCreateScopesItem) MarshalText() ([]byte, error) {
 	switch s {
-	case GroupCreateScopesItemUser:
+	case GroupCreateScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemAdminSettingsReadonly:
 		return []byte(s), nil
 	case GroupCreateScopesItemAdmin:
+		return []byte(s), nil
+	case GroupCreateScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case GroupCreateScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case GroupCreateScopesItemUser:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -1527,11 +1901,44 @@ func (s GroupCreateScopesItem) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *GroupCreateScopesItem) UnmarshalText(data []byte) error {
 	switch GroupCreateScopesItem(data) {
-	case GroupCreateScopesItemUser:
-		*s = GroupCreateScopesItemUser
+	case GroupCreateScopesItemAdminUsersWrite:
+		*s = GroupCreateScopesItemAdminUsersWrite
+		return nil
+	case GroupCreateScopesItemAdminUsersReadonly:
+		*s = GroupCreateScopesItemAdminUsersReadonly
+		return nil
+	case GroupCreateScopesItemAdminGroupsWrite:
+		*s = GroupCreateScopesItemAdminGroupsWrite
+		return nil
+	case GroupCreateScopesItemAdminGroupsReadonly:
+		*s = GroupCreateScopesItemAdminGroupsReadonly
+		return nil
+	case GroupCreateScopesItemAdminDevicesWrite:
+		*s = GroupCreateScopesItemAdminDevicesWrite
+		return nil
+	case GroupCreateScopesItemAdminDevicesReadonly:
+		*s = GroupCreateScopesItemAdminDevicesReadonly
+		return nil
+	case GroupCreateScopesItemAdminSettingsWrite:
+		*s = GroupCreateScopesItemAdminSettingsWrite
+		return nil
+	case GroupCreateScopesItemAdminSettingsReadonly:
+		*s = GroupCreateScopesItemAdminSettingsReadonly
 		return nil
 	case GroupCreateScopesItemAdmin:
 		*s = GroupCreateScopesItemAdmin
+		return nil
+	case GroupCreateScopesItemUserDevicesWrite:
+		*s = GroupCreateScopesItemUserDevicesWrite
+		return nil
+	case GroupCreateScopesItemUserApikeyWrite:
+		*s = GroupCreateScopesItemUserApikeyWrite
+		return nil
+	case GroupCreateScopesItemUserDevicesReadonly:
+		*s = GroupCreateScopesItemUserDevicesReadonly
+		return nil
+	case GroupCreateScopesItemUser:
+		*s = GroupCreateScopesItemUser
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1541,6 +1948,7 @@ func (s *GroupCreateScopesItem) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/GroupList
 type GroupList struct {
 	ID     string                `json:"id"`
+	Name   string                `json:"name"`
 	Scopes []GroupListScopesItem `json:"scopes"`
 	Cidr   string                `json:"cidr"`
 	Rules  []GroupListRulesItem  `json:"rules"`
@@ -1549,6 +1957,11 @@ type GroupList struct {
 // GetID returns the value of ID.
 func (s *GroupList) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *GroupList) GetName() string {
+	return s.Name
 }
 
 // GetScopes returns the value of Scopes.
@@ -1569,6 +1982,11 @@ func (s *GroupList) GetRules() []GroupListRulesItem {
 // SetID sets the value of ID.
 func (s *GroupList) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *GroupList) SetName(val string) {
+	s.Name = val
 }
 
 // SetScopes sets the value of Scopes.
@@ -1666,24 +2084,68 @@ func (s *GroupListRulesItemType) UnmarshalText(data []byte) error {
 type GroupListScopesItem string
 
 const (
-	GroupListScopesItemUser  GroupListScopesItem = "user.*"
-	GroupListScopesItemAdmin GroupListScopesItem = "admin.*"
+	GroupListScopesItemAdminUsersWrite       GroupListScopesItem = "admin.users.write"
+	GroupListScopesItemAdminUsersReadonly    GroupListScopesItem = "admin.users.readonly"
+	GroupListScopesItemAdminGroupsWrite      GroupListScopesItem = "admin.groups.write"
+	GroupListScopesItemAdminGroupsReadonly   GroupListScopesItem = "admin.groups.readonly"
+	GroupListScopesItemAdminDevicesWrite     GroupListScopesItem = "admin.devices.write"
+	GroupListScopesItemAdminDevicesReadonly  GroupListScopesItem = "admin.devices.readonly"
+	GroupListScopesItemAdminSettingsWrite    GroupListScopesItem = "admin.settings.write"
+	GroupListScopesItemAdminSettingsReadonly GroupListScopesItem = "admin.settings.readonly"
+	GroupListScopesItemAdmin                 GroupListScopesItem = "admin.*"
+	GroupListScopesItemUserDevicesWrite      GroupListScopesItem = "user.devices.write"
+	GroupListScopesItemUserApikeyWrite       GroupListScopesItem = "user.apikey.write"
+	GroupListScopesItemUserDevicesReadonly   GroupListScopesItem = "user.devices.readonly"
+	GroupListScopesItemUser                  GroupListScopesItem = "user.*"
 )
 
 // AllValues returns all GroupListScopesItem values.
 func (GroupListScopesItem) AllValues() []GroupListScopesItem {
 	return []GroupListScopesItem{
-		GroupListScopesItemUser,
+		GroupListScopesItemAdminUsersWrite,
+		GroupListScopesItemAdminUsersReadonly,
+		GroupListScopesItemAdminGroupsWrite,
+		GroupListScopesItemAdminGroupsReadonly,
+		GroupListScopesItemAdminDevicesWrite,
+		GroupListScopesItemAdminDevicesReadonly,
+		GroupListScopesItemAdminSettingsWrite,
+		GroupListScopesItemAdminSettingsReadonly,
 		GroupListScopesItemAdmin,
+		GroupListScopesItemUserDevicesWrite,
+		GroupListScopesItemUserApikeyWrite,
+		GroupListScopesItemUserDevicesReadonly,
+		GroupListScopesItemUser,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s GroupListScopesItem) MarshalText() ([]byte, error) {
 	switch s {
-	case GroupListScopesItemUser:
+	case GroupListScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case GroupListScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case GroupListScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case GroupListScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case GroupListScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case GroupListScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case GroupListScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case GroupListScopesItemAdminSettingsReadonly:
 		return []byte(s), nil
 	case GroupListScopesItemAdmin:
+		return []byte(s), nil
+	case GroupListScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case GroupListScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case GroupListScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case GroupListScopesItemUser:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -1693,11 +2155,44 @@ func (s GroupListScopesItem) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *GroupListScopesItem) UnmarshalText(data []byte) error {
 	switch GroupListScopesItem(data) {
-	case GroupListScopesItemUser:
-		*s = GroupListScopesItemUser
+	case GroupListScopesItemAdminUsersWrite:
+		*s = GroupListScopesItemAdminUsersWrite
+		return nil
+	case GroupListScopesItemAdminUsersReadonly:
+		*s = GroupListScopesItemAdminUsersReadonly
+		return nil
+	case GroupListScopesItemAdminGroupsWrite:
+		*s = GroupListScopesItemAdminGroupsWrite
+		return nil
+	case GroupListScopesItemAdminGroupsReadonly:
+		*s = GroupListScopesItemAdminGroupsReadonly
+		return nil
+	case GroupListScopesItemAdminDevicesWrite:
+		*s = GroupListScopesItemAdminDevicesWrite
+		return nil
+	case GroupListScopesItemAdminDevicesReadonly:
+		*s = GroupListScopesItemAdminDevicesReadonly
+		return nil
+	case GroupListScopesItemAdminSettingsWrite:
+		*s = GroupListScopesItemAdminSettingsWrite
+		return nil
+	case GroupListScopesItemAdminSettingsReadonly:
+		*s = GroupListScopesItemAdminSettingsReadonly
 		return nil
 	case GroupListScopesItemAdmin:
 		*s = GroupListScopesItemAdmin
+		return nil
+	case GroupListScopesItemUserDevicesWrite:
+		*s = GroupListScopesItemUserDevicesWrite
+		return nil
+	case GroupListScopesItemUserApikeyWrite:
+		*s = GroupListScopesItemUserApikeyWrite
+		return nil
+	case GroupListScopesItemUserDevicesReadonly:
+		*s = GroupListScopesItemUserDevicesReadonly
+		return nil
+	case GroupListScopesItemUser:
+		*s = GroupListScopesItemUser
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1707,6 +2202,7 @@ func (s *GroupListScopesItem) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/GroupRead
 type GroupRead struct {
 	ID     string                `json:"id"`
+	Name   string                `json:"name"`
 	Scopes []GroupReadScopesItem `json:"scopes"`
 	Cidr   string                `json:"cidr"`
 	Rules  []GroupReadRulesItem  `json:"rules"`
@@ -1715,6 +2211,11 @@ type GroupRead struct {
 // GetID returns the value of ID.
 func (s *GroupRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *GroupRead) GetName() string {
+	return s.Name
 }
 
 // GetScopes returns the value of Scopes.
@@ -1735,6 +2236,11 @@ func (s *GroupRead) GetRules() []GroupReadRulesItem {
 // SetID sets the value of ID.
 func (s *GroupRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *GroupRead) SetName(val string) {
+	s.Name = val
 }
 
 // SetScopes sets the value of Scopes.
@@ -1834,24 +2340,68 @@ func (s *GroupReadRulesItemType) UnmarshalText(data []byte) error {
 type GroupReadScopesItem string
 
 const (
-	GroupReadScopesItemUser  GroupReadScopesItem = "user.*"
-	GroupReadScopesItemAdmin GroupReadScopesItem = "admin.*"
+	GroupReadScopesItemAdminUsersWrite       GroupReadScopesItem = "admin.users.write"
+	GroupReadScopesItemAdminUsersReadonly    GroupReadScopesItem = "admin.users.readonly"
+	GroupReadScopesItemAdminGroupsWrite      GroupReadScopesItem = "admin.groups.write"
+	GroupReadScopesItemAdminGroupsReadonly   GroupReadScopesItem = "admin.groups.readonly"
+	GroupReadScopesItemAdminDevicesWrite     GroupReadScopesItem = "admin.devices.write"
+	GroupReadScopesItemAdminDevicesReadonly  GroupReadScopesItem = "admin.devices.readonly"
+	GroupReadScopesItemAdminSettingsWrite    GroupReadScopesItem = "admin.settings.write"
+	GroupReadScopesItemAdminSettingsReadonly GroupReadScopesItem = "admin.settings.readonly"
+	GroupReadScopesItemAdmin                 GroupReadScopesItem = "admin.*"
+	GroupReadScopesItemUserDevicesWrite      GroupReadScopesItem = "user.devices.write"
+	GroupReadScopesItemUserApikeyWrite       GroupReadScopesItem = "user.apikey.write"
+	GroupReadScopesItemUserDevicesReadonly   GroupReadScopesItem = "user.devices.readonly"
+	GroupReadScopesItemUser                  GroupReadScopesItem = "user.*"
 )
 
 // AllValues returns all GroupReadScopesItem values.
 func (GroupReadScopesItem) AllValues() []GroupReadScopesItem {
 	return []GroupReadScopesItem{
-		GroupReadScopesItemUser,
+		GroupReadScopesItemAdminUsersWrite,
+		GroupReadScopesItemAdminUsersReadonly,
+		GroupReadScopesItemAdminGroupsWrite,
+		GroupReadScopesItemAdminGroupsReadonly,
+		GroupReadScopesItemAdminDevicesWrite,
+		GroupReadScopesItemAdminDevicesReadonly,
+		GroupReadScopesItemAdminSettingsWrite,
+		GroupReadScopesItemAdminSettingsReadonly,
 		GroupReadScopesItemAdmin,
+		GroupReadScopesItemUserDevicesWrite,
+		GroupReadScopesItemUserApikeyWrite,
+		GroupReadScopesItemUserDevicesReadonly,
+		GroupReadScopesItemUser,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s GroupReadScopesItem) MarshalText() ([]byte, error) {
 	switch s {
-	case GroupReadScopesItemUser:
+	case GroupReadScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemAdminSettingsReadonly:
 		return []byte(s), nil
 	case GroupReadScopesItemAdmin:
+		return []byte(s), nil
+	case GroupReadScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case GroupReadScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case GroupReadScopesItemUser:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -1861,11 +2411,300 @@ func (s GroupReadScopesItem) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *GroupReadScopesItem) UnmarshalText(data []byte) error {
 	switch GroupReadScopesItem(data) {
-	case GroupReadScopesItemUser:
-		*s = GroupReadScopesItemUser
+	case GroupReadScopesItemAdminUsersWrite:
+		*s = GroupReadScopesItemAdminUsersWrite
+		return nil
+	case GroupReadScopesItemAdminUsersReadonly:
+		*s = GroupReadScopesItemAdminUsersReadonly
+		return nil
+	case GroupReadScopesItemAdminGroupsWrite:
+		*s = GroupReadScopesItemAdminGroupsWrite
+		return nil
+	case GroupReadScopesItemAdminGroupsReadonly:
+		*s = GroupReadScopesItemAdminGroupsReadonly
+		return nil
+	case GroupReadScopesItemAdminDevicesWrite:
+		*s = GroupReadScopesItemAdminDevicesWrite
+		return nil
+	case GroupReadScopesItemAdminDevicesReadonly:
+		*s = GroupReadScopesItemAdminDevicesReadonly
+		return nil
+	case GroupReadScopesItemAdminSettingsWrite:
+		*s = GroupReadScopesItemAdminSettingsWrite
+		return nil
+	case GroupReadScopesItemAdminSettingsReadonly:
+		*s = GroupReadScopesItemAdminSettingsReadonly
 		return nil
 	case GroupReadScopesItemAdmin:
 		*s = GroupReadScopesItemAdmin
+		return nil
+	case GroupReadScopesItemUserDevicesWrite:
+		*s = GroupReadScopesItemUserDevicesWrite
+		return nil
+	case GroupReadScopesItemUserApikeyWrite:
+		*s = GroupReadScopesItemUserApikeyWrite
+		return nil
+	case GroupReadScopesItemUserDevicesReadonly:
+		*s = GroupReadScopesItemUserDevicesReadonly
+		return nil
+	case GroupReadScopesItemUser:
+		*s = GroupReadScopesItemUser
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/GroupUpdate
+type GroupUpdate struct {
+	ID     string                  `json:"id"`
+	Name   string                  `json:"name"`
+	Scopes []GroupUpdateScopesItem `json:"scopes"`
+	Cidr   string                  `json:"cidr"`
+	Rules  []GroupUpdateRulesItem  `json:"rules"`
+}
+
+// GetID returns the value of ID.
+func (s *GroupUpdate) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *GroupUpdate) GetName() string {
+	return s.Name
+}
+
+// GetScopes returns the value of Scopes.
+func (s *GroupUpdate) GetScopes() []GroupUpdateScopesItem {
+	return s.Scopes
+}
+
+// GetCidr returns the value of Cidr.
+func (s *GroupUpdate) GetCidr() string {
+	return s.Cidr
+}
+
+// GetRules returns the value of Rules.
+func (s *GroupUpdate) GetRules() []GroupUpdateRulesItem {
+	return s.Rules
+}
+
+// SetID sets the value of ID.
+func (s *GroupUpdate) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *GroupUpdate) SetName(val string) {
+	s.Name = val
+}
+
+// SetScopes sets the value of Scopes.
+func (s *GroupUpdate) SetScopes(val []GroupUpdateScopesItem) {
+	s.Scopes = val
+}
+
+// SetCidr sets the value of Cidr.
+func (s *GroupUpdate) SetCidr(val string) {
+	s.Cidr = val
+}
+
+// SetRules sets the value of Rules.
+func (s *GroupUpdate) SetRules(val []GroupUpdateRulesItem) {
+	s.Rules = val
+}
+
+func (*GroupUpdate) updateGroupRes() {}
+
+type GroupUpdateRulesItem struct {
+	ID     string                   `json:"id"`
+	Target string                   `json:"target"`
+	Type   GroupUpdateRulesItemType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *GroupUpdateRulesItem) GetID() string {
+	return s.ID
+}
+
+// GetTarget returns the value of Target.
+func (s *GroupUpdateRulesItem) GetTarget() string {
+	return s.Target
+}
+
+// GetType returns the value of Type.
+func (s *GroupUpdateRulesItem) GetType() GroupUpdateRulesItemType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *GroupUpdateRulesItem) SetID(val string) {
+	s.ID = val
+}
+
+// SetTarget sets the value of Target.
+func (s *GroupUpdateRulesItem) SetTarget(val string) {
+	s.Target = val
+}
+
+// SetType sets the value of Type.
+func (s *GroupUpdateRulesItem) SetType(val GroupUpdateRulesItemType) {
+	s.Type = val
+}
+
+type GroupUpdateRulesItemType string
+
+const (
+	GroupUpdateRulesItemTypeAllow GroupUpdateRulesItemType = "allow"
+	GroupUpdateRulesItemTypeDeny  GroupUpdateRulesItemType = "deny"
+)
+
+// AllValues returns all GroupUpdateRulesItemType values.
+func (GroupUpdateRulesItemType) AllValues() []GroupUpdateRulesItemType {
+	return []GroupUpdateRulesItemType{
+		GroupUpdateRulesItemTypeAllow,
+		GroupUpdateRulesItemTypeDeny,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GroupUpdateRulesItemType) MarshalText() ([]byte, error) {
+	switch s {
+	case GroupUpdateRulesItemTypeAllow:
+		return []byte(s), nil
+	case GroupUpdateRulesItemTypeDeny:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GroupUpdateRulesItemType) UnmarshalText(data []byte) error {
+	switch GroupUpdateRulesItemType(data) {
+	case GroupUpdateRulesItemTypeAllow:
+		*s = GroupUpdateRulesItemTypeAllow
+		return nil
+	case GroupUpdateRulesItemTypeDeny:
+		*s = GroupUpdateRulesItemTypeDeny
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type GroupUpdateScopesItem string
+
+const (
+	GroupUpdateScopesItemAdminUsersWrite       GroupUpdateScopesItem = "admin.users.write"
+	GroupUpdateScopesItemAdminUsersReadonly    GroupUpdateScopesItem = "admin.users.readonly"
+	GroupUpdateScopesItemAdminGroupsWrite      GroupUpdateScopesItem = "admin.groups.write"
+	GroupUpdateScopesItemAdminGroupsReadonly   GroupUpdateScopesItem = "admin.groups.readonly"
+	GroupUpdateScopesItemAdminDevicesWrite     GroupUpdateScopesItem = "admin.devices.write"
+	GroupUpdateScopesItemAdminDevicesReadonly  GroupUpdateScopesItem = "admin.devices.readonly"
+	GroupUpdateScopesItemAdminSettingsWrite    GroupUpdateScopesItem = "admin.settings.write"
+	GroupUpdateScopesItemAdminSettingsReadonly GroupUpdateScopesItem = "admin.settings.readonly"
+	GroupUpdateScopesItemAdmin                 GroupUpdateScopesItem = "admin.*"
+	GroupUpdateScopesItemUserDevicesWrite      GroupUpdateScopesItem = "user.devices.write"
+	GroupUpdateScopesItemUserApikeyWrite       GroupUpdateScopesItem = "user.apikey.write"
+	GroupUpdateScopesItemUserDevicesReadonly   GroupUpdateScopesItem = "user.devices.readonly"
+	GroupUpdateScopesItemUser                  GroupUpdateScopesItem = "user.*"
+)
+
+// AllValues returns all GroupUpdateScopesItem values.
+func (GroupUpdateScopesItem) AllValues() []GroupUpdateScopesItem {
+	return []GroupUpdateScopesItem{
+		GroupUpdateScopesItemAdminUsersWrite,
+		GroupUpdateScopesItemAdminUsersReadonly,
+		GroupUpdateScopesItemAdminGroupsWrite,
+		GroupUpdateScopesItemAdminGroupsReadonly,
+		GroupUpdateScopesItemAdminDevicesWrite,
+		GroupUpdateScopesItemAdminDevicesReadonly,
+		GroupUpdateScopesItemAdminSettingsWrite,
+		GroupUpdateScopesItemAdminSettingsReadonly,
+		GroupUpdateScopesItemAdmin,
+		GroupUpdateScopesItemUserDevicesWrite,
+		GroupUpdateScopesItemUserApikeyWrite,
+		GroupUpdateScopesItemUserDevicesReadonly,
+		GroupUpdateScopesItemUser,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GroupUpdateScopesItem) MarshalText() ([]byte, error) {
+	switch s {
+	case GroupUpdateScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdminSettingsReadonly:
+		return []byte(s), nil
+	case GroupUpdateScopesItemAdmin:
+		return []byte(s), nil
+	case GroupUpdateScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case GroupUpdateScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case GroupUpdateScopesItemUser:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GroupUpdateScopesItem) UnmarshalText(data []byte) error {
+	switch GroupUpdateScopesItem(data) {
+	case GroupUpdateScopesItemAdminUsersWrite:
+		*s = GroupUpdateScopesItemAdminUsersWrite
+		return nil
+	case GroupUpdateScopesItemAdminUsersReadonly:
+		*s = GroupUpdateScopesItemAdminUsersReadonly
+		return nil
+	case GroupUpdateScopesItemAdminGroupsWrite:
+		*s = GroupUpdateScopesItemAdminGroupsWrite
+		return nil
+	case GroupUpdateScopesItemAdminGroupsReadonly:
+		*s = GroupUpdateScopesItemAdminGroupsReadonly
+		return nil
+	case GroupUpdateScopesItemAdminDevicesWrite:
+		*s = GroupUpdateScopesItemAdminDevicesWrite
+		return nil
+	case GroupUpdateScopesItemAdminDevicesReadonly:
+		*s = GroupUpdateScopesItemAdminDevicesReadonly
+		return nil
+	case GroupUpdateScopesItemAdminSettingsWrite:
+		*s = GroupUpdateScopesItemAdminSettingsWrite
+		return nil
+	case GroupUpdateScopesItemAdminSettingsReadonly:
+		*s = GroupUpdateScopesItemAdminSettingsReadonly
+		return nil
+	case GroupUpdateScopesItemAdmin:
+		*s = GroupUpdateScopesItemAdmin
+		return nil
+	case GroupUpdateScopesItemUserDevicesWrite:
+		*s = GroupUpdateScopesItemUserDevicesWrite
+		return nil
+	case GroupUpdateScopesItemUserApikeyWrite:
+		*s = GroupUpdateScopesItemUserApikeyWrite
+		return nil
+	case GroupUpdateScopesItemUserDevicesReadonly:
+		*s = GroupUpdateScopesItemUserDevicesReadonly
+		return nil
+	case GroupUpdateScopesItemUser:
+		*s = GroupUpdateScopesItemUser
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -1964,201 +2803,63 @@ func (s *GroupUsersList) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
-// ListApiKeyOKHeaders wraps []ApiKeyList with response headers.
-type ListApiKeyOKHeaders struct {
-	XTotal   int
-	Response []ApiKeyList
+type ListApiKeyOKApplicationJSON []ApiKeyList
+
+func (*ListApiKeyOKApplicationJSON) listApiKeyRes() {}
+
+type ListAuditOKApplicationJSON []AuditList
+
+func (*ListAuditOKApplicationJSON) listAuditRes() {}
+
+type ListDeviceOKApplicationJSON []DeviceList
+
+func (*ListDeviceOKApplicationJSON) listDeviceRes() {}
+
+type ListGroupOKApplicationJSON []GroupList
+
+func (*ListGroupOKApplicationJSON) listGroupRes() {}
+
+type ListGroupUsersOKApplicationJSON []GroupUsersList
+
+func (*ListGroupUsersOKApplicationJSON) listGroupUsersRes() {}
+
+type ListUserAuditOKApplicationJSON []UserAuditList
+
+func (*ListUserAuditOKApplicationJSON) listUserAuditRes() {}
+
+type ListUserDevicesOKApplicationJSON []UserDevicesList
+
+func (*ListUserDevicesOKApplicationJSON) listUserDevicesRes() {}
+
+type ListUserKeysOKApplicationJSON []UserKeysList
+
+func (*ListUserKeysOKApplicationJSON) listUserKeysRes() {}
+
+type ListUserOKApplicationJSON []UserList
+
+func (*ListUserOKApplicationJSON) listUserRes() {}
+
+// LogoutOK is response for Logout operation.
+type LogoutOK struct {
+	SetCookie string
 }
 
-// GetXTotal returns the value of XTotal.
-func (s *ListApiKeyOKHeaders) GetXTotal() int {
-	return s.XTotal
+// GetSetCookie returns the value of SetCookie.
+func (s *LogoutOK) GetSetCookie() string {
+	return s.SetCookie
 }
 
-// GetResponse returns the value of Response.
-func (s *ListApiKeyOKHeaders) GetResponse() []ApiKeyList {
-	return s.Response
+// SetSetCookie sets the value of SetCookie.
+func (s *LogoutOK) SetSetCookie(val string) {
+	s.SetCookie = val
 }
 
-// SetXTotal sets the value of XTotal.
-func (s *ListApiKeyOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
+func (*LogoutOK) logoutRes() {}
 
-// SetResponse sets the value of Response.
-func (s *ListApiKeyOKHeaders) SetResponse(val []ApiKeyList) {
-	s.Response = val
-}
+// LogoutUnauthorized is response for Logout operation.
+type LogoutUnauthorized struct{}
 
-func (*ListApiKeyOKHeaders) listApiKeyRes() {}
-
-// ListDeviceOKHeaders wraps []DeviceList with response headers.
-type ListDeviceOKHeaders struct {
-	XTotal   int
-	Response []DeviceList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListDeviceOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListDeviceOKHeaders) GetResponse() []DeviceList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListDeviceOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListDeviceOKHeaders) SetResponse(val []DeviceList) {
-	s.Response = val
-}
-
-func (*ListDeviceOKHeaders) listDeviceRes() {}
-
-// ListGroupOKHeaders wraps []GroupList with response headers.
-type ListGroupOKHeaders struct {
-	XTotal   int
-	Response []GroupList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListGroupOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListGroupOKHeaders) GetResponse() []GroupList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListGroupOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListGroupOKHeaders) SetResponse(val []GroupList) {
-	s.Response = val
-}
-
-func (*ListGroupOKHeaders) listGroupRes() {}
-
-// ListGroupUsersOKHeaders wraps []GroupUsersList with response headers.
-type ListGroupUsersOKHeaders struct {
-	XTotal   int
-	Response []GroupUsersList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListGroupUsersOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListGroupUsersOKHeaders) GetResponse() []GroupUsersList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListGroupUsersOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListGroupUsersOKHeaders) SetResponse(val []GroupUsersList) {
-	s.Response = val
-}
-
-func (*ListGroupUsersOKHeaders) listGroupUsersRes() {}
-
-// ListUserDevicesOKHeaders wraps []UserDevicesList with response headers.
-type ListUserDevicesOKHeaders struct {
-	XTotal   int
-	Response []UserDevicesList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListUserDevicesOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListUserDevicesOKHeaders) GetResponse() []UserDevicesList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListUserDevicesOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListUserDevicesOKHeaders) SetResponse(val []UserDevicesList) {
-	s.Response = val
-}
-
-func (*ListUserDevicesOKHeaders) listUserDevicesRes() {}
-
-// ListUserKeysOKHeaders wraps []UserKeysList with response headers.
-type ListUserKeysOKHeaders struct {
-	XTotal   int
-	Response []UserKeysList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListUserKeysOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListUserKeysOKHeaders) GetResponse() []UserKeysList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListUserKeysOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListUserKeysOKHeaders) SetResponse(val []UserKeysList) {
-	s.Response = val
-}
-
-func (*ListUserKeysOKHeaders) listUserKeysRes() {}
-
-// ListUserOKHeaders wraps []UserList with response headers.
-type ListUserOKHeaders struct {
-	XTotal   int
-	Response []UserList
-}
-
-// GetXTotal returns the value of XTotal.
-func (s *ListUserOKHeaders) GetXTotal() int {
-	return s.XTotal
-}
-
-// GetResponse returns the value of Response.
-func (s *ListUserOKHeaders) GetResponse() []UserList {
-	return s.Response
-}
-
-// SetXTotal sets the value of XTotal.
-func (s *ListUserOKHeaders) SetXTotal(val int) {
-	s.XTotal = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ListUserOKHeaders) SetResponse(val []UserList) {
-	s.Response = val
-}
-
-func (*ListUserOKHeaders) listUserRes() {}
+func (*LogoutUnauthorized) logoutRes() {}
 
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
@@ -2344,52 +3045,6 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
-// NewOptURI returns new OptURI with value set to v.
-func NewOptURI(v url.URL) OptURI {
-	return OptURI{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptURI is optional url.URL.
-type OptURI struct {
-	Value url.URL
-	Set   bool
-}
-
-// IsSet returns true if OptURI was set.
-func (o OptURI) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptURI) Reset() {
-	var v url.URL
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptURI) SetTo(v url.URL) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptURI) Get() (v url.URL, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptURI) Or(d url.URL) url.URL {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptUserpassLoginReq returns new OptUserpassLoginReq with value set to v.
 func NewOptUserpassLoginReq(v UserpassLoginReq) OptUserpassLoginReq {
 	return OptUserpassLoginReq{
@@ -2477,24 +3132,30 @@ func (*R400) createDeviceRes()    {}
 func (*R400) createGroupRes()     {}
 func (*R400) createUserRes()      {}
 func (*R400) deleteApiKeyRes()    {}
+func (*R400) deleteAuditRes()     {}
 func (*R400) deleteDeviceRes()    {}
 func (*R400) deleteGroupRes()     {}
 func (*R400) deleteUserRes()      {}
 func (*R400) listApiKeyRes()      {}
+func (*R400) listAuditRes()       {}
 func (*R400) listDeviceRes()      {}
 func (*R400) listGroupRes()       {}
 func (*R400) listGroupUsersRes()  {}
+func (*R400) listUserAuditRes()   {}
 func (*R400) listUserDevicesRes() {}
 func (*R400) listUserKeysRes()    {}
 func (*R400) listUserRes()        {}
 func (*R400) readApiKeyRes()      {}
 func (*R400) readApiKeyUserRes()  {}
+func (*R400) readAuditRes()       {}
+func (*R400) readAuditUserRes()   {}
 func (*R400) readDeviceRes()      {}
 func (*R400) readDeviceUserRes()  {}
 func (*R400) readGroupRes()       {}
 func (*R400) readUserGroupRes()   {}
 func (*R400) readUserRes()        {}
 func (*R400) updateDeviceRes()    {}
+func (*R400) updateGroupRes()     {}
 func (*R400) updateUserRes()      {}
 
 type R404 struct {
@@ -2534,24 +3195,30 @@ func (s *R404) SetErrors(val jx.Raw) {
 }
 
 func (*R404) deleteApiKeyRes()    {}
+func (*R404) deleteAuditRes()     {}
 func (*R404) deleteDeviceRes()    {}
 func (*R404) deleteGroupRes()     {}
 func (*R404) deleteUserRes()      {}
 func (*R404) listApiKeyRes()      {}
+func (*R404) listAuditRes()       {}
 func (*R404) listDeviceRes()      {}
 func (*R404) listGroupRes()       {}
 func (*R404) listGroupUsersRes()  {}
+func (*R404) listUserAuditRes()   {}
 func (*R404) listUserDevicesRes() {}
 func (*R404) listUserKeysRes()    {}
 func (*R404) listUserRes()        {}
 func (*R404) readApiKeyRes()      {}
 func (*R404) readApiKeyUserRes()  {}
+func (*R404) readAuditRes()       {}
+func (*R404) readAuditUserRes()   {}
 func (*R404) readDeviceRes()      {}
 func (*R404) readDeviceUserRes()  {}
 func (*R404) readGroupRes()       {}
 func (*R404) readUserGroupRes()   {}
 func (*R404) readUserRes()        {}
 func (*R404) updateDeviceRes()    {}
+func (*R404) updateGroupRes()     {}
 func (*R404) updateUserRes()      {}
 
 type R409 struct {
@@ -2595,24 +3262,30 @@ func (*R409) createDeviceRes()    {}
 func (*R409) createGroupRes()     {}
 func (*R409) createUserRes()      {}
 func (*R409) deleteApiKeyRes()    {}
+func (*R409) deleteAuditRes()     {}
 func (*R409) deleteDeviceRes()    {}
 func (*R409) deleteGroupRes()     {}
 func (*R409) deleteUserRes()      {}
 func (*R409) listApiKeyRes()      {}
+func (*R409) listAuditRes()       {}
 func (*R409) listDeviceRes()      {}
 func (*R409) listGroupRes()       {}
 func (*R409) listGroupUsersRes()  {}
+func (*R409) listUserAuditRes()   {}
 func (*R409) listUserDevicesRes() {}
 func (*R409) listUserKeysRes()    {}
 func (*R409) listUserRes()        {}
 func (*R409) readApiKeyRes()      {}
 func (*R409) readApiKeyUserRes()  {}
+func (*R409) readAuditRes()       {}
+func (*R409) readAuditUserRes()   {}
 func (*R409) readDeviceRes()      {}
 func (*R409) readDeviceUserRes()  {}
 func (*R409) readGroupRes()       {}
 func (*R409) readUserGroupRes()   {}
 func (*R409) readUserRes()        {}
 func (*R409) updateDeviceRes()    {}
+func (*R409) updateGroupRes()     {}
 func (*R409) updateUserRes()      {}
 
 type R500 struct {
@@ -2656,24 +3329,30 @@ func (*R500) createDeviceRes()    {}
 func (*R500) createGroupRes()     {}
 func (*R500) createUserRes()      {}
 func (*R500) deleteApiKeyRes()    {}
+func (*R500) deleteAuditRes()     {}
 func (*R500) deleteDeviceRes()    {}
 func (*R500) deleteGroupRes()     {}
 func (*R500) deleteUserRes()      {}
 func (*R500) listApiKeyRes()      {}
+func (*R500) listAuditRes()       {}
 func (*R500) listDeviceRes()      {}
 func (*R500) listGroupRes()       {}
 func (*R500) listGroupUsersRes()  {}
+func (*R500) listUserAuditRes()   {}
 func (*R500) listUserDevicesRes() {}
 func (*R500) listUserKeysRes()    {}
 func (*R500) listUserRes()        {}
 func (*R500) readApiKeyRes()      {}
 func (*R500) readApiKeyUserRes()  {}
+func (*R500) readAuditRes()       {}
+func (*R500) readAuditUserRes()   {}
 func (*R500) readDeviceRes()      {}
 func (*R500) readDeviceUserRes()  {}
 func (*R500) readGroupRes()       {}
 func (*R500) readUserGroupRes()   {}
 func (*R500) readUserRes()        {}
 func (*R500) updateDeviceRes()    {}
+func (*R500) updateGroupRes()     {}
 func (*R500) updateUserRes()      {}
 
 // StatusBadRequest is response for Status operation.
@@ -2694,6 +3373,7 @@ type UpdateDeviceReq struct {
 	Name        OptString `json:"name"`
 	Description OptString `json:"description"`
 	Type        OptString `json:"type"`
+	DNS         []string  `json:"dns"`
 	Endpoint    OptString `json:"endpoint"`
 	AllowedIps  OptString `json:"allowed_ips"`
 	User        OptString `json:"user"`
@@ -2712,6 +3392,11 @@ func (s *UpdateDeviceReq) GetDescription() OptString {
 // GetType returns the value of Type.
 func (s *UpdateDeviceReq) GetType() OptString {
 	return s.Type
+}
+
+// GetDNS returns the value of DNS.
+func (s *UpdateDeviceReq) GetDNS() []string {
+	return s.DNS
 }
 
 // GetEndpoint returns the value of Endpoint.
@@ -2744,6 +3429,11 @@ func (s *UpdateDeviceReq) SetType(val OptString) {
 	s.Type = val
 }
 
+// SetDNS sets the value of DNS.
+func (s *UpdateDeviceReq) SetDNS(val []string) {
+	s.DNS = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *UpdateDeviceReq) SetEndpoint(val OptString) {
 	s.Endpoint = val
@@ -2759,18 +3449,272 @@ func (s *UpdateDeviceReq) SetUser(val OptString) {
 	s.User = val
 }
 
+type UpdateGroupReq struct {
+	Name   OptString                  `json:"name"`
+	Scopes []UpdateGroupReqScopesItem `json:"scopes"`
+	Cidr   OptString                  `json:"cidr"`
+	Rules  []UpdateGroupReqRulesItem  `json:"rules"`
+	Users  []string                   `json:"users"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateGroupReq) GetName() OptString {
+	return s.Name
+}
+
+// GetScopes returns the value of Scopes.
+func (s *UpdateGroupReq) GetScopes() []UpdateGroupReqScopesItem {
+	return s.Scopes
+}
+
+// GetCidr returns the value of Cidr.
+func (s *UpdateGroupReq) GetCidr() OptString {
+	return s.Cidr
+}
+
+// GetRules returns the value of Rules.
+func (s *UpdateGroupReq) GetRules() []UpdateGroupReqRulesItem {
+	return s.Rules
+}
+
+// GetUsers returns the value of Users.
+func (s *UpdateGroupReq) GetUsers() []string {
+	return s.Users
+}
+
+// SetName sets the value of Name.
+func (s *UpdateGroupReq) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetScopes sets the value of Scopes.
+func (s *UpdateGroupReq) SetScopes(val []UpdateGroupReqScopesItem) {
+	s.Scopes = val
+}
+
+// SetCidr sets the value of Cidr.
+func (s *UpdateGroupReq) SetCidr(val OptString) {
+	s.Cidr = val
+}
+
+// SetRules sets the value of Rules.
+func (s *UpdateGroupReq) SetRules(val []UpdateGroupReqRulesItem) {
+	s.Rules = val
+}
+
+// SetUsers sets the value of Users.
+func (s *UpdateGroupReq) SetUsers(val []string) {
+	s.Users = val
+}
+
+type UpdateGroupReqRulesItem struct {
+	ID     string                      `json:"id"`
+	Target string                      `json:"target"`
+	Type   UpdateGroupReqRulesItemType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *UpdateGroupReqRulesItem) GetID() string {
+	return s.ID
+}
+
+// GetTarget returns the value of Target.
+func (s *UpdateGroupReqRulesItem) GetTarget() string {
+	return s.Target
+}
+
+// GetType returns the value of Type.
+func (s *UpdateGroupReqRulesItem) GetType() UpdateGroupReqRulesItemType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *UpdateGroupReqRulesItem) SetID(val string) {
+	s.ID = val
+}
+
+// SetTarget sets the value of Target.
+func (s *UpdateGroupReqRulesItem) SetTarget(val string) {
+	s.Target = val
+}
+
+// SetType sets the value of Type.
+func (s *UpdateGroupReqRulesItem) SetType(val UpdateGroupReqRulesItemType) {
+	s.Type = val
+}
+
+type UpdateGroupReqRulesItemType string
+
+const (
+	UpdateGroupReqRulesItemTypeAllow UpdateGroupReqRulesItemType = "allow"
+	UpdateGroupReqRulesItemTypeDeny  UpdateGroupReqRulesItemType = "deny"
+)
+
+// AllValues returns all UpdateGroupReqRulesItemType values.
+func (UpdateGroupReqRulesItemType) AllValues() []UpdateGroupReqRulesItemType {
+	return []UpdateGroupReqRulesItemType{
+		UpdateGroupReqRulesItemTypeAllow,
+		UpdateGroupReqRulesItemTypeDeny,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateGroupReqRulesItemType) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateGroupReqRulesItemTypeAllow:
+		return []byte(s), nil
+	case UpdateGroupReqRulesItemTypeDeny:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateGroupReqRulesItemType) UnmarshalText(data []byte) error {
+	switch UpdateGroupReqRulesItemType(data) {
+	case UpdateGroupReqRulesItemTypeAllow:
+		*s = UpdateGroupReqRulesItemTypeAllow
+		return nil
+	case UpdateGroupReqRulesItemTypeDeny:
+		*s = UpdateGroupReqRulesItemTypeDeny
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdateGroupReqScopesItem string
+
+const (
+	UpdateGroupReqScopesItemAdminUsersWrite       UpdateGroupReqScopesItem = "admin.users.write"
+	UpdateGroupReqScopesItemAdminUsersReadonly    UpdateGroupReqScopesItem = "admin.users.readonly"
+	UpdateGroupReqScopesItemAdminGroupsWrite      UpdateGroupReqScopesItem = "admin.groups.write"
+	UpdateGroupReqScopesItemAdminGroupsReadonly   UpdateGroupReqScopesItem = "admin.groups.readonly"
+	UpdateGroupReqScopesItemAdminDevicesWrite     UpdateGroupReqScopesItem = "admin.devices.write"
+	UpdateGroupReqScopesItemAdminDevicesReadonly  UpdateGroupReqScopesItem = "admin.devices.readonly"
+	UpdateGroupReqScopesItemAdminSettingsWrite    UpdateGroupReqScopesItem = "admin.settings.write"
+	UpdateGroupReqScopesItemAdminSettingsReadonly UpdateGroupReqScopesItem = "admin.settings.readonly"
+	UpdateGroupReqScopesItemAdmin                 UpdateGroupReqScopesItem = "admin.*"
+	UpdateGroupReqScopesItemUserDevicesWrite      UpdateGroupReqScopesItem = "user.devices.write"
+	UpdateGroupReqScopesItemUserApikeyWrite       UpdateGroupReqScopesItem = "user.apikey.write"
+	UpdateGroupReqScopesItemUserDevicesReadonly   UpdateGroupReqScopesItem = "user.devices.readonly"
+	UpdateGroupReqScopesItemUser                  UpdateGroupReqScopesItem = "user.*"
+)
+
+// AllValues returns all UpdateGroupReqScopesItem values.
+func (UpdateGroupReqScopesItem) AllValues() []UpdateGroupReqScopesItem {
+	return []UpdateGroupReqScopesItem{
+		UpdateGroupReqScopesItemAdminUsersWrite,
+		UpdateGroupReqScopesItemAdminUsersReadonly,
+		UpdateGroupReqScopesItemAdminGroupsWrite,
+		UpdateGroupReqScopesItemAdminGroupsReadonly,
+		UpdateGroupReqScopesItemAdminDevicesWrite,
+		UpdateGroupReqScopesItemAdminDevicesReadonly,
+		UpdateGroupReqScopesItemAdminSettingsWrite,
+		UpdateGroupReqScopesItemAdminSettingsReadonly,
+		UpdateGroupReqScopesItemAdmin,
+		UpdateGroupReqScopesItemUserDevicesWrite,
+		UpdateGroupReqScopesItemUserApikeyWrite,
+		UpdateGroupReqScopesItemUserDevicesReadonly,
+		UpdateGroupReqScopesItemUser,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateGroupReqScopesItem) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateGroupReqScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdminSettingsReadonly:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemAdmin:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case UpdateGroupReqScopesItemUser:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateGroupReqScopesItem) UnmarshalText(data []byte) error {
+	switch UpdateGroupReqScopesItem(data) {
+	case UpdateGroupReqScopesItemAdminUsersWrite:
+		*s = UpdateGroupReqScopesItemAdminUsersWrite
+		return nil
+	case UpdateGroupReqScopesItemAdminUsersReadonly:
+		*s = UpdateGroupReqScopesItemAdminUsersReadonly
+		return nil
+	case UpdateGroupReqScopesItemAdminGroupsWrite:
+		*s = UpdateGroupReqScopesItemAdminGroupsWrite
+		return nil
+	case UpdateGroupReqScopesItemAdminGroupsReadonly:
+		*s = UpdateGroupReqScopesItemAdminGroupsReadonly
+		return nil
+	case UpdateGroupReqScopesItemAdminDevicesWrite:
+		*s = UpdateGroupReqScopesItemAdminDevicesWrite
+		return nil
+	case UpdateGroupReqScopesItemAdminDevicesReadonly:
+		*s = UpdateGroupReqScopesItemAdminDevicesReadonly
+		return nil
+	case UpdateGroupReqScopesItemAdminSettingsWrite:
+		*s = UpdateGroupReqScopesItemAdminSettingsWrite
+		return nil
+	case UpdateGroupReqScopesItemAdminSettingsReadonly:
+		*s = UpdateGroupReqScopesItemAdminSettingsReadonly
+		return nil
+	case UpdateGroupReqScopesItemAdmin:
+		*s = UpdateGroupReqScopesItemAdmin
+		return nil
+	case UpdateGroupReqScopesItemUserDevicesWrite:
+		*s = UpdateGroupReqScopesItemUserDevicesWrite
+		return nil
+	case UpdateGroupReqScopesItemUserApikeyWrite:
+		*s = UpdateGroupReqScopesItemUserApikeyWrite
+		return nil
+	case UpdateGroupReqScopesItemUserDevicesReadonly:
+		*s = UpdateGroupReqScopesItemUserDevicesReadonly
+		return nil
+	case UpdateGroupReqScopesItemUser:
+		*s = UpdateGroupReqScopesItemUser
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type UpdateUserReq struct {
-	Email          OptString `json:"email"`
-	Firstname      OptString `json:"firstname"`
-	Lastname       OptString `json:"lastname"`
-	Password       OptString `json:"password"`
-	Salt           OptString `json:"salt"`
-	PhotoURL       OptString `json:"photo_url"`
-	Disabled       OptBool   `json:"disabled"`
-	DisabledReason OptString `json:"disabled_reason"`
-	Group          OptString `json:"group"`
-	Devices        []int     `json:"devices"`
-	Keys           []int     `json:"keys"`
+	Email          OptString   `json:"email"`
+	Firstname      OptString   `json:"firstname"`
+	Lastname       OptString   `json:"lastname"`
+	Password       OptString   `json:"password"`
+	Salt           OptString   `json:"salt"`
+	PhotoURL       OptString   `json:"photo_url"`
+	Disabled       OptBool     `json:"disabled"`
+	DisabledReason OptString   `json:"disabled_reason"`
+	Group          OptString   `json:"group"`
+	Devices        []uuid.UUID `json:"devices"`
+	Keys           []int       `json:"keys"`
+	Audit          []string    `json:"audit"`
 }
 
 // GetEmail returns the value of Email.
@@ -2819,13 +3763,18 @@ func (s *UpdateUserReq) GetGroup() OptString {
 }
 
 // GetDevices returns the value of Devices.
-func (s *UpdateUserReq) GetDevices() []int {
+func (s *UpdateUserReq) GetDevices() []uuid.UUID {
 	return s.Devices
 }
 
 // GetKeys returns the value of Keys.
 func (s *UpdateUserReq) GetKeys() []int {
 	return s.Keys
+}
+
+// GetAudit returns the value of Audit.
+func (s *UpdateUserReq) GetAudit() []string {
+	return s.Audit
 }
 
 // SetEmail sets the value of Email.
@@ -2874,7 +3823,7 @@ func (s *UpdateUserReq) SetGroup(val OptString) {
 }
 
 // SetDevices sets the value of Devices.
-func (s *UpdateUserReq) SetDevices(val []int) {
+func (s *UpdateUserReq) SetDevices(val []uuid.UUID) {
 	s.Devices = val
 }
 
@@ -2883,12 +3832,55 @@ func (s *UpdateUserReq) SetKeys(val []int) {
 	s.Keys = val
 }
 
+// SetAudit sets the value of Audit.
+func (s *UpdateUserReq) SetAudit(val []string) {
+	s.Audit = val
+}
+
+// Ref: #/components/schemas/User_AuditList
+type UserAuditList struct {
+	ID     string `json:"id"`
+	Action string `json:"action"`
+	Author string `json:"author"`
+}
+
+// GetID returns the value of ID.
+func (s *UserAuditList) GetID() string {
+	return s.ID
+}
+
+// GetAction returns the value of Action.
+func (s *UserAuditList) GetAction() string {
+	return s.Action
+}
+
+// GetAuthor returns the value of Author.
+func (s *UserAuditList) GetAuthor() string {
+	return s.Author
+}
+
+// SetID sets the value of ID.
+func (s *UserAuditList) SetID(val string) {
+	s.ID = val
+}
+
+// SetAction sets the value of Action.
+func (s *UserAuditList) SetAction(val string) {
+	s.Action = val
+}
+
+// SetAuthor sets the value of Author.
+func (s *UserAuditList) SetAuthor(val string) {
+	s.Author = val
+}
+
 // Ref: #/components/schemas/UserCreate
 type UserCreate struct {
 	ID             string    `json:"id"`
 	Email          string    `json:"email"`
 	Firstname      string    `json:"firstname"`
 	Lastname       string    `json:"lastname"`
+	Provider       string    `json:"provider"`
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
@@ -2912,6 +3904,11 @@ func (s *UserCreate) GetFirstname() string {
 // GetLastname returns the value of Lastname.
 func (s *UserCreate) GetLastname() string {
 	return s.Lastname
+}
+
+// GetProvider returns the value of Provider.
+func (s *UserCreate) GetProvider() string {
+	return s.Provider
 }
 
 // GetPhotoURL returns the value of PhotoURL.
@@ -2949,6 +3946,11 @@ func (s *UserCreate) SetLastname(val string) {
 	s.Lastname = val
 }
 
+// SetProvider sets the value of Provider.
+func (s *UserCreate) SetProvider(val string) {
+	s.Provider = val
+}
+
 // SetPhotoURL sets the value of PhotoURL.
 func (s *UserCreate) SetPhotoURL(val OptString) {
 	s.PhotoURL = val
@@ -2968,17 +3970,18 @@ func (*UserCreate) createUserRes() {}
 
 // Ref: #/components/schemas/User_DevicesList
 type UserDevicesList struct {
-	ID          int       `json:"id"`
+	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	Type        string    `json:"type"`
+	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  string    `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
-func (s *UserDevicesList) GetID() int {
+func (s *UserDevicesList) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -2997,6 +4000,11 @@ func (s *UserDevicesList) GetType() string {
 	return s.Type
 }
 
+// GetDNS returns the value of DNS.
+func (s *UserDevicesList) GetDNS() []string {
+	return s.DNS
+}
+
 // GetPublicKey returns the value of PublicKey.
 func (s *UserDevicesList) GetPublicKey() string {
 	return s.PublicKey
@@ -3013,7 +4021,7 @@ func (s *UserDevicesList) GetAllowedIps() string {
 }
 
 // SetID sets the value of ID.
-func (s *UserDevicesList) SetID(val int) {
+func (s *UserDevicesList) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -3030,6 +4038,11 @@ func (s *UserDevicesList) SetDescription(val OptString) {
 // SetType sets the value of Type.
 func (s *UserDevicesList) SetType(val string) {
 	s.Type = val
+}
+
+// SetDNS sets the value of DNS.
+func (s *UserDevicesList) SetDNS(val []string) {
+	s.DNS = val
 }
 
 // SetPublicKey sets the value of PublicKey.
@@ -3050,6 +4063,7 @@ func (s *UserDevicesList) SetAllowedIps(val string) {
 // Ref: #/components/schemas/User_GroupRead
 type UserGroupRead struct {
 	ID     string                    `json:"id"`
+	Name   string                    `json:"name"`
 	Scopes []UserGroupReadScopesItem `json:"scopes"`
 	Cidr   string                    `json:"cidr"`
 	Rules  []UserGroupReadRulesItem  `json:"rules"`
@@ -3058,6 +4072,11 @@ type UserGroupRead struct {
 // GetID returns the value of ID.
 func (s *UserGroupRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *UserGroupRead) GetName() string {
+	return s.Name
 }
 
 // GetScopes returns the value of Scopes.
@@ -3078,6 +4097,11 @@ func (s *UserGroupRead) GetRules() []UserGroupReadRulesItem {
 // SetID sets the value of ID.
 func (s *UserGroupRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *UserGroupRead) SetName(val string) {
+	s.Name = val
 }
 
 // SetScopes sets the value of Scopes.
@@ -3177,24 +4201,68 @@ func (s *UserGroupReadRulesItemType) UnmarshalText(data []byte) error {
 type UserGroupReadScopesItem string
 
 const (
-	UserGroupReadScopesItemUser  UserGroupReadScopesItem = "user.*"
-	UserGroupReadScopesItemAdmin UserGroupReadScopesItem = "admin.*"
+	UserGroupReadScopesItemAdminUsersWrite       UserGroupReadScopesItem = "admin.users.write"
+	UserGroupReadScopesItemAdminUsersReadonly    UserGroupReadScopesItem = "admin.users.readonly"
+	UserGroupReadScopesItemAdminGroupsWrite      UserGroupReadScopesItem = "admin.groups.write"
+	UserGroupReadScopesItemAdminGroupsReadonly   UserGroupReadScopesItem = "admin.groups.readonly"
+	UserGroupReadScopesItemAdminDevicesWrite     UserGroupReadScopesItem = "admin.devices.write"
+	UserGroupReadScopesItemAdminDevicesReadonly  UserGroupReadScopesItem = "admin.devices.readonly"
+	UserGroupReadScopesItemAdminSettingsWrite    UserGroupReadScopesItem = "admin.settings.write"
+	UserGroupReadScopesItemAdminSettingsReadonly UserGroupReadScopesItem = "admin.settings.readonly"
+	UserGroupReadScopesItemAdmin                 UserGroupReadScopesItem = "admin.*"
+	UserGroupReadScopesItemUserDevicesWrite      UserGroupReadScopesItem = "user.devices.write"
+	UserGroupReadScopesItemUserApikeyWrite       UserGroupReadScopesItem = "user.apikey.write"
+	UserGroupReadScopesItemUserDevicesReadonly   UserGroupReadScopesItem = "user.devices.readonly"
+	UserGroupReadScopesItemUser                  UserGroupReadScopesItem = "user.*"
 )
 
 // AllValues returns all UserGroupReadScopesItem values.
 func (UserGroupReadScopesItem) AllValues() []UserGroupReadScopesItem {
 	return []UserGroupReadScopesItem{
-		UserGroupReadScopesItemUser,
+		UserGroupReadScopesItemAdminUsersWrite,
+		UserGroupReadScopesItemAdminUsersReadonly,
+		UserGroupReadScopesItemAdminGroupsWrite,
+		UserGroupReadScopesItemAdminGroupsReadonly,
+		UserGroupReadScopesItemAdminDevicesWrite,
+		UserGroupReadScopesItemAdminDevicesReadonly,
+		UserGroupReadScopesItemAdminSettingsWrite,
+		UserGroupReadScopesItemAdminSettingsReadonly,
 		UserGroupReadScopesItemAdmin,
+		UserGroupReadScopesItemUserDevicesWrite,
+		UserGroupReadScopesItemUserApikeyWrite,
+		UserGroupReadScopesItemUserDevicesReadonly,
+		UserGroupReadScopesItemUser,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s UserGroupReadScopesItem) MarshalText() ([]byte, error) {
 	switch s {
-	case UserGroupReadScopesItemUser:
+	case UserGroupReadScopesItemAdminUsersWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminUsersReadonly:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminGroupsWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminGroupsReadonly:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminDevicesWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminDevicesReadonly:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminSettingsWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemAdminSettingsReadonly:
 		return []byte(s), nil
 	case UserGroupReadScopesItemAdmin:
+		return []byte(s), nil
+	case UserGroupReadScopesItemUserDevicesWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemUserApikeyWrite:
+		return []byte(s), nil
+	case UserGroupReadScopesItemUserDevicesReadonly:
+		return []byte(s), nil
+	case UserGroupReadScopesItemUser:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -3204,11 +4272,44 @@ func (s UserGroupReadScopesItem) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *UserGroupReadScopesItem) UnmarshalText(data []byte) error {
 	switch UserGroupReadScopesItem(data) {
-	case UserGroupReadScopesItemUser:
-		*s = UserGroupReadScopesItemUser
+	case UserGroupReadScopesItemAdminUsersWrite:
+		*s = UserGroupReadScopesItemAdminUsersWrite
+		return nil
+	case UserGroupReadScopesItemAdminUsersReadonly:
+		*s = UserGroupReadScopesItemAdminUsersReadonly
+		return nil
+	case UserGroupReadScopesItemAdminGroupsWrite:
+		*s = UserGroupReadScopesItemAdminGroupsWrite
+		return nil
+	case UserGroupReadScopesItemAdminGroupsReadonly:
+		*s = UserGroupReadScopesItemAdminGroupsReadonly
+		return nil
+	case UserGroupReadScopesItemAdminDevicesWrite:
+		*s = UserGroupReadScopesItemAdminDevicesWrite
+		return nil
+	case UserGroupReadScopesItemAdminDevicesReadonly:
+		*s = UserGroupReadScopesItemAdminDevicesReadonly
+		return nil
+	case UserGroupReadScopesItemAdminSettingsWrite:
+		*s = UserGroupReadScopesItemAdminSettingsWrite
+		return nil
+	case UserGroupReadScopesItemAdminSettingsReadonly:
+		*s = UserGroupReadScopesItemAdminSettingsReadonly
 		return nil
 	case UserGroupReadScopesItemAdmin:
 		*s = UserGroupReadScopesItemAdmin
+		return nil
+	case UserGroupReadScopesItemUserDevicesWrite:
+		*s = UserGroupReadScopesItemUserDevicesWrite
+		return nil
+	case UserGroupReadScopesItemUserApikeyWrite:
+		*s = UserGroupReadScopesItemUserApikeyWrite
+		return nil
+	case UserGroupReadScopesItemUserDevicesReadonly:
+		*s = UserGroupReadScopesItemUserDevicesReadonly
+		return nil
+	case UserGroupReadScopesItemUser:
+		*s = UserGroupReadScopesItemUser
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -3485,6 +4586,7 @@ type UserUpdate struct {
 	Email          string    `json:"email"`
 	Firstname      string    `json:"firstname"`
 	Lastname       string    `json:"lastname"`
+	Provider       string    `json:"provider"`
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
@@ -3508,6 +4610,11 @@ func (s *UserUpdate) GetFirstname() string {
 // GetLastname returns the value of Lastname.
 func (s *UserUpdate) GetLastname() string {
 	return s.Lastname
+}
+
+// GetProvider returns the value of Provider.
+func (s *UserUpdate) GetProvider() string {
+	return s.Provider
 }
 
 // GetPhotoURL returns the value of PhotoURL.
@@ -3545,6 +4652,11 @@ func (s *UserUpdate) SetLastname(val string) {
 	s.Lastname = val
 }
 
+// SetProvider sets the value of Provider.
+func (s *UserUpdate) SetProvider(val string) {
+	s.Provider = val
+}
+
 // SetPhotoURL sets the value of PhotoURL.
 func (s *UserUpdate) SetPhotoURL(val OptString) {
 	s.PhotoURL = val
@@ -3569,16 +4681,16 @@ func (*UserpassLoginBadRequest) userpassLoginRes() {}
 
 // UserpassLoginOK is response for UserpassLogin operation.
 type UserpassLoginOK struct {
-	SetCookie OptString
+	SetCookie string
 }
 
 // GetSetCookie returns the value of SetCookie.
-func (s *UserpassLoginOK) GetSetCookie() OptString {
+func (s *UserpassLoginOK) GetSetCookie() string {
 	return s.SetCookie
 }
 
 // SetSetCookie sets the value of SetCookie.
-func (s *UserpassLoginOK) SetSetCookie(val OptString) {
+func (s *UserpassLoginOK) SetSetCookie(val string) {
 	s.SetCookie = val
 }
 

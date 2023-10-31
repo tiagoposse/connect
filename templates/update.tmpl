@@ -6,12 +6,17 @@
 	{{- range $f := $.Fields }}
 		{{- $a := fieldAnnotation $f }}
 		{{- if and (not $f.Immutable) (or (not $a) (and (not $a.ReadOnly) (not $a.SkipUpdate)))  }}
-			{{- if $f.IsBytes }}
+			{{- if (or $f.IsBytes) }}
 				if req.{{ $f.StructField }} != nil {
 					b.Set{{ $f.StructField }}(req.{{ $f.StructField }})
 				}
 			{{- else }}
+        {{- if not (isComplexType $f) }}
 				if v, ok := req.{{ $f.StructField}}.Get(); ok {
+        {{- else }}
+        if req.{{ $f.StructField }} != nil {
+          v := req.{{ $f.StructField }}
+        {{- end }}
 					{{- $x := "v" }}
 					{{- if $f.IsEnum -}}
 						{{ $x = convertTo $f.Type.String $x }}

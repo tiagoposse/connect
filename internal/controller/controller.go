@@ -63,6 +63,7 @@ func (c *Controller) Init(ctx context.Context) error {
 		if err := c.client.Group.Create().
 			SetID(gID).
 			SetCidr(g.Cidr).
+			SetName(g.Name).
 			SetRules(g.Rules).
 			OnConflictColumns(group.FieldID).
 			UpdateNewValues().Exec(ctx); err != nil {
@@ -81,7 +82,7 @@ func (c *Controller) Init(ctx context.Context) error {
 		SetEmail("admin@local.com").
 		SetPassword(fmt.Sprintf("%s.%s", password, salt)).
 		SetSalt(salt).
-		SetGroupID(c.cfg.Auth.Admin.Group).
+		SetGroupID("0").
 		SetProvider("userpass").
 		Save(ctx); err == nil {
 		log.Printf("Admin password is %s", password)

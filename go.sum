@@ -214,8 +214,8 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/tiagoposse/entoas-fields-exclusion v0.0.0-20231018111014-2cb5449ad9a3 h1:+9eYvi2zXTYtFP8lFI5aYnGrymEsJU8NoDC0WSfEU94=
 github.com/tiagoposse/entoas-fields-exclusion v0.0.0-20231018111014-2cb5449ad9a3/go.mod h1:xT5S53ILnjSPPQ2xL/ZBSQ7Fbs1TVJq4c5g5EaC0N78=
-github.com/tiagoposse/go-auth v0.0.0-20231018131242-3a9051ec6074 h1:kmbkgRfPdxLidwsW668yRcOzMn/11r8Jh6QDbbQb2c4=
-github.com/tiagoposse/go-auth v0.0.0-20231018131242-3a9051ec6074/go.mod h1:2Y4emLyKzopp/Qrg5KQuQwNVqnu1Qwu0AxF3iQfu/sk=
+github.com/tiagoposse/go-auth v0.0.0-20231026103543-536eb5be9604 h1:UNQtnkLwowQE5d7gIrP30oTuPWXTlBp0q4N9vUWdR9s=
+github.com/tiagoposse/go-auth v0.0.0-20231026103543-536eb5be9604/go.mod h1:2Y4emLyKzopp/Qrg5KQuQwNVqnu1Qwu0AxF3iQfu/sk=
 github.com/tiagoposse/ogent-auth v0.0.0-20231018145057-f07425424dd2 h1:nJRHcr6bKzXdayNCXBY/aVsFqSgID6aqVxlaTybHAJg=
 github.com/tiagoposse/ogent-auth v0.0.0-20231018145057-f07425424dd2/go.mod h1:3HNaN9M40w3I9N2XC1xYvyTkMTXCNbdzQ1sGR+aj2WA=
 github.com/zclconf/go-cty v1.14.1 h1:t9fyA35fwjjUMcmL5hLER+e/rEPqrbCK1/OSE4SI9KA=

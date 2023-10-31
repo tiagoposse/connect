@@ -50,11 +50,14 @@ type UserEdges struct {
 	Devices []*Device `json:"devices,omitempty"`
 	// Keys holds the value of the keys edge.
 	Keys []*ApiKey `json:"keys,omitempty"`
+	// Audit holds the value of the audit edge.
+	Audit []*Audit `json:"audit,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes  [3]bool
+	loadedTypes  [4]bool
 	namedDevices map[string][]*Device
 	namedKeys    map[string][]*ApiKey
+	namedAudit   map[string][]*Audit
 }
 
 // GroupOrErr returns the Group value or an error if the edge
@@ -86,6 +89,15 @@ func (e UserEdges) KeysOrErr() ([]*ApiKey, error) {
 		return e.Keys, nil
 	}
 	return nil, &NotLoadedError{edge: "keys"}
+}
+
+// AuditOrErr returns the Audit value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuditOrErr() ([]*Audit, error) {
+	if e.loadedTypes[3] {
+		return e.Audit, nil
+	}
+	return nil, &NotLoadedError{edge: "audit"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -209,6 +221,11 @@ func (u *User) QueryKeys() *ApiKeyQuery {
 	return NewUserClient(u.config).QueryKeys(u)
 }
 
+// QueryAudit queries the "audit" edge of the User entity.
+func (u *User) QueryAudit() *AuditQuery {
+	return NewUserClient(u.config).QueryAudit(u)
+}
+
 // Update returns a builder for updating this User.
 // Note that you need to call User.Unwrap() before calling this method if this User
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -305,6 +322,30 @@ func (u *User) appendNamedKeys(name string, edges ...*ApiKey) {
 		u.Edges.namedKeys[name] = []*ApiKey{}
 	} else {
 		u.Edges.namedKeys[name] = append(u.Edges.namedKeys[name], edges...)
+	}
+}
+
+// NamedAudit returns the Audit named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (u *User) NamedAudit(name string) ([]*Audit, error) {
+	if u.Edges.namedAudit == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := u.Edges.namedAudit[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (u *User) appendNamedAudit(name string, edges ...*Audit) {
+	if u.Edges.namedAudit == nil {
+		u.Edges.namedAudit = make(map[string][]*Audit)
+	}
+	if len(edges) == 0 {
+		u.Edges.namedAudit[name] = []*Audit{}
+	} else {
+		u.Edges.namedAudit[name] = append(u.Edges.namedAudit[name], edges...)
 	}
 }
 

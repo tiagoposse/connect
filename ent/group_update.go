@@ -31,6 +31,12 @@ func (gu *GroupUpdate) Where(ps ...predicate.Group) *GroupUpdate {
 	return gu
 }
 
+// SetName sets the "name" field.
+func (gu *GroupUpdate) SetName(s string) *GroupUpdate {
+	gu.mutation.SetName(s)
+	return gu
+}
+
 // SetScopes sets the "scopes" field.
 func (gu *GroupUpdate) SetScopes(c controller.Scopes) *GroupUpdate {
 	gu.mutation.SetScopes(c)
@@ -132,6 +138,9 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := gu.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
+	}
 	if value, ok := gu.mutation.Scopes(); ok {
 		_spec.SetField(group.FieldScopes, field.TypeOther, value)
 	}
@@ -209,6 +218,12 @@ type GroupUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *GroupMutation
+}
+
+// SetName sets the "name" field.
+func (guo *GroupUpdateOne) SetName(s string) *GroupUpdateOne {
+	guo.mutation.SetName(s)
+	return guo
 }
 
 // SetScopes sets the "scopes" field.
@@ -341,6 +356,9 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := guo.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
 	}
 	if value, ok := guo.mutation.Scopes(); ok {
 		_spec.SetField(group.FieldScopes, field.TypeOther, value)

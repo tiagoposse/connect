@@ -38,6 +38,12 @@ type Handler interface {
 	//
 	// DELETE /api-keys/{id}
 	DeleteApiKey(ctx context.Context, params DeleteApiKeyParams) (DeleteApiKeyRes, error)
+	// DeleteAudit implements deleteAudit operation.
+	//
+	// Deletes the Audit with the requested ID.
+	//
+	// DELETE /audits/{id}
+	DeleteAudit(ctx context.Context, params DeleteAuditParams) (DeleteAuditRes, error)
 	// DeleteDevice implements deleteDevice operation.
 	//
 	// Deletes the Device with the requested ID.
@@ -63,7 +69,7 @@ type Handler interface {
 	// GoogleAuthStart implements googleAuthStart operation.
 	//
 	// GET /auth/google/start
-	GoogleAuthStart(ctx context.Context, params GoogleAuthStartParams) (GoogleAuthStartRes, error)
+	GoogleAuthStart(ctx context.Context) (GoogleAuthStartRes, error)
 	// GoogleAuthSync implements googleAuthSync operation.
 	//
 	// Synchronize users for the google provider.
@@ -76,6 +82,12 @@ type Handler interface {
 	//
 	// GET /api-keys
 	ListApiKey(ctx context.Context, params ListApiKeyParams) (ListApiKeyRes, error)
+	// ListAudit implements listAudit operation.
+	//
+	// List Audits.
+	//
+	// GET /audits
+	ListAudit(ctx context.Context, params ListAuditParams) (ListAuditRes, error)
 	// ListDevice implements listDevice operation.
 	//
 	// List Devices.
@@ -100,6 +112,12 @@ type Handler interface {
 	//
 	// GET /users
 	ListUser(ctx context.Context, params ListUserParams) (ListUserRes, error)
+	// ListUserAudit implements listUserAudit operation.
+	//
+	// List attached Audits.
+	//
+	// GET /users/{id}/audit
+	ListUserAudit(ctx context.Context, params ListUserAuditParams) (ListUserAuditRes, error)
 	// ListUserDevices implements listUserDevices operation.
 	//
 	// List attached Devices.
@@ -112,6 +130,12 @@ type Handler interface {
 	//
 	// GET /users/{id}/keys
 	ListUserKeys(ctx context.Context, params ListUserKeysParams) (ListUserKeysRes, error)
+	// Logout implements logout operation.
+	//
+	// Logout.
+	//
+	// GET /logout
+	Logout(ctx context.Context) (LogoutRes, error)
 	// ReadApiKey implements readApiKey operation.
 	//
 	// Finds the ApiKey with the requested ID and returns it.
@@ -124,6 +148,18 @@ type Handler interface {
 	//
 	// GET /api-keys/{id}/user
 	ReadApiKeyUser(ctx context.Context, params ReadApiKeyUserParams) (ReadApiKeyUserRes, error)
+	// ReadAudit implements readAudit operation.
+	//
+	// Finds the Audit with the requested ID and returns it.
+	//
+	// GET /audits/{id}
+	ReadAudit(ctx context.Context, params ReadAuditParams) (ReadAuditRes, error)
+	// ReadAuditUser implements readAuditUser operation.
+	//
+	// Find the attached User of the Audit with the given ID.
+	//
+	// GET /audits/{id}/user
+	ReadAuditUser(ctx context.Context, params ReadAuditUserParams) (ReadAuditUserRes, error)
 	// ReadDevice implements readDevice operation.
 	//
 	// Finds the Device with the requested ID and returns it.
@@ -156,7 +192,7 @@ type Handler interface {
 	ReadUserGroup(ctx context.Context, params ReadUserGroupParams) (ReadUserGroupRes, error)
 	// Status implements status operation.
 	//
-	// Ping the database and report.
+	// Check authentication status.
 	//
 	// GET /status
 	Status(ctx context.Context) (StatusRes, error)
@@ -166,6 +202,12 @@ type Handler interface {
 	//
 	// PATCH /devices/{id}
 	UpdateDevice(ctx context.Context, req *UpdateDeviceReq, params UpdateDeviceParams) (UpdateDeviceRes, error)
+	// UpdateGroup implements updateGroup operation.
+	//
+	// Updates a Group and persists changes to storage.
+	//
+	// PATCH /groups/{id}
+	UpdateGroup(ctx context.Context, req *UpdateGroupReq, params UpdateGroupParams) (UpdateGroupRes, error)
 	// UpdateUser implements updateUser operation.
 	//
 	// Updates a User and persists changes to storage.

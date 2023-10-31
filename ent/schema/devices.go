@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/ogen-go/ogen"
 	"github.com/tiagoposse/connect/filter"
 	"github.com/tiagoposse/connect/internal/types"
@@ -22,9 +23,14 @@ type Device struct {
 // Fields of the Todo.
 func (Device) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.String("name"),
 		field.String("description").Optional(),
 		field.String("type"),
+		field.Strings("dns").Annotations(
+			exclusion.SkipCreate(),
+			entoas.Schema(ogen.String().AsArray()),
+		),
 		field.String("public_key").Immutable().Unique(),
 		field.String("preshared_key").
 			Immutable().Unique().
@@ -49,7 +55,7 @@ func (Device) Fields() []ent.Field {
 // Edges of the Device.
 func (Device) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("devices").Unique(),
+		edge.From("user", User.Type).Ref("devices").Unique().Immutable(),
 	}
 }
 
@@ -59,7 +65,7 @@ func (Device) Annotations() []schema.Annotation {
 		entoas.ListOperation(entoas.OperationGroups("list")),
 		entoas.ReadOperation(entoas.OperationGroups("read")),
 		entoas.UpdateOperation(entoas.OperationGroups("update")),
-		filter.Annotation{FilterFields: []*filter.Opt{{Name: "user", In: "query"}}},
+		filter.WithFieldFilter("user"),
 		ogauth.WithCreateScopes(types.AdminAll, types.AdminDevicesWrite),
 		ogauth.WithUpdateScopes(types.AdminAll, types.AdminDevicesWrite),
 		ogauth.WithDeleteScopes(types.AdminAll, types.AdminDevicesWrite),

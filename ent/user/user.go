@@ -36,6 +36,8 @@ const (
 	EdgeDevices = "devices"
 	// EdgeKeys holds the string denoting the keys edge name in mutations.
 	EdgeKeys = "keys"
+	// EdgeAudit holds the string denoting the audit edge name in mutations.
+	EdgeAudit = "audit"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// GroupTable is the table that holds the group relation/edge.
@@ -59,6 +61,13 @@ const (
 	KeysInverseTable = "api_keys"
 	// KeysColumn is the table column denoting the keys relation/edge.
 	KeysColumn = "user_keys"
+	// AuditTable is the table that holds the audit relation/edge.
+	AuditTable = "audits"
+	// AuditInverseTable is the table name for the Audit entity.
+	// It exists in this package in order to avoid circular dependency with the "audit" package.
+	AuditInverseTable = "audits"
+	// AuditColumn is the table column denoting the audit relation/edge.
+	AuditColumn = "user_audit"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -103,6 +112,8 @@ var (
 	FirstnameValidator func(string) error
 	// LastnameValidator is a validator for the "lastname" field. It is called by the builders before save.
 	LastnameValidator func(string) error
+	// ProviderValidator is a validator for the "provider" field. It is called by the builders before save.
+	ProviderValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
 	// SaltValidator is a validator for the "salt" field. It is called by the builders before save.
@@ -200,6 +211,20 @@ func ByKeys(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newKeysStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAuditCount orders the results by audit count.
+func ByAuditCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuditStep(), opts...)
+	}
+}
+
+// ByAudit orders the results by audit terms.
+func ByAudit(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuditStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newGroupStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -219,5 +244,12 @@ func newKeysStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(KeysInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, KeysTable, KeysColumn),
+	)
+}
+func newAuditStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuditInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuditTable, AuditColumn),
 	)
 }

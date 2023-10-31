@@ -19,6 +19,12 @@ import {
     ApiKeyFromJSONTyped,
     ApiKeyToJSON,
 } from './ApiKey';
+import type { Audit } from './Audit';
+import {
+    AuditFromJSON,
+    AuditFromJSONTyped,
+    AuditToJSON,
+} from './Audit';
 import type { Device } from './Device';
 import {
     DeviceFromJSON,
@@ -116,6 +122,12 @@ export interface User {
      * @memberof User
      */
     keys?: Array<ApiKey>;
+    /**
+     * 
+     * @type {Array<Audit>}
+     * @memberof User
+     */
+    audit?: Array<Audit>;
 }
 
 /**
@@ -157,6 +169,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'group': GroupFromJSON(json['group']),
         'devices': !exists(json, 'devices') ? undefined : ((json['devices'] as Array<any>).map(DeviceFromJSON)),
         'keys': !exists(json, 'keys') ? undefined : ((json['keys'] as Array<any>).map(ApiKeyFromJSON)),
+        'audit': !exists(json, 'audit') ? undefined : ((json['audit'] as Array<any>).map(AuditFromJSON)),
     };
 }
 
@@ -182,6 +195,7 @@ export function UserToJSON(value?: User | null): any {
         'group': GroupToJSON(value.group),
         'devices': value.devices === undefined ? undefined : ((value.devices as Array<any>).map(DeviceToJSON)),
         'keys': value.keys === undefined ? undefined : ((value.keys as Array<any>).map(ApiKeyToJSON)),
+        'audit': value.audit === undefined ? undefined : ((value.audit as Array<any>).map(AuditToJSON)),
     };
 }
 

@@ -13,6 +13,8 @@ const (
 	Label = "group"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldScopes holds the string denoting the scopes field in the database.
 	FieldScopes = "scopes"
 	// FieldCidr holds the string denoting the cidr field in the database.
@@ -35,6 +37,7 @@ const (
 // Columns holds all SQL columns for group fields.
 var Columns = []string{
 	FieldID,
+	FieldName,
 	FieldScopes,
 	FieldCidr,
 	FieldRules,
@@ -53,6 +56,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultScopes holds the default value on creation for the "scopes" field.
 	DefaultScopes controller.Scopes
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
 )
 
 // OrderOption defines the ordering options for the Group queries.
@@ -61,6 +66,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
 // ByScopes orders the results by the scopes field.

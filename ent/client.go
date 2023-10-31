@@ -9,6 +9,7 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/migrate"
 
 	"entgo.io/ent"
@@ -16,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/user"
@@ -28,6 +30,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// ApiKey is the client for interacting with the ApiKey builders.
 	ApiKey *ApiKeyClient
+	// Audit is the client for interacting with the Audit builders.
+	Audit *AuditClient
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
 	// Group is the client for interacting with the Group builders.
@@ -48,6 +52,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.ApiKey = NewApiKeyClient(c.config)
+	c.Audit = NewAuditClient(c.config)
 	c.Device = NewDeviceClient(c.config)
 	c.Group = NewGroupClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -137,6 +142,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:    ctx,
 		config: cfg,
 		ApiKey: NewApiKeyClient(cfg),
+		Audit:  NewAuditClient(cfg),
 		Device: NewDeviceClient(cfg),
 		Group:  NewGroupClient(cfg),
 		User:   NewUserClient(cfg),
@@ -160,6 +166,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:    ctx,
 		config: cfg,
 		ApiKey: NewApiKeyClient(cfg),
+		Audit:  NewAuditClient(cfg),
 		Device: NewDeviceClient(cfg),
 		Group:  NewGroupClient(cfg),
 		User:   NewUserClient(cfg),
@@ -192,6 +199,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.ApiKey.Use(hooks...)
+	c.Audit.Use(hooks...)
 	c.Device.Use(hooks...)
 	c.Group.Use(hooks...)
 	c.User.Use(hooks...)
@@ -201,6 +209,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.ApiKey.Intercept(interceptors...)
+	c.Audit.Intercept(interceptors...)
 	c.Device.Intercept(interceptors...)
 	c.Group.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
@@ -211,6 +220,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *ApiKeyMutation:
 		return c.ApiKey.mutate(ctx, m)
+	case *AuditMutation:
+		return c.Audit.mutate(ctx, m)
 	case *DeviceMutation:
 		return c.Device.mutate(ctx, m)
 	case *GroupMutation:
@@ -371,6 +382,155 @@ func (c *ApiKeyClient) mutate(ctx context.Context, m *ApiKeyMutation) (Value, er
 	}
 }
 
+// AuditClient is a client for the Audit schema.
+type AuditClient struct {
+	config
+}
+
+// NewAuditClient returns a client for the Audit from the given config.
+func NewAuditClient(c config) *AuditClient {
+	return &AuditClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `audit.Hooks(f(g(h())))`.
+func (c *AuditClient) Use(hooks ...Hook) {
+	c.hooks.Audit = append(c.hooks.Audit, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `audit.Intercept(f(g(h())))`.
+func (c *AuditClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Audit = append(c.inters.Audit, interceptors...)
+}
+
+// Create returns a builder for creating a Audit entity.
+func (c *AuditClient) Create() *AuditCreate {
+	mutation := newAuditMutation(c.config, OpCreate)
+	return &AuditCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Audit entities.
+func (c *AuditClient) CreateBulk(builders ...*AuditCreate) *AuditCreateBulk {
+	return &AuditCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AuditClient) MapCreateBulk(slice any, setFunc func(*AuditCreate, int)) *AuditCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AuditCreateBulk{err: fmt.Errorf("calling to AuditClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AuditCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AuditCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Audit.
+func (c *AuditClient) Update() *AuditUpdate {
+	mutation := newAuditMutation(c.config, OpUpdate)
+	return &AuditUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AuditClient) UpdateOne(a *Audit) *AuditUpdateOne {
+	mutation := newAuditMutation(c.config, OpUpdateOne, withAudit(a))
+	return &AuditUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AuditClient) UpdateOneID(id string) *AuditUpdateOne {
+	mutation := newAuditMutation(c.config, OpUpdateOne, withAuditID(id))
+	return &AuditUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Audit.
+func (c *AuditClient) Delete() *AuditDelete {
+	mutation := newAuditMutation(c.config, OpDelete)
+	return &AuditDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AuditClient) DeleteOne(a *Audit) *AuditDeleteOne {
+	return c.DeleteOneID(a.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AuditClient) DeleteOneID(id string) *AuditDeleteOne {
+	builder := c.Delete().Where(audit.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AuditDeleteOne{builder}
+}
+
+// Query returns a query builder for Audit.
+func (c *AuditClient) Query() *AuditQuery {
+	return &AuditQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAudit},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Audit entity by its id.
+func (c *AuditClient) Get(ctx context.Context, id string) (*Audit, error) {
+	return c.Query().Where(audit.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AuditClient) GetX(ctx context.Context, id string) *Audit {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Audit.
+func (c *AuditClient) QueryUser(a *Audit) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(audit.Table, audit.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, audit.UserTable, audit.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AuditClient) Hooks() []Hook {
+	return c.hooks.Audit
+}
+
+// Interceptors returns the client interceptors.
+func (c *AuditClient) Interceptors() []Interceptor {
+	return c.inters.Audit
+}
+
+func (c *AuditClient) mutate(ctx context.Context, m *AuditMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AuditCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AuditUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AuditUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AuditDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Audit mutation op: %q", m.Op())
+	}
+}
+
 // DeviceClient is a client for the Device schema.
 type DeviceClient struct {
 	config
@@ -432,7 +592,7 @@ func (c *DeviceClient) UpdateOne(d *Device) *DeviceUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *DeviceClient) UpdateOneID(id int) *DeviceUpdateOne {
+func (c *DeviceClient) UpdateOneID(id uuid.UUID) *DeviceUpdateOne {
 	mutation := newDeviceMutation(c.config, OpUpdateOne, withDeviceID(id))
 	return &DeviceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -449,7 +609,7 @@ func (c *DeviceClient) DeleteOne(d *Device) *DeviceDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *DeviceClient) DeleteOneID(id int) *DeviceDeleteOne {
+func (c *DeviceClient) DeleteOneID(id uuid.UUID) *DeviceDeleteOne {
 	builder := c.Delete().Where(device.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -466,12 +626,12 @@ func (c *DeviceClient) Query() *DeviceQuery {
 }
 
 // Get returns a Device entity by its id.
-func (c *DeviceClient) Get(ctx context.Context, id int) (*Device, error) {
+func (c *DeviceClient) Get(ctx context.Context, id uuid.UUID) (*Device, error) {
 	return c.Query().Where(device.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *DeviceClient) GetX(ctx context.Context, id int) *Device {
+func (c *DeviceClient) GetX(ctx context.Context, id uuid.UUID) *Device {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -825,6 +985,22 @@ func (c *UserClient) QueryKeys(u *User) *ApiKeyQuery {
 	return query
 }
 
+// QueryAudit queries the audit edge of a User.
+func (c *UserClient) QueryAudit(u *User) *AuditQuery {
+	query := (&AuditClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(audit.Table, audit.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AuditTable, user.AuditColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -853,9 +1029,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		ApiKey, Device, Group, User []ent.Hook
+		ApiKey, Audit, Device, Group, User []ent.Hook
 	}
 	inters struct {
-		ApiKey, Device, Group, User []ent.Interceptor
+		ApiKey, Audit, Device, Group, User []ent.Interceptor
 	}
 )

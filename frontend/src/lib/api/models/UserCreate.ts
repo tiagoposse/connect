@@ -48,6 +48,12 @@ export interface UserCreate {
      * @type {string}
      * @memberof UserCreate
      */
+    provider: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserCreate
+     */
     photoUrl?: string;
     /**
      * 
@@ -72,6 +78,7 @@ export function instanceOfUserCreate(value: object): boolean {
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "firstname" in value;
     isInstance = isInstance && "lastname" in value;
+    isInstance = isInstance && "provider" in value;
     isInstance = isInstance && "disabled" in value;
 
     return isInstance;
@@ -91,6 +98,7 @@ export function UserCreateFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'email': json['email'],
         'firstname': json['firstname'],
         'lastname': json['lastname'],
+        'provider': json['provider'],
         'photoUrl': !exists(json, 'photo_url') ? undefined : json['photo_url'],
         'disabled': json['disabled'],
         'disabledReason': !exists(json, 'disabled_reason') ? undefined : json['disabled_reason'],
@@ -110,6 +118,7 @@ export function UserCreateToJSON(value?: UserCreate | null): any {
         'email': value.email,
         'firstname': value.firstname,
         'lastname': value.lastname,
+        'provider': value.provider,
         'photo_url': value.photoUrl,
         'disabled': value.disabled,
         'disabled_reason': value.disabledReason,

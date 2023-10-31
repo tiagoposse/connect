@@ -11,6 +11,7 @@ import (
 	"github.com/tiagoposse/connect/ent/ogent"
 	_ "github.com/tiagoposse/connect/ent/runtime"
 	"github.com/tiagoposse/connect/internal/config"
+	"github.com/tiagoposse/connect/internal/controller"
 	ctrl "github.com/tiagoposse/connect/internal/controller"
 	"github.com/tiagoposse/connect/internal/sessions"
 	"github.com/tiagoposse/connect/internal/utils"
@@ -77,7 +78,7 @@ func main() {
 	}
 
 	// Start listening.
-	srv, err := ogent.NewServer(c, secHandler, ogent.WithPathPrefix("/api/v1"))
+	srv, err := ogent.NewServer(c, secHandler, ogent.WithPathPrefix("/api/v1"), ogent.WithMiddleware(controller.GetAuthAfterUrl))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -147,12 +147,15 @@ func NewConfig() (*Config, error) {
 				JwtExpiration: utils.Duration(8 * time.Hour),
 			},
 			Groups: map[string]*ent.Group{
-				"admins": {
-					Cidr: types.Cidr{Prefix: netip.MustParsePrefix("10.254.0.0/16")},
+				"super-admins": {
+					Name: "Super Admins",
+					Cidr: types.Cidr{Prefix: netip.MustParsePrefix("0.0.0.0/32")},
+					Scopes: types.AllScopes,
+					Rules: []types.Rule{},
 				},
 			},
 			Admin: &Admin{
-				Group: "admins",
+				Group: "super-admins",
 			},
 		},
 		Database: &Database{

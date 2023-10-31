@@ -1,41 +1,70 @@
 <template>
-  <v-toolbar density="compact" class="pa-0">
-    <v-text-field hide-details prepend-icon="mdi-magnify" single-line v-model="filter" />
-    <v-spacer />
-    <v-btn v-if="authStore.isAuthenticated" color="primary" @click.stop="dialog = true">
-      Create Device
-    </v-btn>
-  </v-toolbar>
-  <v-container fluid>
-    <DeviceList :devices="devicesStore.devices" :loading="loading" />
-  </v-container>
-  <DeviceCreateDialog :open="dialog" :close="() => dialog = false" />
+  <DataTable
+      :headers="headers"
+      :fetch="fetch"
+      :update="update"
+      :remove="remove"
+      :convert-to-card="convertToCard"
+  >
+  <template v-slot:dialog-content="{ onFinish }">
+    <DialogDevice :onFinish="onFinish" />
+  </template>
+  </DataTable>
 </template>
 
 <script setup lang="ts">
-import DeviceList from '../components/DeviceList.vue';
-import { useDevicesStore } from '../stores/devices'
-import { useAuthStore } from '../stores/auth'
-import { ref, onMounted } from 'vue';
-import DeviceCreateDialog from '../components/DeviceCreateDialog.vue';
-import { DevicesAPI } from '../lib/apis';
+import DataTable from '@/components/DataTable.vue';
+import type { DeviceList, UpdateDeviceRequest } from '@/lib/api';
+import { DevicesAPI, type PaginationArgs, type ListResult } from '@/lib/apis';
+import { type CardItem, type ReadonlyDataTableHeader } from '@/lib/utils';
+import DialogDevice from '@/components/DialogDevice.vue';
 
-const filter = ref("")
-const dialog = ref(false);
-const loading = ref(true);
+async function fetch(pageArgs: PaginationArgs): Promise<ListResult<DeviceList>> {
+  const resp = await DevicesAPI.listDeviceRaw(pageArgs)
+  return {
+    items: await resp.value(),
+    total: parseInt(resp.raw.headers.get("x-total")!)
+  }
+}
 
-const devicesStore = useDevicesStore()
-const authStore = useAuthStore()
+function convertToCard(item: DeviceList): CardItem {
+  return {
+    id: item.id,
+    title: item.id,
+    subtitle: '',
+    fields: [],
+  }
+}
 
+async function remove(id: string) {
+  await DevicesAPI.deleteDevice({ id })
+}
 
-onMounted(async () => {
-  const resp = await DevicesAPI.listDevice({
-    user: authStore.userID
+async function update(id: string, payload: UpdateDeviceRequest): Promise<DeviceList> {
+  return await DevicesAPI.updateDevice({
+    id,
+    updateDeviceRequest: payload
   })
-  devicesStore.setDevices(resp)
-  loading.value = false;
-})
+}
 
-
-
+const headers = [
+  {
+    title: 'ID',
+    align: 'start',
+    sortable: true,
+    key: 'id',
+  },
+  {
+    title: 'Name',
+    align: 'end',
+    sortable: true,
+    key: 'title',
+  },
+  {
+    title: 'Type',
+    align: 'end',
+    sortable: false,
+    key: 'type',
+  }
+] as ReadonlyDataTableHeader[]
 </script>

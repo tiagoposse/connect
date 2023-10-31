@@ -747,6 +747,29 @@ func HasKeysWith(preds ...predicate.ApiKey) predicate.User {
 	})
 }
 
+// HasAudit applies the HasEdge predicate on the "audit" edge.
+func HasAudit() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AuditTable, AuditColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAuditWith applies the HasEdge predicate on the "audit" edge with a given conditions (other predicates).
+func HasAuditWith(preds ...predicate.Audit) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newAuditStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

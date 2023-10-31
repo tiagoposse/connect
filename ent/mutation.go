@@ -10,7 +10,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/tiagoposse/connect/ent/apikey"
+	"github.com/tiagoposse/connect/ent/audit"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/group"
 	"github.com/tiagoposse/connect/ent/predicate"
@@ -29,6 +31,7 @@ const (
 
 	// Node types.
 	TypeApiKey = "ApiKey"
+	TypeAudit  = "Audit"
 	TypeDevice = "Device"
 	TypeGroup  = "Group"
 	TypeUser   = "User"
@@ -535,15 +538,470 @@ func (m *ApiKeyMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown ApiKey edge %s", name)
 }
 
+// AuditMutation represents an operation that mutates the Audit nodes in the graph.
+type AuditMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	action        *string
+	author        *string
+	clearedFields map[string]struct{}
+	user          *string
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*Audit, error)
+	predicates    []predicate.Audit
+}
+
+var _ ent.Mutation = (*AuditMutation)(nil)
+
+// auditOption allows management of the mutation configuration using functional options.
+type auditOption func(*AuditMutation)
+
+// newAuditMutation creates new mutation for the Audit entity.
+func newAuditMutation(c config, op Op, opts ...auditOption) *AuditMutation {
+	m := &AuditMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAudit,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAuditID sets the ID field of the mutation.
+func withAuditID(id string) auditOption {
+	return func(m *AuditMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Audit
+		)
+		m.oldValue = func(ctx context.Context) (*Audit, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Audit.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAudit sets the old Audit of the mutation.
+func withAudit(node *Audit) auditOption {
+	return func(m *AuditMutation) {
+		m.oldValue = func(context.Context) (*Audit, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AuditMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AuditMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Audit entities.
+func (m *AuditMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AuditMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AuditMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Audit.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetAction sets the "action" field.
+func (m *AuditMutation) SetAction(s string) {
+	m.action = &s
+}
+
+// Action returns the value of the "action" field in the mutation.
+func (m *AuditMutation) Action() (r string, exists bool) {
+	v := m.action
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAction returns the old "action" field's value of the Audit entity.
+// If the Audit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuditMutation) OldAction(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAction is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAction requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAction: %w", err)
+	}
+	return oldValue.Action, nil
+}
+
+// ResetAction resets all changes to the "action" field.
+func (m *AuditMutation) ResetAction() {
+	m.action = nil
+}
+
+// SetAuthor sets the "author" field.
+func (m *AuditMutation) SetAuthor(s string) {
+	m.author = &s
+}
+
+// Author returns the value of the "author" field in the mutation.
+func (m *AuditMutation) Author() (r string, exists bool) {
+	v := m.author
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAuthor returns the old "author" field's value of the Audit entity.
+// If the Audit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuditMutation) OldAuthor(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAuthor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAuthor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAuthor: %w", err)
+	}
+	return oldValue.Author, nil
+}
+
+// ResetAuthor resets all changes to the "author" field.
+func (m *AuditMutation) ResetAuthor() {
+	m.author = nil
+}
+
+// SetUserID sets the "user" edge to the User entity by id.
+func (m *AuditMutation) SetUserID(id string) {
+	m.user = &id
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *AuditMutation) ClearUser() {
+	m.cleareduser = true
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *AuditMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserID returns the "user" edge ID in the mutation.
+func (m *AuditMutation) UserID() (id string, exists bool) {
+	if m.user != nil {
+		return *m.user, true
+	}
+	return
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *AuditMutation) UserIDs() (ids []string) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *AuditMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the AuditMutation builder.
+func (m *AuditMutation) Where(ps ...predicate.Audit) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the AuditMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *AuditMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Audit, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *AuditMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *AuditMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Audit).
+func (m *AuditMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AuditMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.action != nil {
+		fields = append(fields, audit.FieldAction)
+	}
+	if m.author != nil {
+		fields = append(fields, audit.FieldAuthor)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AuditMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case audit.FieldAction:
+		return m.Action()
+	case audit.FieldAuthor:
+		return m.Author()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AuditMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case audit.FieldAction:
+		return m.OldAction(ctx)
+	case audit.FieldAuthor:
+		return m.OldAuthor(ctx)
+	}
+	return nil, fmt.Errorf("unknown Audit field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AuditMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case audit.FieldAction:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAction(v)
+		return nil
+	case audit.FieldAuthor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAuthor(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Audit field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AuditMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AuditMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AuditMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Audit numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AuditMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AuditMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AuditMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Audit nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AuditMutation) ResetField(name string) error {
+	switch name {
+	case audit.FieldAction:
+		m.ResetAction()
+		return nil
+	case audit.FieldAuthor:
+		m.ResetAuthor()
+		return nil
+	}
+	return fmt.Errorf("unknown Audit field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AuditMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, audit.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AuditMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case audit.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AuditMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AuditMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AuditMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, audit.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AuditMutation) EdgeCleared(name string) bool {
+	switch name {
+	case audit.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AuditMutation) ClearEdge(name string) error {
+	switch name {
+	case audit.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown Audit unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AuditMutation) ResetEdge(name string) error {
+	switch name {
+	case audit.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown Audit edge %s", name)
+}
+
 // DeviceMutation represents an operation that mutates the Device nodes in the graph.
 type DeviceMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	name          *string
 	description   *string
 	_type         *string
+	dns           *[]string
+	appenddns     []string
 	public_key    *string
 	preshared_key *string
 	endpoint      *types.Inet
@@ -576,7 +1034,7 @@ func newDeviceMutation(c config, op Op, opts ...deviceOption) *DeviceMutation {
 }
 
 // withDeviceID sets the ID field of the mutation.
-func withDeviceID(id int) deviceOption {
+func withDeviceID(id uuid.UUID) deviceOption {
 	return func(m *DeviceMutation) {
 		var (
 			err   error
@@ -626,9 +1084,15 @@ func (m DeviceMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Device entities.
+func (m *DeviceMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *DeviceMutation) ID() (id int, exists bool) {
+func (m *DeviceMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -639,12 +1103,12 @@ func (m *DeviceMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *DeviceMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *DeviceMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -773,6 +1237,57 @@ func (m *DeviceMutation) OldType(ctx context.Context) (v string, err error) {
 // ResetType resets all changes to the "type" field.
 func (m *DeviceMutation) ResetType() {
 	m._type = nil
+}
+
+// SetDNS sets the "dns" field.
+func (m *DeviceMutation) SetDNS(s []string) {
+	m.dns = &s
+	m.appenddns = nil
+}
+
+// DNS returns the value of the "dns" field in the mutation.
+func (m *DeviceMutation) DNS() (r []string, exists bool) {
+	v := m.dns
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDNS returns the old "dns" field's value of the Device entity.
+// If the Device object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeviceMutation) OldDNS(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDNS is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDNS requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDNS: %w", err)
+	}
+	return oldValue.DNS, nil
+}
+
+// AppendDNS adds s to the "dns" field.
+func (m *DeviceMutation) AppendDNS(s []string) {
+	m.appenddns = append(m.appenddns, s...)
+}
+
+// AppendedDNS returns the list of values that were appended to the "dns" field in this mutation.
+func (m *DeviceMutation) AppendedDNS() ([]string, bool) {
+	if len(m.appenddns) == 0 {
+		return nil, false
+	}
+	return m.appenddns, true
+}
+
+// ResetDNS resets all changes to the "dns" field.
+func (m *DeviceMutation) ResetDNS() {
+	m.dns = nil
+	m.appenddns = nil
 }
 
 // SetPublicKey sets the "public_key" field.
@@ -992,7 +1507,7 @@ func (m *DeviceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeviceMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.name != nil {
 		fields = append(fields, device.FieldName)
 	}
@@ -1001,6 +1516,9 @@ func (m *DeviceMutation) Fields() []string {
 	}
 	if m._type != nil {
 		fields = append(fields, device.FieldType)
+	}
+	if m.dns != nil {
+		fields = append(fields, device.FieldDNS)
 	}
 	if m.public_key != nil {
 		fields = append(fields, device.FieldPublicKey)
@@ -1028,6 +1546,8 @@ func (m *DeviceMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case device.FieldType:
 		return m.GetType()
+	case device.FieldDNS:
+		return m.DNS()
 	case device.FieldPublicKey:
 		return m.PublicKey()
 	case device.FieldPresharedKey:
@@ -1051,6 +1571,8 @@ func (m *DeviceMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDescription(ctx)
 	case device.FieldType:
 		return m.OldType(ctx)
+	case device.FieldDNS:
+		return m.OldDNS(ctx)
 	case device.FieldPublicKey:
 		return m.OldPublicKey(ctx)
 	case device.FieldPresharedKey:
@@ -1088,6 +1610,13 @@ func (m *DeviceMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
+		return nil
+	case device.FieldDNS:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDNS(v)
 		return nil
 	case device.FieldPublicKey:
 		v, ok := value.(string)
@@ -1183,6 +1712,9 @@ func (m *DeviceMutation) ResetField(name string) error {
 		return nil
 	case device.FieldType:
 		m.ResetType()
+		return nil
+	case device.FieldDNS:
+		m.ResetDNS()
 		return nil
 	case device.FieldPublicKey:
 		m.ResetPublicKey()
@@ -1280,6 +1812,7 @@ type GroupMutation struct {
 	op            Op
 	typ           string
 	id            *string
+	name          *string
 	scopes        *controller.Scopes
 	cidr          *types.Cidr
 	rules         *[]types.Rule
@@ -1395,6 +1928,42 @@ func (m *GroupMutation) IDs(ctx context.Context) ([]string, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetName sets the "name" field.
+func (m *GroupMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *GroupMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *GroupMutation) ResetName() {
+	m.name = nil
 }
 
 // SetScopes sets the "scopes" field.
@@ -1608,7 +2177,10 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
+	if m.name != nil {
+		fields = append(fields, group.FieldName)
+	}
 	if m.scopes != nil {
 		fields = append(fields, group.FieldScopes)
 	}
@@ -1626,6 +2198,8 @@ func (m *GroupMutation) Fields() []string {
 // schema.
 func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case group.FieldName:
+		return m.Name()
 	case group.FieldScopes:
 		return m.Scopes()
 	case group.FieldCidr:
@@ -1641,6 +2215,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case group.FieldName:
+		return m.OldName(ctx)
 	case group.FieldScopes:
 		return m.OldScopes(ctx)
 	case group.FieldCidr:
@@ -1656,6 +2232,13 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *GroupMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case group.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
 	case group.FieldScopes:
 		v, ok := value.(controller.Scopes)
 		if !ok {
@@ -1726,6 +2309,9 @@ func (m *GroupMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *GroupMutation) ResetField(name string) error {
 	switch name {
+	case group.FieldName:
+		m.ResetName()
+		return nil
 	case group.FieldScopes:
 		m.ResetScopes()
 		return nil
@@ -1841,12 +2427,15 @@ type UserMutation struct {
 	clearedFields   map[string]struct{}
 	group           *string
 	clearedgroup    bool
-	devices         map[int]struct{}
-	removeddevices  map[int]struct{}
+	devices         map[uuid.UUID]struct{}
+	removeddevices  map[uuid.UUID]struct{}
 	cleareddevices  bool
 	keys            map[int]struct{}
 	removedkeys     map[int]struct{}
 	clearedkeys     bool
+	audit           map[string]struct{}
+	removedaudit    map[string]struct{}
+	clearedaudit    bool
 	done            bool
 	oldValue        func(context.Context) (*User, error)
 	predicates      []predicate.User
@@ -2372,9 +2961,9 @@ func (m *UserMutation) ResetGroup() {
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by ids.
-func (m *UserMutation) AddDeviceIDs(ids ...int) {
+func (m *UserMutation) AddDeviceIDs(ids ...uuid.UUID) {
 	if m.devices == nil {
-		m.devices = make(map[int]struct{})
+		m.devices = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.devices[ids[i]] = struct{}{}
@@ -2392,9 +2981,9 @@ func (m *UserMutation) DevicesCleared() bool {
 }
 
 // RemoveDeviceIDs removes the "devices" edge to the Device entity by IDs.
-func (m *UserMutation) RemoveDeviceIDs(ids ...int) {
+func (m *UserMutation) RemoveDeviceIDs(ids ...uuid.UUID) {
 	if m.removeddevices == nil {
-		m.removeddevices = make(map[int]struct{})
+		m.removeddevices = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.devices, ids[i])
@@ -2403,7 +2992,7 @@ func (m *UserMutation) RemoveDeviceIDs(ids ...int) {
 }
 
 // RemovedDevices returns the removed IDs of the "devices" edge to the Device entity.
-func (m *UserMutation) RemovedDevicesIDs() (ids []int) {
+func (m *UserMutation) RemovedDevicesIDs() (ids []uuid.UUID) {
 	for id := range m.removeddevices {
 		ids = append(ids, id)
 	}
@@ -2411,7 +3000,7 @@ func (m *UserMutation) RemovedDevicesIDs() (ids []int) {
 }
 
 // DevicesIDs returns the "devices" edge IDs in the mutation.
-func (m *UserMutation) DevicesIDs() (ids []int) {
+func (m *UserMutation) DevicesIDs() (ids []uuid.UUID) {
 	for id := range m.devices {
 		ids = append(ids, id)
 	}
@@ -2477,6 +3066,60 @@ func (m *UserMutation) ResetKeys() {
 	m.keys = nil
 	m.clearedkeys = false
 	m.removedkeys = nil
+}
+
+// AddAuditIDs adds the "audit" edge to the Audit entity by ids.
+func (m *UserMutation) AddAuditIDs(ids ...string) {
+	if m.audit == nil {
+		m.audit = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.audit[ids[i]] = struct{}{}
+	}
+}
+
+// ClearAudit clears the "audit" edge to the Audit entity.
+func (m *UserMutation) ClearAudit() {
+	m.clearedaudit = true
+}
+
+// AuditCleared reports if the "audit" edge to the Audit entity was cleared.
+func (m *UserMutation) AuditCleared() bool {
+	return m.clearedaudit
+}
+
+// RemoveAuditIDs removes the "audit" edge to the Audit entity by IDs.
+func (m *UserMutation) RemoveAuditIDs(ids ...string) {
+	if m.removedaudit == nil {
+		m.removedaudit = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.audit, ids[i])
+		m.removedaudit[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedAudit returns the removed IDs of the "audit" edge to the Audit entity.
+func (m *UserMutation) RemovedAuditIDs() (ids []string) {
+	for id := range m.removedaudit {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// AuditIDs returns the "audit" edge IDs in the mutation.
+func (m *UserMutation) AuditIDs() (ids []string) {
+	for id := range m.audit {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetAudit resets all changes to the "audit" edge.
+func (m *UserMutation) ResetAudit() {
+	m.audit = nil
+	m.clearedaudit = false
+	m.removedaudit = nil
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -2775,7 +3418,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.group != nil {
 		edges = append(edges, user.EdgeGroup)
 	}
@@ -2784,6 +3427,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.keys != nil {
 		edges = append(edges, user.EdgeKeys)
+	}
+	if m.audit != nil {
+		edges = append(edges, user.EdgeAudit)
 	}
 	return edges
 }
@@ -2808,18 +3454,27 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeAudit:
+		ids := make([]ent.Value, 0, len(m.audit))
+		for id := range m.audit {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removeddevices != nil {
 		edges = append(edges, user.EdgeDevices)
 	}
 	if m.removedkeys != nil {
 		edges = append(edges, user.EdgeKeys)
+	}
+	if m.removedaudit != nil {
+		edges = append(edges, user.EdgeAudit)
 	}
 	return edges
 }
@@ -2840,13 +3495,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeAudit:
+		ids := make([]ent.Value, 0, len(m.removedaudit))
+		for id := range m.removedaudit {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedgroup {
 		edges = append(edges, user.EdgeGroup)
 	}
@@ -2855,6 +3516,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedkeys {
 		edges = append(edges, user.EdgeKeys)
+	}
+	if m.clearedaudit {
+		edges = append(edges, user.EdgeAudit)
 	}
 	return edges
 }
@@ -2869,6 +3533,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.cleareddevices
 	case user.EdgeKeys:
 		return m.clearedkeys
+	case user.EdgeAudit:
+		return m.clearedaudit
 	}
 	return false
 }
@@ -2896,6 +3562,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeKeys:
 		m.ResetKeys()
+		return nil
+	case user.EdgeAudit:
+		m.ResetAudit()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

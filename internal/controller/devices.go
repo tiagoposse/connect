@@ -47,6 +47,8 @@ func (c *Controller) CreateDeviceWire(ctx context.Context, e *ent.DeviceCreate, 
 	}
 	
 	e.SetEndpoint(types.Inet{IP: next})
+	e.SetDNS(c.cfg.Wireguard.DnsServers)
+
 	if len(group.Rules) == 0 {
 		e.SetAllowedIps("0.0.0.0/0")
 	} else {

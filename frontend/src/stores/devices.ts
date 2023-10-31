@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-// import { type UserList } from '../lib/api/models/UserList';
-import { type DeviceList } from '../lib/api/models/index';
+import type { CreateDeviceRequest, DeviceList } from '@/lib/api/models/index';
+import { DevicesAPI } from '@/lib/apis';
 
 export const useDevicesStore = defineStore('devices', {
   state: () => ({
@@ -14,31 +14,19 @@ export const useDevicesStore = defineStore('devices', {
       }
       return this.devices
     },
-    // userDevices(state): { [key: string]: DeviceList[] } {
-    //   const m: { [key: string]: DeviceList[] } = {}
-
-    //   for (const d of state.devices) {
-    //     if (!this.users.some((item: UserList) => item.email === d.user)) {
-    //       continue
-    //     }
-
-    //     if (!m.hasOwnProperty(d.user)) {
-    //       m[d.user] = []
-    //     }
-    //     m[d.user].push(d)
-    //   }
-
-    //   return m
-    // }
   },
   actions: {
     async setDevices(devs: DeviceList[]) {
       this.devices = devs
     },
-    async addDevice(dev: DeviceList) {
-      this.devices.push(dev)
+    async addDevice(dev: CreateDeviceRequest): Promise<DeviceList> {
+      const resp = await DevicesAPI.createDevice({
+        createDeviceRequest: dev
+      })
+      this.devices.push(resp)
+      return resp
     },
-    async removeDevice(id: number) {
+    async removeDevice(id: string) {
       this.devices = this.devices.filter((obj: DeviceList) => obj.id !== id);
     }
   }

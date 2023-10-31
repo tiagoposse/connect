@@ -21,10 +21,10 @@ import { exists, mapValues } from '../runtime';
 export interface DeviceUpdate {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof DeviceUpdate
      */
-    id: number;
+    id: string;
     /**
      * 
      * @type {string}
@@ -43,6 +43,12 @@ export interface DeviceUpdate {
      * @memberof DeviceUpdate
      */
     type: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof DeviceUpdate
+     */
+    dns: Array<string>;
     /**
      * 
      * @type {string}
@@ -71,6 +77,7 @@ export function instanceOfDeviceUpdate(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "dns" in value;
     isInstance = isInstance && "publicKey" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
@@ -92,6 +99,7 @@ export function DeviceUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'name': json['name'],
         'description': !exists(json, 'description') ? undefined : json['description'],
         'type': json['type'],
+        'dns': json['dns'],
         'publicKey': json['public_key'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
@@ -111,6 +119,7 @@ export function DeviceUpdateToJSON(value?: DeviceUpdate | null): any {
         'name': value.name,
         'description': value.description,
         'type': value.type,
+        'dns': value.dns,
         'public_key': value.publicKey,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,

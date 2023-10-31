@@ -25,6 +25,12 @@ type GroupCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetName sets the "name" field.
+func (gc *GroupCreate) SetName(s string) *GroupCreate {
+	gc.mutation.SetName(s)
+	return gc
+}
+
 // SetScopes sets the "scopes" field.
 func (gc *GroupCreate) SetScopes(c controller.Scopes) *GroupCreate {
 	gc.mutation.SetScopes(c)
@@ -46,6 +52,14 @@ func (gc *GroupCreate) SetRules(t []types.Rule) *GroupCreate {
 // SetID sets the "id" field.
 func (gc *GroupCreate) SetID(s string) *GroupCreate {
 	gc.mutation.SetID(s)
+	return gc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableID(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetID(*s)
+	}
 	return gc
 }
 
@@ -103,10 +117,17 @@ func (gc *GroupCreate) defaults() {
 		v := group.DefaultScopes
 		gc.mutation.SetScopes(v)
 	}
+	if _, ok := gc.mutation.ID(); !ok {
+		v := group.DefaultID()
+		gc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (gc *GroupCreate) check() error {
+	if _, ok := gc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Group.name"`)}
+	}
 	if _, ok := gc.mutation.Scopes(); !ok {
 		return &ValidationError{Name: "scopes", err: errors.New(`ent: missing required field "Group.scopes"`)}
 	}
@@ -152,6 +173,10 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := gc.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
 	if value, ok := gc.mutation.Scopes(); ok {
 		_spec.SetField(group.FieldScopes, field.TypeOther, value)
 		_node.Scopes = value
@@ -187,7 +212,7 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 // of the `INSERT` statement. For example:
 //
 //	client.Group.Create().
-//		SetScopes(v).
+//		SetName(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -196,7 +221,7 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.GroupUpsert) {
-//			SetScopes(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (gc *GroupCreate) OnConflict(opts ...sql.ConflictOption) *GroupUpsertOne {
@@ -231,6 +256,18 @@ type (
 		*sql.UpdateSet
 	}
 )
+
+// SetName sets the "name" field.
+func (u *GroupUpsert) SetName(v string) *GroupUpsert {
+	u.Set(group.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GroupUpsert) UpdateName() *GroupUpsert {
+	u.SetExcluded(group.FieldName)
+	return u
+}
 
 // SetScopes sets the "scopes" field.
 func (u *GroupUpsert) SetScopes(v controller.Scopes) *GroupUpsert {
@@ -314,6 +351,20 @@ func (u *GroupUpsertOne) Update(set func(*GroupUpsert)) *GroupUpsertOne {
 		set(&GroupUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetName sets the "name" field.
+func (u *GroupUpsertOne) SetName(v string) *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GroupUpsertOne) UpdateName() *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateName()
+	})
 }
 
 // SetScopes sets the "scopes" field.
@@ -494,7 +545,7 @@ func (gcb *GroupCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.GroupUpsert) {
-//			SetScopes(v+v).
+//			SetName(v+v).
 //		}).
 //		Exec(ctx)
 func (gcb *GroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *GroupUpsertBulk {
@@ -571,6 +622,20 @@ func (u *GroupUpsertBulk) Update(set func(*GroupUpsert)) *GroupUpsertBulk {
 		set(&GroupUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetName sets the "name" field.
+func (u *GroupUpsertBulk) SetName(v string) *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GroupUpsertBulk) UpdateName() *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateName()
+	})
 }
 
 // SetScopes sets the "scopes" field.

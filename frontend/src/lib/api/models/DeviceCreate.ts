@@ -21,10 +21,10 @@ import { exists, mapValues } from '../runtime';
 export interface DeviceCreate {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof DeviceCreate
      */
-    id: number;
+    id: string;
     /**
      * 
      * @type {string}
@@ -43,6 +43,12 @@ export interface DeviceCreate {
      * @memberof DeviceCreate
      */
     type: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof DeviceCreate
+     */
+    dns: Array<string>;
     /**
      * 
      * @type {string}
@@ -77,6 +83,7 @@ export function instanceOfDeviceCreate(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "type" in value;
+    isInstance = isInstance && "dns" in value;
     isInstance = isInstance && "publicKey" in value;
     isInstance = isInstance && "presharedKey" in value;
     isInstance = isInstance && "endpoint" in value;
@@ -99,6 +106,7 @@ export function DeviceCreateFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'name': json['name'],
         'description': !exists(json, 'description') ? undefined : json['description'],
         'type': json['type'],
+        'dns': json['dns'],
         'publicKey': json['public_key'],
         'presharedKey': json['preshared_key'],
         'endpoint': json['endpoint'],
@@ -119,6 +127,7 @@ export function DeviceCreateToJSON(value?: DeviceCreate | null): any {
         'name': value.name,
         'description': value.description,
         'type': value.type,
+        'dns': value.dns,
         'public_key': value.publicKey,
         'preshared_key': value.presharedKey,
         'endpoint': value.endpoint,

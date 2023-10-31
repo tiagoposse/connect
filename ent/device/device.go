@@ -5,6 +5,7 @@ package device
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -18,6 +19,8 @@ const (
 	FieldDescription = "description"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldDNS holds the string denoting the dns field in the database.
+	FieldDNS = "dns"
 	// FieldPublicKey holds the string denoting the public_key field in the database.
 	FieldPublicKey = "public_key"
 	// FieldPresharedKey holds the string denoting the preshared_key field in the database.
@@ -45,6 +48,7 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldType,
+	FieldDNS,
 	FieldPublicKey,
 	FieldPresharedKey,
 	FieldEndpoint,
@@ -71,6 +75,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the Device queries.
 type OrderOption func(*sql.Selector)

@@ -21,6 +21,10 @@ type DeleteApiKeyRes interface {
 	deleteApiKeyRes()
 }
 
+type DeleteAuditRes interface {
+	deleteAuditRes()
+}
+
 type DeleteDeviceRes interface {
 	deleteDeviceRes()
 }
@@ -49,6 +53,10 @@ type ListApiKeyRes interface {
 	listApiKeyRes()
 }
 
+type ListAuditRes interface {
+	listAuditRes()
+}
+
 type ListDeviceRes interface {
 	listDeviceRes()
 }
@@ -59,6 +67,10 @@ type ListGroupRes interface {
 
 type ListGroupUsersRes interface {
 	listGroupUsersRes()
+}
+
+type ListUserAuditRes interface {
+	listUserAuditRes()
 }
 
 type ListUserDevicesRes interface {
@@ -73,12 +85,24 @@ type ListUserRes interface {
 	listUserRes()
 }
 
+type LogoutRes interface {
+	logoutRes()
+}
+
 type ReadApiKeyRes interface {
 	readApiKeyRes()
 }
 
 type ReadApiKeyUserRes interface {
 	readApiKeyUserRes()
+}
+
+type ReadAuditRes interface {
+	readAuditRes()
+}
+
+type ReadAuditUserRes interface {
+	readAuditUserRes()
 }
 
 type ReadDeviceRes interface {
@@ -107,6 +131,10 @@ type StatusRes interface {
 
 type UpdateDeviceRes interface {
 	updateDeviceRes()
+}
+
+type UpdateGroupRes interface {
+	updateGroupRes()
 }
 
 type UpdateUserRes interface {

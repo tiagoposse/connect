@@ -9,10 +9,10 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/predicate"
-	"github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/internal/types"
 )
 
@@ -61,6 +61,18 @@ func (du *DeviceUpdate) SetType(s string) *DeviceUpdate {
 	return du
 }
 
+// SetDNS sets the "dns" field.
+func (du *DeviceUpdate) SetDNS(s []string) *DeviceUpdate {
+	du.mutation.SetDNS(s)
+	return du
+}
+
+// AppendDNS appends s to the "dns" field.
+func (du *DeviceUpdate) AppendDNS(s []string) *DeviceUpdate {
+	du.mutation.AppendDNS(s)
+	return du
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (du *DeviceUpdate) SetEndpoint(t types.Inet) *DeviceUpdate {
 	du.mutation.SetEndpoint(t)
@@ -73,34 +85,9 @@ func (du *DeviceUpdate) SetAllowedIps(s string) *DeviceUpdate {
 	return du
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (du *DeviceUpdate) SetUserID(id string) *DeviceUpdate {
-	du.mutation.SetUserID(id)
-	return du
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (du *DeviceUpdate) SetNillableUserID(id *string) *DeviceUpdate {
-	if id != nil {
-		du = du.SetUserID(*id)
-	}
-	return du
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (du *DeviceUpdate) SetUser(u *User) *DeviceUpdate {
-	return du.SetUserID(u.ID)
-}
-
 // Mutation returns the DeviceMutation object of the builder.
 func (du *DeviceUpdate) Mutation() *DeviceMutation {
 	return du.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (du *DeviceUpdate) ClearUser() *DeviceUpdate {
-	du.mutation.ClearUser()
-	return du
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -131,7 +118,7 @@ func (du *DeviceUpdate) ExecX(ctx context.Context) {
 }
 
 func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	if ps := du.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -151,40 +138,19 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.GetType(); ok {
 		_spec.SetField(device.FieldType, field.TypeString, value)
 	}
+	if value, ok := du.mutation.DNS(); ok {
+		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+	}
+	if value, ok := du.mutation.AppendedDNS(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, device.FieldDNS, value)
+		})
+	}
 	if value, ok := du.mutation.Endpoint(); ok {
 		_spec.SetField(device.FieldEndpoint, field.TypeString, value)
 	}
 	if value, ok := du.mutation.AllowedIps(); ok {
 		_spec.SetField(device.FieldAllowedIps, field.TypeString, value)
-	}
-	if du.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   device.UserTable,
-			Columns: []string{device.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := du.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   device.UserTable,
-			Columns: []string{device.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, du.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -238,6 +204,18 @@ func (duo *DeviceUpdateOne) SetType(s string) *DeviceUpdateOne {
 	return duo
 }
 
+// SetDNS sets the "dns" field.
+func (duo *DeviceUpdateOne) SetDNS(s []string) *DeviceUpdateOne {
+	duo.mutation.SetDNS(s)
+	return duo
+}
+
+// AppendDNS appends s to the "dns" field.
+func (duo *DeviceUpdateOne) AppendDNS(s []string) *DeviceUpdateOne {
+	duo.mutation.AppendDNS(s)
+	return duo
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (duo *DeviceUpdateOne) SetEndpoint(t types.Inet) *DeviceUpdateOne {
 	duo.mutation.SetEndpoint(t)
@@ -250,34 +228,9 @@ func (duo *DeviceUpdateOne) SetAllowedIps(s string) *DeviceUpdateOne {
 	return duo
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (duo *DeviceUpdateOne) SetUserID(id string) *DeviceUpdateOne {
-	duo.mutation.SetUserID(id)
-	return duo
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (duo *DeviceUpdateOne) SetNillableUserID(id *string) *DeviceUpdateOne {
-	if id != nil {
-		duo = duo.SetUserID(*id)
-	}
-	return duo
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (duo *DeviceUpdateOne) SetUser(u *User) *DeviceUpdateOne {
-	return duo.SetUserID(u.ID)
-}
-
 // Mutation returns the DeviceMutation object of the builder.
 func (duo *DeviceUpdateOne) Mutation() *DeviceMutation {
 	return duo.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (duo *DeviceUpdateOne) ClearUser() *DeviceUpdateOne {
-	duo.mutation.ClearUser()
-	return duo
 }
 
 // Where appends a list predicates to the DeviceUpdate builder.
@@ -321,7 +274,7 @@ func (duo *DeviceUpdateOne) ExecX(ctx context.Context) {
 }
 
 func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err error) {
-	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	id, ok := duo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Device.id" for update`)}
@@ -358,40 +311,19 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	if value, ok := duo.mutation.GetType(); ok {
 		_spec.SetField(device.FieldType, field.TypeString, value)
 	}
+	if value, ok := duo.mutation.DNS(); ok {
+		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+	}
+	if value, ok := duo.mutation.AppendedDNS(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, device.FieldDNS, value)
+		})
+	}
 	if value, ok := duo.mutation.Endpoint(); ok {
 		_spec.SetField(device.FieldEndpoint, field.TypeString, value)
 	}
 	if value, ok := duo.mutation.AllowedIps(); ok {
 		_spec.SetField(device.FieldAllowedIps, field.TypeString, value)
-	}
-	if duo.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   device.UserTable,
-			Columns: []string{device.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := duo.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   device.UserTable,
-			Columns: []string{device.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Device{config: duo.config}
 	_spec.Assign = _node.assignValues

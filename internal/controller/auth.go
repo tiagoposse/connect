@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/ogen-go/ogen/middleware"
 	"github.com/tiagoposse/connect/ent/ogent"
 	"github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/internal/sessions"
@@ -28,13 +29,19 @@ func (c *Controller) Status(ctx context.Context) (ogent.StatusRes, error) {
 	return &resp, nil
 }
 
-func (c *Controller) GoogleAuthStart(ctx context.Context, req ogent.GoogleAuthStartParams) (ogent.GoogleAuthStartRes, error) {
-	authURL, err := c.google.GetAuthUrl(req.After)
+func (c *Controller) Logout(ctx context.Context) (ogent.LogoutRes, error) {
+	return &ogent.LogoutOK{
+		SetCookie: "Authorization=; Same-Site=Lax; HttpOnly; Secure; Path=/",
+	}, nil
+}
+
+func (c *Controller) GoogleAuthStart(ctx context.Context) (ogent.GoogleAuthStartRes, error) {
+	authURL, err := c.google.GetAuthUrl(ctx.Value(AfterUrlContextKey{}).(string))
 	if err != nil {
 		return &ogent.GoogleAuthStartBadRequest{}, err
 	}
 
-	return &ogent.GoogleAuthStartMovedPermanently{Location: ogent.NewOptURI(*authURL)}, nil
+	return &ogent.GoogleAuthStartMovedPermanently{Location: *authURL}, nil
 }
 
 func (c *Controller) GoogleAuthSync(ctx context.Context) (ogent.GoogleAuthSyncRes, error) {
@@ -78,9 +85,15 @@ func (c *Controller) GoogleAuthCallback(ctx context.Context, req ogent.OptGoogle
 	}
 
 	location, _ := url.Parse(req.Value.RelayState)
-	loc := ogent.NewOptURI(*location)
 	return &ogent.GoogleAuthCallbackMovedPermanently{
-		Location:  loc,
-		SetCookie: ogent.NewOptString(fmt.Sprintf("Authorization=%s; Same-Site=Lax; HttpOnly; Secure; Path=/", token)),
+		Location:  *location,
+		SetCookie: fmt.Sprintf("Authorization=%s; Same-Site=Lax; HttpOnly; Secure; Path=/", token),
 	}, nil
+}
+
+type AfterUrlContextKey struct {}
+
+func GetAuthAfterUrl(req middleware.Request, next middleware.Next) (middleware.Response, error) {
+	req.Context = context.WithValue(req.Context, AfterUrlContextKey{}, req.Raw.Header.Get("Referer"))
+	return next(req)
 }
