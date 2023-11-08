@@ -8,7 +8,7 @@ gen-back:
 
 gen-front:
 	@docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
-		-g typescript-axios \
+		-g typescript-fetch \
 		-i /local/ent/openapi.json \
 		-o /local/frontend/src/lib/api \
 		--additional-properties=addResponseHeaders=true,paramNaming=camelCase \

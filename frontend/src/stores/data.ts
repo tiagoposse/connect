@@ -36,6 +36,7 @@ export const useDataStore = defineStore('data', {
     async fetch(params: PaginationArgs, filters: FilterArgs) {
       try {
         const resp = await this.api!.fetch(params, filters)
+        console.log(resp)
         this.items = await resp.value()
         this.total = parseInt(resp.raw.headers.get('X-Total')!);
       } catch (e: any) {

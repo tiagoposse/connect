@@ -43,18 +43,16 @@
 
 <script setup lang="ts">
 import { UsersAPI } from '@/lib/apis';
-import { inject, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import crypto from 'crypto';
 import type { CreateUserRequest } from '@/lib/api';
 import argon2 from 'argon2-wasm-esm';
 import { useIdentitiesStore } from '@/stores/identities';
-import { useNotificationsStore } from '@/stores/notifications';
 import { useDataDialogStore } from '@/stores/dialogs';
 import { validationRules } from '@/lib/utils';
 import { ValidationError } from '@/lib/errors';
 
-const notifications = useNotificationsStore()
-
+const dialogStore = useDataDialogStore();
 const identities = useIdentitiesStore()
 
 onMounted(async () => {
@@ -78,8 +76,8 @@ const payload = ref({
 const setPassword = ref(false)
 const existingGroups = ref<{ value: string, title:string} []>([])
 
-// const registerCreateMethod = inject('registerCreateMethod') as ((method: () => Promise<boolean>) => void);
-useDataDialogStore().registerCallback(async () => {
+onMounted(() => {
+  dialogStore.registerCallback(async () => {
   const validation = [] as (string | boolean)[]
   validation.push(validationRules.required(payload.value.email, 'email'))
   validation.push(validationRules.email(payload.value.email))
@@ -114,6 +112,7 @@ useDataDialogStore().registerCallback(async () => {
   }
 
   await UsersAPI.createUser({ createUserRequest })
-})
+  return true
+})})
 
 </script>

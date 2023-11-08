@@ -26,16 +26,15 @@
 
 import { GroupCreateScopesEnum, type CreateGroupRequestRulesInner, CreateGroupRequestRulesInnerTypeEnum } from '@/lib/api/models';
 import { GroupsAPI } from '@/lib/apis';
-import { inject, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { validationRules } from '@/lib/utils';
-import { useNotificationsStore } from '@/stores/notifications';
 import { ValidationError } from '@/lib/errors';
+import { useDataDialogStore } from '@/stores/dialogs';
 
-const notifications = useNotificationsStore()
+const dialogStore = useDataDialogStore();
 
-const registerCreateMethod = inject('registerCreateMethod') as ((method: () => Promise<boolean>) => void);
-
-registerCreateMethod(async () => {
+onMounted(() => {
+  dialogStore.registerCallback(async () => {
   const validation = [] as (string | boolean)[]
   validation.push(validationRules.required(payload.value.name, 'name'))
   validation.push(validationRules.nonEmptyArray(payload.value.scopes, 'scopes'))
@@ -78,7 +77,7 @@ registerCreateMethod(async () => {
   })
 
   return true
-})
+})})
 
 const payload = ref({
   allowRules: [''],

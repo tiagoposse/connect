@@ -36,14 +36,11 @@ const headers = [
 
 
 export const GenericDevicesAPI: GenericAPI = {
-  create: async (payload: CreateDeviceRequest) => await DevicesAPI.createDevice(payload),
-  update: async (id: string, payload: CreateDeviceRequest) => { return await DevicesAPI.updateDevice(id, payload) },
-  remove: async (id: string) => { return await DevicesAPI.deleteDevice(id) },
+  create: async (payload: CreateDeviceRequest) => await DevicesAPI.createDevice({ createDeviceRequest: payload }),
+  update: async (id: string, payload: CreateDeviceRequest) => { return await DevicesAPI.updateDevice({ id, updateDeviceRequest: payload }) },
+  remove: async (id: string) => { return await DevicesAPI.deleteDevice({ id }) },
   fetch: async (params: PaginationArgs, filters: FilterArgs) => {
-    return await DevicesAPI.listDevice(
-      params.page, params.itemsPerPage, params.sortBy,
-      filters.id, filters.user, undefined, filters.type, filters.endpoint, filters.allowedIps, filters.publicKey
-    ) 
+    return await DevicesAPI.listDeviceRaw({ ...params, ...filters }) 
   },
   toCard: (item: DeviceList) => {
     return {

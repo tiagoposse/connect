@@ -79,17 +79,17 @@ const applyFilter = () => {
   }
 };
 
-const clearFilters = () => {
-  filters.value = {};
-};
+// const clearFilters = () => {
+//   filters.value = {};
+// };
 
-function openCreate(id: string) {
+function openCreate() {
   useDataDialogStore().open({
     fn: async () => {
-      dialogStore.setLoading(true)
-      await dataStore.create()
-      dialogStore.close()
-      notifications.showSuccess("Removed.")
+      // dialogStore.setLoading(true)
+      // await dataStore.create()
+      // dialogStore.close()
+      // notifications.showSuccess("Removed.")
     },
   })
 };

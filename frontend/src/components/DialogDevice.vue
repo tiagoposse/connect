@@ -34,21 +34,17 @@ import { generateKeyPair } from '@stablelib/x25519';
 import { encode as b64encode } from '@stablelib/base64';
 import type { CreateDeviceRequest } from '@/lib/api';
 import { API_URL, validationRules } from '@/lib/utils';
-import { inject, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useNotificationsStore } from '@/stores/notifications';
 import { useDataStore } from '@/stores/data';
-import { useDataDialogStore } from '@/stores/dialogs';
 import { ValidationError } from '@/lib/errors';
+import { useDataDialogStore } from '@/stores/dialogs';
 
-// const notifications = useNotificationsStore();
 const dialogStore = useDataDialogStore();
 const authStore = useAuthStore();
 const created = ref(false);
 const form = ref();
 
-// const registerCreateMethod = inject('registerCreateMethod') as ((method: () => Promise<boolean>) => void);
-// registerCreateMethod(
 onMounted(() => {
   dialogStore.registerCallback(async () => {
     const keyPair = generateKeyPair()

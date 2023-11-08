@@ -2,23 +2,24 @@ import {
   VDataTableServer,
 } from "vuetify/labs/VDataTable";
 
-import { Configuration } from './api';
-import type { AxiosResponse } from 'axios';
+import { Configuration, type ApiResponse } from './api';
+
 
 // @ts-ignore
 export const API_URL = `${window.WG_API}/api/v1`;
 
 export const DefaultApiConfig = new Configuration({
   basePath: API_URL,
+  credentials: 'include',
 },);
 
 export interface GenericAPI {
   create: (payload: any) => Promise<any>
   update: (id: string, payload: any) => Promise<any>
-  remove: (id: string) => Promise<AxiosResponse<void>>
-  fetch: (params: PaginationArgs, filters: FilterArgs) => Promise<AxiosResponse<any[]>>
+  remove: (id: string) => Promise<void>
+  fetch: (params: PaginationArgs, filters: FilterArgs) => Promise<ApiResponse<any[]>>
   toCard: (item: any) => CardItem
-  headers: DataTableHeader[]
+  headers: ReadonlyDataTableHeader[]
 }
 
 export type PaginationArgs = { page: number, itemsPerPage: number, sortBy: string }
@@ -30,7 +31,7 @@ export type ListResult<T> = {
 
 type UnwrapReadonlyArrayType<A> = A extends Readonly<Array<infer I>> ? UnwrapReadonlyArrayType<I> : A
 type DT = InstanceType<typeof VDataTableServer>;
-export type DataTableHeader = UnwrapReadonlyArrayType<DT['headers']>;
+export type ReadonlyDataTableHeader = UnwrapReadonlyArrayType<DT['headers']>;
 
 export type CardItem = {
   id: string;
