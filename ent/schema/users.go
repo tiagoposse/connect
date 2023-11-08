@@ -22,7 +22,7 @@ func (User) Annotations() []schema.Annotation {
 		entoas.ListOperation(entoas.OperationGroups("list")),
 		entoas.ReadOperation(entoas.OperationGroups("read")),
 		entoas.UpdateOperation(entoas.OperationGroups("update")),
-		filter.WithFieldFilter("id"),
+		filter.WithFieldFilter("id", "firstname", "lastname", "provider", "email", "disabled", "disabled_reason"),
 	}
 }
 

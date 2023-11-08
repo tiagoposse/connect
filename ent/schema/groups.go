@@ -1,9 +1,8 @@
 package schema
 
 import (
-	"encoding/json"
-
 	"github.com/google/uuid"
+	"github.com/tiagoposse/connect/filter"
 	"github.com/tiagoposse/connect/internal/types"
 
 	"entgo.io/contrib/entoas"
@@ -31,6 +30,7 @@ func (Group) Annotations() []schema.Annotation {
 		ogauth.WithDeleteScopes(types.AdminAll, types.AdminGroupsWrite),
 		ogauth.WithListScopes(types.AdminAll, types.AdminGroupsWrite, types.AdminGroupsReadOnly),
 		ogauth.WithReadScopes(types.AdminAll, types.AdminGroupsWrite, types.AdminGroupsReadOnly),
+		filter.WithFieldFilter("id", "name", "scopes", "cidr"),
 	}
 }
 
@@ -58,8 +58,10 @@ func (Group) Fields() []ent.Field {
 		}).Annotations(entoas.Schema(&ogen.Schema{Type: "string"})),
 		field.JSON("rules", []types.Rule{}).Annotations(entoas.Schema(
 			ogen.NewSchema().AddRequiredProperties(
-				ogen.String().ToProperty("id"),
-				ogen.String().AsEnum(nil, json.RawMessage(`"allow"`), json.RawMessage(`"deny"`)).ToProperty("type"),
+				ogen.String().AsEnum(nil,
+					types.RuleAllow.ToRawMessage(),
+					types.RuleDeny.ToRawMessage(),
+				).ToProperty("type"),
 				ogen.String().ToProperty("target"),
 			).AsArray(),
 		)),

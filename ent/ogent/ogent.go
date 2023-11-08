@@ -212,14 +212,14 @@ func (h *OgentHandler) CreateApiKey(ctx context.Context, req *CreateApiKeyReq) (
 	// Add all fields.
 	b.SetName(req.Name)
 	b.SetKey(req.Key)
-	b.SetScopes(JsonConvert(req.Scopes, controller.Scopes{}).(controller.Scopes))
+	b.SetScopes(*JsonConvert(req.Scopes, &controller.Scopes{}).(*controller.Scopes))
 	// Add all edges.
 	b.SetUserID(req.User)
 	// Add Wiring
 	if err := h.wires.CreateApiKeyWire(ctx, b, req); err != nil {
 		return &R500{
 			Code:   http.StatusInternalServerError,
-			Status: http.StatusText(http.StatusConflict),
+			Status: http.StatusText(http.StatusInternalServerError),
 			Errors: rawError(err),
 		}, nil
 	}
@@ -292,11 +292,11 @@ func (h *OgentHandler) DeleteApiKey(ctx context.Context, params DeleteApiKeyPara
 func (h *OgentHandler) ListApiKey(ctx context.Context, params ListApiKeyParams) (ListApiKeyRes, error) {
 	q := h.client.ApiKey.Query()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -330,7 +330,27 @@ func (h *OgentHandler) ListApiKey(ctx context.Context, params ListApiKeyParams) 
 		}, nil
 	}
 	r := NewApiKeyLists(es)
-	return (*ListApiKeyOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.ApiKey.Query().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListApiKeyOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ReadApiKey handles GET /api-keys/{id} requests.
@@ -431,11 +451,11 @@ func (h *OgentHandler) DeleteAudit(ctx context.Context, params DeleteAuditParams
 func (h *OgentHandler) ListAudit(ctx context.Context, params ListAuditParams) (ListAuditRes, error) {
 	q := h.client.Audit.Query()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -469,7 +489,27 @@ func (h *OgentHandler) ListAudit(ctx context.Context, params ListAuditParams) (L
 		}, nil
 	}
 	r := NewAuditLists(es)
-	return (*ListAuditOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.Audit.Query().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListAuditOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ReadAudit handles GET /audits/{id} requests.
@@ -541,16 +581,18 @@ func (h *OgentHandler) CreateDevice(ctx context.Context, req *CreateDeviceReq) (
 		b.SetDescription(v)
 	}
 	b.SetType(req.Type)
+	b.SetDNS(*JsonConvert(req.DNS, &types.InetSlice{}).(*types.InetSlice))
 	b.SetPublicKey(req.PublicKey)
+	b.SetKeepAlive(req.KeepAlive)
+	b.SetEndpoint(types.Inet{}.ParseString(req.Endpoint))
+	b.SetAllowedIps(*JsonConvert(req.AllowedIps, &types.CidrSlice{}).(*types.CidrSlice))
 	// Add all edges.
-	if v, ok := req.User.Get(); ok {
-		b.SetUserID(v)
-	}
+	b.SetUserID(req.User)
 	// Add Wiring
 	if err := h.wires.CreateDeviceWire(ctx, b, req); err != nil {
 		return &R500{
 			Code:   http.StatusInternalServerError,
-			Status: http.StatusText(http.StatusConflict),
+			Status: http.StatusText(http.StatusInternalServerError),
 			Errors: rawError(err),
 		}, nil
 	}
@@ -623,11 +665,11 @@ func (h *OgentHandler) DeleteDevice(ctx context.Context, params DeleteDevicePara
 func (h *OgentHandler) ListDevice(ctx context.Context, params ListDeviceParams) (ListDeviceRes, error) {
 	q := h.client.Device.Query()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -661,7 +703,27 @@ func (h *OgentHandler) ListDevice(ctx context.Context, params ListDeviceParams) 
 		}, nil
 	}
 	r := NewDeviceLists(es)
-	return (*ListDeviceOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.Device.Query().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListDeviceOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ReadDevice handles GET /devices/{id} requests.
@@ -713,13 +775,17 @@ func (h *OgentHandler) UpdateDevice(ctx context.Context, req *UpdateDeviceReq, p
 	}
 	if req.DNS != nil {
 		v := req.DNS
-		b.SetDNS(JsonConvert(v, []string{}).([]string))
+		b.SetDNS(*JsonConvert(v, &types.InetSlice{}).(*types.InetSlice))
+	}
+	if v, ok := req.KeepAlive.Get(); ok {
+		b.SetKeepAlive(v)
 	}
 	if v, ok := req.Endpoint.Get(); ok {
 		b.SetEndpoint(types.Inet{}.ParseString(v))
 	}
-	if v, ok := req.AllowedIps.Get(); ok {
-		b.SetAllowedIps(v)
+	if req.AllowedIps != nil {
+		v := req.AllowedIps
+		b.SetAllowedIps(*JsonConvert(v, &types.CidrSlice{}).(*types.CidrSlice))
 	}
 	// Add all edges.
 	// Add Wiring
@@ -792,16 +858,16 @@ func (h *OgentHandler) CreateGroup(ctx context.Context, req *CreateGroupReq) (Cr
 	b := h.client.Group.Create()
 	// Add all fields.
 	b.SetName(req.Name)
-	b.SetScopes(JsonConvert(req.Scopes, controller.Scopes{}).(controller.Scopes))
+	b.SetScopes(*JsonConvert(req.Scopes, &controller.Scopes{}).(*controller.Scopes))
 	b.SetCidr(types.Cidr{}.ParseString(req.Cidr))
-	b.SetRules(JsonConvert(req.Rules, []types.Rule{}).([]types.Rule))
+	b.SetRules(*JsonConvert(req.Rules, &[]types.Rule{}).(*[]types.Rule))
 	// Add all edges.
 	b.AddUserIDs(req.Users...)
 	// Add Wiring
 	if err := h.wires.CreateGroupWire(ctx, b, req); err != nil {
 		return &R500{
 			Code:   http.StatusInternalServerError,
-			Status: http.StatusText(http.StatusConflict),
+			Status: http.StatusText(http.StatusInternalServerError),
 			Errors: rawError(err),
 		}, nil
 	}
@@ -879,14 +945,14 @@ func (h *OgentHandler) UpdateGroup(ctx context.Context, req *UpdateGroupReq, par
 	}
 	if req.Scopes != nil {
 		v := req.Scopes
-		b.SetScopes(JsonConvert(v, controller.Scopes{}).(controller.Scopes))
+		b.SetScopes(*JsonConvert(v, &controller.Scopes{}).(*controller.Scopes))
 	}
 	if v, ok := req.Cidr.Get(); ok {
 		b.SetCidr(types.Cidr{}.ParseString(v))
 	}
 	if req.Rules != nil {
 		v := req.Rules
-		b.SetRules(JsonConvert(v, []types.Rule{}).([]types.Rule))
+		b.SetRules(*JsonConvert(v, &[]types.Rule{}).(*[]types.Rule))
 	}
 	// Add all edges.
 	if req.Users != nil {
@@ -969,11 +1035,11 @@ func (h *OgentHandler) DeleteGroup(ctx context.Context, params DeleteGroupParams
 func (h *OgentHandler) ListGroup(ctx context.Context, params ListGroupParams) (ListGroupRes, error) {
 	q := h.client.Group.Query()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1007,18 +1073,38 @@ func (h *OgentHandler) ListGroup(ctx context.Context, params ListGroupParams) (L
 		}, nil
 	}
 	r := NewGroupLists(es)
-	return (*ListGroupOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.Group.Query().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListGroupOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ListGroupUsers handles GET /groups/{id}/users requests.
 func (h *OgentHandler) ListGroupUsers(ctx context.Context, params ListGroupUsersParams) (ListGroupUsersRes, error) {
 	q := h.client.Group.Query().Where(group.IDEQ(params.ID)).QueryUsers()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1043,7 +1129,27 @@ func (h *OgentHandler) ListGroupUsers(ctx context.Context, params ListGroupUsers
 		}
 	}
 	r := NewGroupUsersLists(es)
-	return (*ListGroupUsersOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.Group.Query().Where(group.IDEQ(params.ID)).QueryUsers().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListGroupUsersOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // CreateUser handles POST /users requests.
@@ -1076,7 +1182,7 @@ func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (Crea
 	if err := h.wires.CreateUserWire(ctx, b, req); err != nil {
 		return &R500{
 			Code:   http.StatusInternalServerError,
-			Status: http.StatusText(http.StatusConflict),
+			Status: http.StatusText(http.StatusInternalServerError),
 			Errors: rawError(err),
 		}, nil
 	}
@@ -1149,11 +1255,11 @@ func (h *OgentHandler) DeleteUser(ctx context.Context, params DeleteUserParams) 
 func (h *OgentHandler) ListUser(ctx context.Context, params ListUserParams) (ListUserRes, error) {
 	q := h.client.User.Query()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1187,7 +1293,27 @@ func (h *OgentHandler) ListUser(ctx context.Context, params ListUserParams) (Lis
 		}, nil
 	}
 	r := NewUserLists(es)
-	return (*ListUserOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.User.Query().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListUserOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ReadUser handles GET /users/{id} requests.
@@ -1334,11 +1460,11 @@ func (h *OgentHandler) ReadUserGroup(ctx context.Context, params ReadUserGroupPa
 func (h *OgentHandler) ListUserDevices(ctx context.Context, params ListUserDevicesParams) (ListUserDevicesRes, error) {
 	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryDevices()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1363,18 +1489,38 @@ func (h *OgentHandler) ListUserDevices(ctx context.Context, params ListUserDevic
 		}
 	}
 	r := NewUserDevicesLists(es)
-	return (*ListUserDevicesOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryDevices().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListUserDevicesOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ListUserKeys handles GET /users/{id}/keys requests.
 func (h *OgentHandler) ListUserKeys(ctx context.Context, params ListUserKeysParams) (ListUserKeysRes, error) {
 	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryKeys()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1399,18 +1545,38 @@ func (h *OgentHandler) ListUserKeys(ctx context.Context, params ListUserKeysPara
 		}
 	}
 	r := NewUserKeysLists(es)
-	return (*ListUserKeysOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryKeys().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListUserKeysOKHeaders{Response: r, XTotal: countQuery}, nil
 }
 
 // ListUserAudit handles GET /users/{id}/audit requests.
 func (h *OgentHandler) ListUserAudit(ctx context.Context, params ListUserAuditParams) (ListUserAuditRes, error) {
 	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryAudit()
 	page := 1
-	if v, ok := params.Page.Get(); ok {
+	if v, ok := params.XPage.Get(); ok {
 		page = v
 	}
 	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
+	if v, ok := params.XItemsPerPage.Get(); ok {
 		itemsPerPage = v
 	}
 	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
@@ -1435,5 +1601,25 @@ func (h *OgentHandler) ListUserAudit(ctx context.Context, params ListUserAuditPa
 		}
 	}
 	r := NewUserAuditLists(es)
-	return (*ListUserAuditOKApplicationJSON)(&r), nil
+	countQuery, err := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryAudit().Count(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return &ListUserAuditOKHeaders{Response: r, XTotal: countQuery}, nil
 }

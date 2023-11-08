@@ -2,7 +2,11 @@
 
 package ogent
 
-import "github.com/tiagoposse/connect/ent"
+import (
+	"fmt"
+
+	"github.com/tiagoposse/connect/ent"
+)
 
 func NewApiKeyCreate(e *ent.ApiKey) *ApiKeyCreate {
 	if e == nil {
@@ -226,11 +230,12 @@ func NewDeviceCreate(e *ent.Device) *DeviceCreate {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
-	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
+	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
 	ret.PresharedKey = e.PresharedKey
+	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
-	ret.AllowedIps = e.AllowedIps
+	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
 	return &ret
 }
 
@@ -261,10 +266,11 @@ func NewDeviceList(e *ent.Device) *DeviceList {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
-	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
+	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
+	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
-	ret.AllowedIps = e.AllowedIps
+	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
 	return &ret
 }
 
@@ -295,10 +301,11 @@ func NewDeviceRead(e *ent.Device) *DeviceRead {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
-	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
+	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
+	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
-	ret.AllowedIps = e.AllowedIps
+	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
 	return &ret
 }
 
@@ -329,10 +336,11 @@ func NewDeviceUpdate(e *ent.Device) *DeviceUpdate {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
-	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
+	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
+	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
-	ret.AllowedIps = e.AllowedIps
+	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
 	return &ret
 }
 
@@ -720,10 +728,11 @@ func NewUserDevicesList(e *ent.Device) *UserDevicesList {
 	ret.Name = e.Name
 	ret.Description = NewOptString(e.Description)
 	ret.Type = e.Type
-	ret.DNS = JsonConvert(e.DNS, []string{}).([]string)
+	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
+	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
-	ret.AllowedIps = e.AllowedIps
+	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
 	return &ret
 }
 

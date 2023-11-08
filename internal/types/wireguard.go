@@ -1,5 +1,10 @@
 package types
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 
 type RuleType string
 
@@ -9,7 +14,16 @@ const (
 )
 
 type Rule struct {
-	ID     string   `gorm:"primaryKey;autoIncrement:false"`
 	Type   RuleType `json:"type"`
-	Target string   `json:"target"`
+	Target Cidr   `json:"target"`
 }
+
+func (r RuleType) ToRawMessage() json.RawMessage {
+	return json.RawMessage(fmt.Sprintf(`"%s"`, r))
+}
+
+// func (r RuleType) Validate() error {
+// 	if r.Target {
+		
+// 	}
+// }

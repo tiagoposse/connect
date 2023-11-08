@@ -49,7 +49,7 @@
   if err := h.wires.Create{{ $.Name }}Wire(ctx, b, req); err != nil {
     return &R500{
       Code: http.StatusInternalServerError,
-      Status: http.StatusText(http.StatusConflict),
+      Status: http.StatusText(http.StatusInternalServerError),
       Errors: rawError(err),
     }, nil
   }

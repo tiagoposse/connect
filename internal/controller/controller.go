@@ -3,6 +3,8 @@ package controller
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"strings"
 
 	"github.com/tiagoposse/connect/ent"
 	"github.com/tiagoposse/connect/ent/group"
@@ -10,6 +12,7 @@ import (
 	"github.com/tiagoposse/connect/internal/auth"
 	"github.com/tiagoposse/connect/internal/config"
 	"github.com/tiagoposse/connect/internal/sessions"
+	"github.com/tiagoposse/connect/internal/types"
 	"github.com/tiagoposse/connect/internal/utils"
 	"github.com/tiagoposse/connect/internal/wireguard"
 
@@ -54,8 +57,10 @@ type Controller struct {
 
 func (c *Controller) Init(ctx context.Context) error {
 	wires := &ogent.OgentHandlerWiring{
-		CreateDeviceWire: c.CreateDeviceWire,
 		DeleteDeviceWire: c.DeleteDeviceWire,
+		CreateGroupWire: c.CreateGroupWire,
+		UpdateGroupWire: c.UpdateGroupWire,
+		DeleteGroupWire: c.DeleteGroupWire,
 	}
 	c.SetWiring(wires)
 
@@ -101,6 +106,35 @@ func (c *Controller) Init(ctx context.Context) error {
 		log.Printf("Admin API Key is %s", apiKey)
 	} else if !utils.IsMaxItemsError(err) {
 		return err
+	}
+
+	currentGroups, err := c.client.Group.Query().All(ctx)
+	if err != nil {
+		return err
+	}
+
+	iptables := make([]string, 0)
+	for _, g := range currentGroups {
+		hasAllowRules := false
+		for _, rule := range g.Rules {
+			if rule.Type == types.RuleAllow {
+				hasAllowRules = true
+				iptables = append(iptables, fmt.Sprintf("-A FORWARD -s %s -d %s -j ACCEPT", g.Cidr, rule.Target))
+			} else {
+				iptables = append(iptables, fmt.Sprintf("-A FORWARD -s %s -d %s -j DROP", g.Cidr, rule.Target))
+			}
+		}
+
+		if hasAllowRules {
+			iptables = append(iptables, fmt.Sprintf("-A FORWARD -s %s -d 0.0.0.0/0 -j DROP", g.Cidr))
+		}
+	}
+
+	for _, rule := range iptables {
+		cmd := exec.Command("iptables", strings.Split(rule, " ")...)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
 	}
 
 	return nil

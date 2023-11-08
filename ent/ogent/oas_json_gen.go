@@ -1465,23 +1465,49 @@ func (s *CreateDeviceReq) encodeFields(e *jx.Encoder) {
 		e.Str(s.Type)
 	}
 	{
+		e.FieldStart("dns")
+		e.ArrStart()
+		for _, elem := range s.DNS {
+			e.Str(elem)
+		}
+		e.ArrEnd()
+	}
+	{
 		e.FieldStart("public_key")
 		e.Str(s.PublicKey)
 	}
 	{
-		if s.User.Set {
-			e.FieldStart("user")
-			s.User.Encode(e)
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
+		e.FieldStart("endpoint")
+		e.Str(s.Endpoint)
+	}
+	{
+		e.FieldStart("allowed_ips")
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
 		}
+		e.ArrEnd()
+	}
+	{
+		e.FieldStart("user")
+		e.Str(s.User)
 	}
 }
 
-var jsonFieldsNameOfCreateDeviceReq = [5]string{
+var jsonFieldsNameOfCreateDeviceReq = [9]string{
 	0: "name",
 	1: "description",
 	2: "type",
-	3: "public_key",
-	4: "user",
+	3: "dns",
+	4: "public_key",
+	5: "keep_alive",
+	6: "endpoint",
+	7: "allowed_ips",
+	8: "user",
 }
 
 // Decode decodes CreateDeviceReq from json.
@@ -1489,7 +1515,7 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode CreateDeviceReq to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -1527,8 +1553,28 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
-		case "public_key":
+		case "dns":
 			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				s.DNS = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.DNS = append(s.DNS, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"dns\"")
+			}
+		case "public_key":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.PublicKey = string(v)
@@ -1539,10 +1585,56 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "user":
+		case "keep_alive":
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
-				s.User.Reset()
-				if err := s.User.Decode(d); err != nil {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.Endpoint = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"endpoint\"")
+			}
+		case "allowed_ips":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"allowed_ips\"")
+			}
+		case "user":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.User = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1558,8 +1650,9 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00001101,
+	for i, mask := range [2]uint8{
+		0b11111101,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1812,10 +1905,6 @@ func (s *CreateGroupReqRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CreateGroupReqRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -1825,10 +1914,9 @@ func (s *CreateGroupReqRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateGroupReqRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfCreateGroupReqRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes CreateGroupReqRulesItem from json.
@@ -1840,20 +1928,8 @@ func (s *CreateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -1865,7 +1941,7 @@ func (s *CreateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -1884,7 +1960,7 @@ func (s *CreateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2416,16 +2492,24 @@ func (s *DeviceCreate) encodeFields(e *jx.Encoder) {
 		e.Str(s.PresharedKey)
 	}
 	{
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
 		e.FieldStart("endpoint")
 		e.Str(s.Endpoint)
 	}
 	{
 		e.FieldStart("allowed_ips")
-		e.Str(s.AllowedIps)
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
+		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfDeviceCreate = [9]string{
+var jsonFieldsNameOfDeviceCreate = [10]string{
 	0: "id",
 	1: "name",
 	2: "description",
@@ -2433,8 +2517,9 @@ var jsonFieldsNameOfDeviceCreate = [9]string{
 	4: "dns",
 	5: "public_key",
 	6: "preshared_key",
-	7: "endpoint",
-	8: "allowed_ips",
+	7: "keep_alive",
+	8: "endpoint",
+	9: "allowed_ips",
 }
 
 // Decode decodes DeviceCreate from json.
@@ -2536,8 +2621,20 @@ func (s *DeviceCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"preshared_key\"")
 			}
-		case "endpoint":
+		case "keep_alive":
 			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -2549,11 +2646,19 @@ func (s *DeviceCreate) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
-				v, err := d.Str()
-				s.AllowedIps = string(v)
-				if err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -2571,7 +2676,7 @@ func (s *DeviceCreate) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2657,24 +2762,33 @@ func (s *DeviceList) encodeFields(e *jx.Encoder) {
 		e.Str(s.PublicKey)
 	}
 	{
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
 		e.FieldStart("endpoint")
 		e.Str(s.Endpoint)
 	}
 	{
 		e.FieldStart("allowed_ips")
-		e.Str(s.AllowedIps)
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
+		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfDeviceList = [8]string{
+var jsonFieldsNameOfDeviceList = [9]string{
 	0: "id",
 	1: "name",
 	2: "description",
 	3: "type",
 	4: "dns",
 	5: "public_key",
-	6: "endpoint",
-	7: "allowed_ips",
+	6: "keep_alive",
+	7: "endpoint",
+	8: "allowed_ips",
 }
 
 // Decode decodes DeviceList from json.
@@ -2682,7 +2796,7 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode DeviceList to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -2764,8 +2878,20 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "endpoint":
+		case "keep_alive":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -2777,11 +2903,19 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.AllowedIps = string(v)
-				if err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -2797,8 +2931,9 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b11111011,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2884,24 +3019,33 @@ func (s *DeviceRead) encodeFields(e *jx.Encoder) {
 		e.Str(s.PublicKey)
 	}
 	{
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
 		e.FieldStart("endpoint")
 		e.Str(s.Endpoint)
 	}
 	{
 		e.FieldStart("allowed_ips")
-		e.Str(s.AllowedIps)
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
+		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfDeviceRead = [8]string{
+var jsonFieldsNameOfDeviceRead = [9]string{
 	0: "id",
 	1: "name",
 	2: "description",
 	3: "type",
 	4: "dns",
 	5: "public_key",
-	6: "endpoint",
-	7: "allowed_ips",
+	6: "keep_alive",
+	7: "endpoint",
+	8: "allowed_ips",
 }
 
 // Decode decodes DeviceRead from json.
@@ -2909,7 +3053,7 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode DeviceRead to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -2991,8 +3135,20 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "endpoint":
+		case "keep_alive":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -3004,11 +3160,19 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.AllowedIps = string(v)
-				if err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -3024,8 +3188,9 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b11111011,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3111,24 +3276,33 @@ func (s *DeviceUpdate) encodeFields(e *jx.Encoder) {
 		e.Str(s.PublicKey)
 	}
 	{
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
 		e.FieldStart("endpoint")
 		e.Str(s.Endpoint)
 	}
 	{
 		e.FieldStart("allowed_ips")
-		e.Str(s.AllowedIps)
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
+		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfDeviceUpdate = [8]string{
+var jsonFieldsNameOfDeviceUpdate = [9]string{
 	0: "id",
 	1: "name",
 	2: "description",
 	3: "type",
 	4: "dns",
 	5: "public_key",
-	6: "endpoint",
-	7: "allowed_ips",
+	6: "keep_alive",
+	7: "endpoint",
+	8: "allowed_ips",
 }
 
 // Decode decodes DeviceUpdate from json.
@@ -3136,7 +3310,7 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode DeviceUpdate to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -3218,8 +3392,20 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "endpoint":
+		case "keep_alive":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -3231,11 +3417,19 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.AllowedIps = string(v)
-				if err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -3251,8 +3445,9 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b11111011,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3707,10 +3902,6 @@ func (s *GroupCreateRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *GroupCreateRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -3720,10 +3911,9 @@ func (s *GroupCreateRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGroupCreateRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfGroupCreateRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes GroupCreateRulesItem from json.
@@ -3735,20 +3925,8 @@ func (s *GroupCreateRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -3760,7 +3938,7 @@ func (s *GroupCreateRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -3779,7 +3957,7 @@ func (s *GroupCreateRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4121,10 +4299,6 @@ func (s *GroupListRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *GroupListRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -4134,10 +4308,9 @@ func (s *GroupListRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGroupListRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfGroupListRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes GroupListRulesItem from json.
@@ -4149,20 +4322,8 @@ func (s *GroupListRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -4174,7 +4335,7 @@ func (s *GroupListRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -4193,7 +4354,7 @@ func (s *GroupListRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4535,10 +4696,6 @@ func (s *GroupReadRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *GroupReadRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -4548,10 +4705,9 @@ func (s *GroupReadRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGroupReadRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfGroupReadRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes GroupReadRulesItem from json.
@@ -4563,20 +4719,8 @@ func (s *GroupReadRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -4588,7 +4732,7 @@ func (s *GroupReadRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -4607,7 +4751,7 @@ func (s *GroupReadRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4949,10 +5093,6 @@ func (s *GroupUpdateRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *GroupUpdateRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -4962,10 +5102,9 @@ func (s *GroupUpdateRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfGroupUpdateRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfGroupUpdateRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes GroupUpdateRulesItem from json.
@@ -4977,20 +5116,8 @@ func (s *GroupUpdateRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -5002,7 +5129,7 @@ func (s *GroupUpdateRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -5021,7 +5148,7 @@ func (s *GroupUpdateRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5380,456 +5507,6 @@ func (s *GroupUsersList) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *GroupUsersList) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListApiKeyOKApplicationJSON as json.
-func (s ListApiKeyOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []ApiKeyList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListApiKeyOKApplicationJSON from json.
-func (s *ListApiKeyOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListApiKeyOKApplicationJSON to nil")
-	}
-	var unwrapped []ApiKeyList
-	if err := func() error {
-		unwrapped = make([]ApiKeyList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem ApiKeyList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListApiKeyOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListApiKeyOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListApiKeyOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListAuditOKApplicationJSON as json.
-func (s ListAuditOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []AuditList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListAuditOKApplicationJSON from json.
-func (s *ListAuditOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListAuditOKApplicationJSON to nil")
-	}
-	var unwrapped []AuditList
-	if err := func() error {
-		unwrapped = make([]AuditList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem AuditList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListAuditOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListAuditOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListAuditOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListDeviceOKApplicationJSON as json.
-func (s ListDeviceOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []DeviceList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListDeviceOKApplicationJSON from json.
-func (s *ListDeviceOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListDeviceOKApplicationJSON to nil")
-	}
-	var unwrapped []DeviceList
-	if err := func() error {
-		unwrapped = make([]DeviceList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem DeviceList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListDeviceOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListDeviceOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListDeviceOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListGroupOKApplicationJSON as json.
-func (s ListGroupOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []GroupList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListGroupOKApplicationJSON from json.
-func (s *ListGroupOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListGroupOKApplicationJSON to nil")
-	}
-	var unwrapped []GroupList
-	if err := func() error {
-		unwrapped = make([]GroupList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem GroupList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListGroupOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListGroupOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListGroupOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListGroupUsersOKApplicationJSON as json.
-func (s ListGroupUsersOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []GroupUsersList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListGroupUsersOKApplicationJSON from json.
-func (s *ListGroupUsersOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListGroupUsersOKApplicationJSON to nil")
-	}
-	var unwrapped []GroupUsersList
-	if err := func() error {
-		unwrapped = make([]GroupUsersList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem GroupUsersList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListGroupUsersOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListGroupUsersOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListGroupUsersOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListUserAuditOKApplicationJSON as json.
-func (s ListUserAuditOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []UserAuditList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListUserAuditOKApplicationJSON from json.
-func (s *ListUserAuditOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListUserAuditOKApplicationJSON to nil")
-	}
-	var unwrapped []UserAuditList
-	if err := func() error {
-		unwrapped = make([]UserAuditList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem UserAuditList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListUserAuditOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListUserAuditOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListUserAuditOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListUserDevicesOKApplicationJSON as json.
-func (s ListUserDevicesOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []UserDevicesList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListUserDevicesOKApplicationJSON from json.
-func (s *ListUserDevicesOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListUserDevicesOKApplicationJSON to nil")
-	}
-	var unwrapped []UserDevicesList
-	if err := func() error {
-		unwrapped = make([]UserDevicesList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem UserDevicesList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListUserDevicesOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListUserDevicesOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListUserDevicesOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListUserKeysOKApplicationJSON as json.
-func (s ListUserKeysOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []UserKeysList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListUserKeysOKApplicationJSON from json.
-func (s *ListUserKeysOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListUserKeysOKApplicationJSON to nil")
-	}
-	var unwrapped []UserKeysList
-	if err := func() error {
-		unwrapped = make([]UserKeysList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem UserKeysList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListUserKeysOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListUserKeysOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListUserKeysOKApplicationJSON) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ListUserOKApplicationJSON as json.
-func (s ListUserOKApplicationJSON) Encode(e *jx.Encoder) {
-	unwrapped := []UserList(s)
-
-	e.ArrStart()
-	for _, elem := range unwrapped {
-		elem.Encode(e)
-	}
-	e.ArrEnd()
-}
-
-// Decode decodes ListUserOKApplicationJSON from json.
-func (s *ListUserOKApplicationJSON) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ListUserOKApplicationJSON to nil")
-	}
-	var unwrapped []UserList
-	if err := func() error {
-		unwrapped = make([]UserList, 0)
-		if err := d.Arr(func(d *jx.Decoder) error {
-			var elem UserList
-			if err := elem.Decode(d); err != nil {
-				return err
-			}
-			unwrapped = append(unwrapped, elem)
-			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ListUserOKApplicationJSON(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s ListUserOKApplicationJSON) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ListUserOKApplicationJSON) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -6541,15 +6218,25 @@ func (s *UpdateDeviceReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.KeepAlive.Set {
+			e.FieldStart("keep_alive")
+			s.KeepAlive.Encode(e)
+		}
+	}
+	{
 		if s.Endpoint.Set {
 			e.FieldStart("endpoint")
 			s.Endpoint.Encode(e)
 		}
 	}
 	{
-		if s.AllowedIps.Set {
+		if s.AllowedIps != nil {
 			e.FieldStart("allowed_ips")
-			s.AllowedIps.Encode(e)
+			e.ArrStart()
+			for _, elem := range s.AllowedIps {
+				e.Str(elem)
+			}
+			e.ArrEnd()
 		}
 	}
 	{
@@ -6560,14 +6247,15 @@ func (s *UpdateDeviceReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateDeviceReq = [7]string{
+var jsonFieldsNameOfUpdateDeviceReq = [8]string{
 	0: "name",
 	1: "description",
 	2: "type",
 	3: "dns",
-	4: "endpoint",
-	5: "allowed_ips",
-	6: "user",
+	4: "keep_alive",
+	5: "endpoint",
+	6: "allowed_ips",
+	7: "user",
 }
 
 // Decode decodes UpdateDeviceReq from json.
@@ -6627,6 +6315,16 @@ func (s *UpdateDeviceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"dns\"")
 			}
+		case "keep_alive":
+			if err := func() error {
+				s.KeepAlive.Reset()
+				if err := s.KeepAlive.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
 		case "endpoint":
 			if err := func() error {
 				s.Endpoint.Reset()
@@ -6639,8 +6337,17 @@ func (s *UpdateDeviceReq) Decode(d *jx.Decoder) error {
 			}
 		case "allowed_ips":
 			if err := func() error {
-				s.AllowedIps.Reset()
-				if err := s.AllowedIps.Decode(d); err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -6857,10 +6564,6 @@ func (s *UpdateGroupReqRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *UpdateGroupReqRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -6870,10 +6573,9 @@ func (s *UpdateGroupReqRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateGroupReqRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfUpdateGroupReqRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes UpdateGroupReqRulesItem from json.
@@ -6885,20 +6587,8 @@ func (s *UpdateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -6910,7 +6600,7 @@ func (s *UpdateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -6929,7 +6619,7 @@ func (s *UpdateGroupReqRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -7751,24 +7441,33 @@ func (s *UserDevicesList) encodeFields(e *jx.Encoder) {
 		e.Str(s.PublicKey)
 	}
 	{
+		e.FieldStart("keep_alive")
+		e.Bool(s.KeepAlive)
+	}
+	{
 		e.FieldStart("endpoint")
 		e.Str(s.Endpoint)
 	}
 	{
 		e.FieldStart("allowed_ips")
-		e.Str(s.AllowedIps)
+		e.ArrStart()
+		for _, elem := range s.AllowedIps {
+			e.Str(elem)
+		}
+		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfUserDevicesList = [8]string{
+var jsonFieldsNameOfUserDevicesList = [9]string{
 	0: "id",
 	1: "name",
 	2: "description",
 	3: "type",
 	4: "dns",
 	5: "public_key",
-	6: "endpoint",
-	7: "allowed_ips",
+	6: "keep_alive",
+	7: "endpoint",
+	8: "allowed_ips",
 }
 
 // Decode decodes UserDevicesList from json.
@@ -7776,7 +7475,7 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UserDevicesList to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -7858,8 +7557,20 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "endpoint":
+		case "keep_alive":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Bool()
+				s.KeepAlive = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"keep_alive\"")
+			}
+		case "endpoint":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -7871,11 +7582,19 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.AllowedIps = string(v)
-				if err != nil {
+				s.AllowedIps = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AllowedIps = append(s.AllowedIps, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
@@ -7891,8 +7610,9 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b11111011,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8132,10 +7852,6 @@ func (s *UserGroupReadRulesItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *UserGroupReadRulesItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
 		e.FieldStart("target")
 		e.Str(s.Target)
 	}
@@ -8145,10 +7861,9 @@ func (s *UserGroupReadRulesItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUserGroupReadRulesItem = [3]string{
-	0: "id",
-	1: "target",
-	2: "type",
+var jsonFieldsNameOfUserGroupReadRulesItem = [2]string{
+	0: "target",
+	1: "type",
 }
 
 // Decode decodes UserGroupReadRulesItem from json.
@@ -8160,20 +7875,8 @@ func (s *UserGroupReadRulesItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
 		case "target":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Target = string(v)
@@ -8185,7 +7888,7 @@ func (s *UserGroupReadRulesItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"target\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -8204,7 +7907,7 @@ func (s *UserGroupReadRulesItem) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

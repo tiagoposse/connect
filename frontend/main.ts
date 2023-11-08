@@ -13,6 +13,7 @@ import User from './src/pages/UserDevices.vue'
 import Login from './src/pages/Login.vue'
 import AdminConnections from './src/pages/AdminConnections.vue'
 import App from './src/App.vue'
+import axios from 'axios';
 
 const app = createApp(App)
 
@@ -33,6 +34,7 @@ const router = createRouter({
   routes
 })
 
+axios.defaults.withCredentials = true
 
 app.use(router)
 app.mount('#app')

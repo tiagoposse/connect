@@ -1503,9 +1503,17 @@ func decodeListApiKeyResponse(resp *http.Response) (res ListApiKeyRes, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListApiKeyOKApplicationJSON
+			var response []ApiKeyList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]ApiKeyList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem ApiKeyList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -1520,7 +1528,42 @@ func decodeListApiKeyResponse(resp *http.Response) (res ListApiKeyRes, _ error) 
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListApiKeyOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1684,9 +1727,17 @@ func decodeListAuditResponse(resp *http.Response) (res ListAuditRes, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListAuditOKApplicationJSON
+			var response []AuditList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]AuditList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem AuditList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -1701,7 +1752,42 @@ func decodeListAuditResponse(resp *http.Response) (res ListAuditRes, _ error) {
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListAuditOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1865,9 +1951,17 @@ func decodeListDeviceResponse(resp *http.Response) (res ListDeviceRes, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListDeviceOKApplicationJSON
+			var response []DeviceList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]DeviceList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem DeviceList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -1882,7 +1976,42 @@ func decodeListDeviceResponse(resp *http.Response) (res ListDeviceRes, _ error) 
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListDeviceOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2046,9 +2175,17 @@ func decodeListGroupResponse(resp *http.Response) (res ListGroupRes, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListGroupOKApplicationJSON
+			var response []GroupList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]GroupList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem GroupList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2063,7 +2200,42 @@ func decodeListGroupResponse(resp *http.Response) (res ListGroupRes, _ error) {
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListGroupOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2227,9 +2399,17 @@ func decodeListGroupUsersResponse(resp *http.Response) (res ListGroupUsersRes, _
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListGroupUsersOKApplicationJSON
+			var response []GroupUsersList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]GroupUsersList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem GroupUsersList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2244,7 +2424,42 @@ func decodeListGroupUsersResponse(resp *http.Response) (res ListGroupUsersRes, _
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListGroupUsersOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2408,9 +2623,17 @@ func decodeListUserResponse(resp *http.Response) (res ListUserRes, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListUserOKApplicationJSON
+			var response []UserList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]UserList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem UserList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2425,7 +2648,42 @@ func decodeListUserResponse(resp *http.Response) (res ListUserRes, _ error) {
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListUserOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2589,9 +2847,17 @@ func decodeListUserAuditResponse(resp *http.Response) (res ListUserAuditRes, _ e
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListUserAuditOKApplicationJSON
+			var response []UserAuditList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]UserAuditList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem UserAuditList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2606,7 +2872,42 @@ func decodeListUserAuditResponse(resp *http.Response) (res ListUserAuditRes, _ e
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListUserAuditOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2770,9 +3071,17 @@ func decodeListUserDevicesResponse(resp *http.Response) (res ListUserDevicesRes,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListUserDevicesOKApplicationJSON
+			var response []UserDevicesList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]UserDevicesList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem UserDevicesList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2787,7 +3096,42 @@ func decodeListUserDevicesResponse(resp *http.Response) (res ListUserDevicesRes,
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListUserDevicesOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2951,9 +3295,17 @@ func decodeListUserKeysResponse(resp *http.Response) (res ListUserKeysRes, _ err
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ListUserKeysOKApplicationJSON
+			var response []UserKeysList
 			if err := func() error {
-				if err := response.Decode(d); err != nil {
+				response = make([]UserKeysList, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem UserKeysList
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					response = append(response, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				if err := d.Skip(); err != io.EOF {
@@ -2968,7 +3320,42 @@ func decodeListUserKeysResponse(resp *http.Response) (res ListUserKeysRes, _ err
 				}
 				return res, err
 			}
-			return &response, nil
+			var wrapper ListUserKeysOKHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "x-total" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							val, err := d.DecodeValue()
+							if err != nil {
+								return err
+							}
+
+							c, err := conv.ToInt(val)
+							if err != nil {
+								return err
+							}
+
+							wrapper.XTotal = c
+							return nil
+						}); err != nil {
+							return err
+						}
+					} else {
+						return validate.ErrFieldRequired
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse x-total header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}

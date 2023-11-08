@@ -39,15 +39,17 @@ func (ext *OperationExtension) generate() gen.Hook {
 	return func(next gen.Generator) gen.Generator {
 		return gen.GenerateFunc(func(graph *gen.Graph) error {
 			for _, node := range graph.Nodes {
-				nodeAnt := Annotation{}
-				nodeAnt.Merge(*ext.GlobalAnnotation)
+				ant := Annotation{}
+				ant = ant.Merge(*ext.GlobalAnnotation).(Annotation)
 
 				if ann, ok := node.Annotations[Annotation{}.Name()]; ok {
+					nodeAnt := Annotation{}
 					nodeAnt.Decode(ann)
+					ant = ant.Merge(nodeAnt).(Annotation)
 				}
 
 				anns := node.Annotations
-				anns[Annotation{}.Name()] = nodeAnt
+				anns[Annotation{}.Name()] = ant
 				node.Annotations = anns
 			}
 
@@ -57,12 +59,13 @@ func (ext *OperationExtension) generate() gen.Hook {
 }
 
 func (ext *OperationExtension) getAnnotations(ant gen.Annotations) Annotation {
-	filterAnt := Annotation{}
+	decoded := Annotation{}
 	if ann, ok := ant[Annotation{}.Name()]; ok {
-		filterAnt.Decode(ann)
+		decoded.Decode(ann)
 	}
+	filterAnt := Annotation{}.Merge(ext.GlobalAnnotation).(Annotation).Merge(decoded)
 
-	return filterAnt
+	return filterAnt.(Annotation)
 }
 
 func (ext *OperationExtension) Mutator(graph *gen.Graph, spec *ogen.Spec) error {
@@ -71,6 +74,7 @@ func (ext *OperationExtension) Mutator(graph *gen.Graph, spec *ogen.Spec) error 
 
 	for _, node := range graph.Nodes {
 		filterAnt := ext.getAnnotations(node.Annotations)
+		node.Annotations[Annotation{}.Name()] = filterAnt
 		opName := fmt.Sprintf("list%s", node.Name)
 		filterMods[opName] = filterAnt.FilterFields
 		opAnnotations[opName] = filterAnt

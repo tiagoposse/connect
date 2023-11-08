@@ -16,8 +16,8 @@
         "operationId": "listApiKey",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -25,19 +25,34 @@
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
               "maximum": 255,
               "minimum": 1
             }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "result ApiKey list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -267,8 +282,8 @@
         "operationId": "listAudit",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -276,13 +291,20 @@
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
               "maximum": 255,
               "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -298,11 +320,26 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "result Audit list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -628,8 +665,8 @@
         "operationId": "listDevice",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -637,8 +674,8 @@
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
@@ -647,7 +684,56 @@
             }
           },
           {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "user",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allowed_ips",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "public_key",
             "in": "query",
             "schema": {
               "type": "string"
@@ -657,6 +743,14 @@
         "responses": {
           "200": {
             "description": "result Device list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -713,8 +807,26 @@
                   "type": {
                     "type": "string"
                   },
+                  "dns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "public_key": {
                     "type": "string"
+                  },
+                  "keep_alive": {
+                    "type": "boolean"
+                  },
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "allowed_ips": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "user": {
                     "type": "string"
@@ -723,7 +835,12 @@
                 "required": [
                   "name",
                   "type",
-                  "public_key"
+                  "dns",
+                  "public_key",
+                  "keep_alive",
+                  "endpoint",
+                  "allowed_ips",
+                  "user"
                 ]
               }
             }
@@ -900,11 +1017,17 @@
                       "type": "string"
                     }
                   },
+                  "keep_alive": {
+                    "type": "boolean"
+                  },
                   "endpoint": {
                     "type": "string"
                   },
                   "allowed_ips": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "user": {
                     "type": "string"
@@ -997,8 +1120,8 @@
         "operationId": "listGroup",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -1006,19 +1129,62 @@
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
               "maximum": 255,
               "minimum": 1
             }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scopes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cidr",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "result Group list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1098,9 +1264,6 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string"
-                        },
                         "target": {
                           "type": "string"
                         },
@@ -1113,7 +1276,6 @@
                         }
                       },
                       "required": [
-                        "id",
                         "type",
                         "target"
                       ]
@@ -1321,9 +1483,6 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "string"
-                        },
                         "target": {
                           "type": "string"
                         },
@@ -1336,7 +1495,6 @@
                         }
                       },
                       "required": [
-                        "id",
                         "type",
                         "target"
                       ]
@@ -1399,25 +1557,40 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Groups list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1577,8 +1750,8 @@
         "operationId": "listUser",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer",
@@ -1586,8 +1759,8 @@
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
@@ -1596,7 +1769,56 @@
             }
           },
           {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "firstname",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lastname",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "disabled",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "disabled_reason",
             "in": "query",
             "schema": {
               "type": "string"
@@ -1606,6 +1828,14 @@
         "responses": {
           "200": {
             "description": "result User list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1933,25 +2163,40 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Users list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1997,25 +2242,40 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Users list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2106,25 +2366,40 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
+            "name": "x-page",
+            "in": "header",
             "description": "what page to render",
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "itemsPerPage",
-            "in": "query",
+            "name": "x-items-per-page",
+            "in": "header",
             "description": "item count to render per page",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "result Users list",
+            "headers": {
+              "x-total": {
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2429,11 +2704,17 @@
           "preshared_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "user": {
             "$ref": "#/components/schemas/User"
@@ -2446,8 +2727,10 @@
           "dns",
           "public_key",
           "preshared_key",
+          "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user"
         ]
       },
       "DeviceCreate": {
@@ -2478,11 +2761,17 @@
           "preshared_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -2492,6 +2781,7 @@
           "dns",
           "public_key",
           "preshared_key",
+          "keep_alive",
           "endpoint",
           "allowed_ips"
         ]
@@ -2521,11 +2811,17 @@
           "public_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -2534,6 +2830,7 @@
           "type",
           "dns",
           "public_key",
+          "keep_alive",
           "endpoint",
           "allowed_ips"
         ]
@@ -2563,11 +2860,17 @@
           "public_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -2576,6 +2879,7 @@
           "type",
           "dns",
           "public_key",
+          "keep_alive",
           "endpoint",
           "allowed_ips"
         ]
@@ -2605,11 +2909,17 @@
           "public_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -2618,6 +2928,7 @@
           "type",
           "dns",
           "public_key",
+          "keep_alive",
           "endpoint",
           "allowed_ips"
         ]
@@ -2697,9 +3008,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -2712,7 +3020,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]
@@ -2771,9 +3078,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -2786,7 +3090,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]
@@ -2839,9 +3142,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -2854,7 +3154,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]
@@ -2907,9 +3206,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -2922,7 +3218,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]
@@ -2975,9 +3270,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -2990,7 +3282,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]
@@ -3299,11 +3590,17 @@
           "public_key": {
             "type": "string"
           },
+          "keep_alive": {
+            "type": "boolean"
+          },
           "endpoint": {
             "type": "string"
           },
           "allowed_ips": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -3312,6 +3609,7 @@
           "type",
           "dns",
           "public_key",
+          "keep_alive",
           "endpoint",
           "allowed_ips"
         ]
@@ -3354,9 +3652,6 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
-                },
                 "target": {
                   "type": "string"
                 },
@@ -3369,7 +3664,6 @@
                 }
               },
               "required": [
-                "id",
                 "type",
                 "target"
               ]

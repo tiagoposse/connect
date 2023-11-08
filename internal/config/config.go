@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -43,13 +44,6 @@ type Web struct {
 	FrontendUrl   string               `yaml:"frontendUrl"`
 }
 
-type Wireguard struct {
-	Interface        string                `yaml:"interface"`
-	DnsServers       []string              `yaml:"dnsServers"`
-	Cidr             string                `yaml:"cidr"`
-	SelfProvisioning bool                  `yaml:"selfProvisioning"`
-}
-
 type Auth struct {
 	Google       *GoogleAuth `yaml:"google"`
 	UserPassword bool        `yaml:"userpass"`
@@ -63,73 +57,23 @@ type Session struct {
 	JwtExpiration utils.Duration       `yaml:"expiration"`
 }
 
-type Database struct {
-	Host     string               `yaml:"host"`
-	Port     int                  `yaml:"port"`
-	Username string               `yaml:"username"`
-	Password *utils.ResolverField `yaml:"password"`
-	Type     DatabaseType         `yaml:"type"`
-	Ssl      bool                 `yaml:"ssl"`
-	Database string               `yaml:"database"`
-}
 
 type Admin struct {
 	Group string `yaml:"group"`
 }
 
-type DatabaseType string
-
-const (
-	Postgres DatabaseType = "postgres"
-	Mysql    DatabaseType = "mysql"
-)
-
 type SamlAuth struct {
 	IdpMetadata *utils.ResolverField `yaml:"idpMetadata"`
-}
-
-type GoogleAuth struct {
-	*SamlAuth         `yaml:",inline"`
-	Domain            string               `yaml:"domain"`
-	ServiceAccountKey *utils.ResolverField `yaml:"serviceAccountKey"`
-	UserToImpersonate *string              `yaml:"userToImpersonate"`
-	AdminGroups       []string             `yaml:"adminGroups"`
-	IgnoreUsers       []string             `yaml:"ignoreUsers"`
-	IgnoreGroups      []string             `yaml:"ignoreGroups"`
-	GroupFilters      []string             `yaml:"groupFilters"`
-	UserFilters       []string             `yaml:"userFilters"`
-	GroupMappings     map[string]string    `yaml:"groupMappings"`
-}
-
-func (ga *GoogleAuth) Validate(resolver *utils.Resolver) []error {
-	errs := make([]error, 0)
-
-	if err := resolver.Resolve(ga.IdpMetadata); err != nil {
-		errs = append(errs, fmt.Errorf("google idp metadata not set: %w", err))
-	}
-
-	if ga.UserToImpersonate == nil {
-		errs = append(errs, errors.New("google user to impersonate not set"))
-	}
-
-	if err := resolver.Resolve(ga.ServiceAccountKey); err != nil {
-		errs = append(errs, fmt.Errorf("google service account not set: %w", err))
-	}
-
-	if ga.Domain == "" {
-		errs = append(errs, errors.New("google domain not set"))
-	}
-
-	return errs
 }
 
 func NewConfig() (*Config, error) {
 	config := &Config{
 		Wireguard: &Wireguard{
-			Interface:        "wg0",
-			DnsServers:       []string{"1.1.1.1"},
-			Cidr:             "10.254.0.0/16",
-			SelfProvisioning: false,
+			Interface:        utils.StringPtr("wg0"),
+			DnsServers:       types.InetSlice{types.Inet{IP: net.ParseIP("1.1.1.1")}},
+			Cidr:             netip.MustParsePrefix("10.254.0.0/16"),
+			SelfProvisioning: true,
+			KeepAlive: true,
 		},
 		General: &General{
 			LogLevel: log.InfoLevel.String(),
@@ -194,15 +138,7 @@ func NewConfig() (*Config, error) {
 }
 
 func (c *Config) Validate(resolver *utils.Resolver) []error {
-	errs := make([]error, 0)
-
-	if c.Database.Type == "" {
-		errs = append(errs, errors.New("database type not set, either postgres or mysql need to be set"))
-	}
-
-	if err := resolver.Resolve(c.Database.Password); err != nil {
-		errs = append(errs, fmt.Errorf("database password not set: %w", err))
-	}
+	errs := c.Database.Validate(resolver)
 
 	if c.Auth.Google != nil {
 		errs = append(errs, c.Auth.Google.Validate(resolver)...)

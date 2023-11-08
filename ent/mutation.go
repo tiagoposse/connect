@@ -1000,12 +1000,12 @@ type DeviceMutation struct {
 	name          *string
 	description   *string
 	_type         *string
-	dns           *[]string
-	appenddns     []string
+	dns           *types.InetSlice
 	public_key    *string
 	preshared_key *string
+	keep_alive    *bool
 	endpoint      *types.Inet
-	allowed_ips   *string
+	allowed_ips   *types.CidrSlice
 	clearedFields map[string]struct{}
 	user          *string
 	cleareduser   bool
@@ -1240,13 +1240,12 @@ func (m *DeviceMutation) ResetType() {
 }
 
 // SetDNS sets the "dns" field.
-func (m *DeviceMutation) SetDNS(s []string) {
-	m.dns = &s
-	m.appenddns = nil
+func (m *DeviceMutation) SetDNS(ts types.InetSlice) {
+	m.dns = &ts
 }
 
 // DNS returns the value of the "dns" field in the mutation.
-func (m *DeviceMutation) DNS() (r []string, exists bool) {
+func (m *DeviceMutation) DNS() (r types.InetSlice, exists bool) {
 	v := m.dns
 	if v == nil {
 		return
@@ -1257,7 +1256,7 @@ func (m *DeviceMutation) DNS() (r []string, exists bool) {
 // OldDNS returns the old "dns" field's value of the Device entity.
 // If the Device object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DeviceMutation) OldDNS(ctx context.Context) (v []string, err error) {
+func (m *DeviceMutation) OldDNS(ctx context.Context) (v types.InetSlice, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDNS is only allowed on UpdateOne operations")
 	}
@@ -1271,23 +1270,9 @@ func (m *DeviceMutation) OldDNS(ctx context.Context) (v []string, err error) {
 	return oldValue.DNS, nil
 }
 
-// AppendDNS adds s to the "dns" field.
-func (m *DeviceMutation) AppendDNS(s []string) {
-	m.appenddns = append(m.appenddns, s...)
-}
-
-// AppendedDNS returns the list of values that were appended to the "dns" field in this mutation.
-func (m *DeviceMutation) AppendedDNS() ([]string, bool) {
-	if len(m.appenddns) == 0 {
-		return nil, false
-	}
-	return m.appenddns, true
-}
-
 // ResetDNS resets all changes to the "dns" field.
 func (m *DeviceMutation) ResetDNS() {
 	m.dns = nil
-	m.appenddns = nil
 }
 
 // SetPublicKey sets the "public_key" field.
@@ -1362,6 +1347,42 @@ func (m *DeviceMutation) ResetPresharedKey() {
 	m.preshared_key = nil
 }
 
+// SetKeepAlive sets the "keep_alive" field.
+func (m *DeviceMutation) SetKeepAlive(b bool) {
+	m.keep_alive = &b
+}
+
+// KeepAlive returns the value of the "keep_alive" field in the mutation.
+func (m *DeviceMutation) KeepAlive() (r bool, exists bool) {
+	v := m.keep_alive
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeepAlive returns the old "keep_alive" field's value of the Device entity.
+// If the Device object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeviceMutation) OldKeepAlive(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeepAlive is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeepAlive requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeepAlive: %w", err)
+	}
+	return oldValue.KeepAlive, nil
+}
+
+// ResetKeepAlive resets all changes to the "keep_alive" field.
+func (m *DeviceMutation) ResetKeepAlive() {
+	m.keep_alive = nil
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (m *DeviceMutation) SetEndpoint(t types.Inet) {
 	m.endpoint = &t
@@ -1399,12 +1420,12 @@ func (m *DeviceMutation) ResetEndpoint() {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (m *DeviceMutation) SetAllowedIps(s string) {
-	m.allowed_ips = &s
+func (m *DeviceMutation) SetAllowedIps(ts types.CidrSlice) {
+	m.allowed_ips = &ts
 }
 
 // AllowedIps returns the value of the "allowed_ips" field in the mutation.
-func (m *DeviceMutation) AllowedIps() (r string, exists bool) {
+func (m *DeviceMutation) AllowedIps() (r types.CidrSlice, exists bool) {
 	v := m.allowed_ips
 	if v == nil {
 		return
@@ -1415,7 +1436,7 @@ func (m *DeviceMutation) AllowedIps() (r string, exists bool) {
 // OldAllowedIps returns the old "allowed_ips" field's value of the Device entity.
 // If the Device object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DeviceMutation) OldAllowedIps(ctx context.Context) (v string, err error) {
+func (m *DeviceMutation) OldAllowedIps(ctx context.Context) (v types.CidrSlice, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAllowedIps is only allowed on UpdateOne operations")
 	}
@@ -1507,7 +1528,7 @@ func (m *DeviceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeviceMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.name != nil {
 		fields = append(fields, device.FieldName)
 	}
@@ -1525,6 +1546,9 @@ func (m *DeviceMutation) Fields() []string {
 	}
 	if m.preshared_key != nil {
 		fields = append(fields, device.FieldPresharedKey)
+	}
+	if m.keep_alive != nil {
+		fields = append(fields, device.FieldKeepAlive)
 	}
 	if m.endpoint != nil {
 		fields = append(fields, device.FieldEndpoint)
@@ -1552,6 +1576,8 @@ func (m *DeviceMutation) Field(name string) (ent.Value, bool) {
 		return m.PublicKey()
 	case device.FieldPresharedKey:
 		return m.PresharedKey()
+	case device.FieldKeepAlive:
+		return m.KeepAlive()
 	case device.FieldEndpoint:
 		return m.Endpoint()
 	case device.FieldAllowedIps:
@@ -1577,6 +1603,8 @@ func (m *DeviceMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldPublicKey(ctx)
 	case device.FieldPresharedKey:
 		return m.OldPresharedKey(ctx)
+	case device.FieldKeepAlive:
+		return m.OldKeepAlive(ctx)
 	case device.FieldEndpoint:
 		return m.OldEndpoint(ctx)
 	case device.FieldAllowedIps:
@@ -1612,7 +1640,7 @@ func (m *DeviceMutation) SetField(name string, value ent.Value) error {
 		m.SetType(v)
 		return nil
 	case device.FieldDNS:
-		v, ok := value.([]string)
+		v, ok := value.(types.InetSlice)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1632,6 +1660,13 @@ func (m *DeviceMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPresharedKey(v)
 		return nil
+	case device.FieldKeepAlive:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeepAlive(v)
+		return nil
 	case device.FieldEndpoint:
 		v, ok := value.(types.Inet)
 		if !ok {
@@ -1640,7 +1675,7 @@ func (m *DeviceMutation) SetField(name string, value ent.Value) error {
 		m.SetEndpoint(v)
 		return nil
 	case device.FieldAllowedIps:
-		v, ok := value.(string)
+		v, ok := value.(types.CidrSlice)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1721,6 +1756,9 @@ func (m *DeviceMutation) ResetField(name string) error {
 		return nil
 	case device.FieldPresharedKey:
 		m.ResetPresharedKey()
+		return nil
+	case device.FieldKeepAlive:
+		m.ResetKeepAlive()
 		return nil
 	case device.FieldEndpoint:
 		m.ResetEndpoint()

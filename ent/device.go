@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -27,15 +26,17 @@ type Device struct {
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
 	// DNS holds the value of the "dns" field.
-	DNS []string `json:"dns,omitempty"`
+	DNS types.InetSlice `json:"dns,omitempty"`
 	// PublicKey holds the value of the "public_key" field.
 	PublicKey string `json:"public_key,omitempty"`
 	// PresharedKey holds the value of the "preshared_key" field.
 	PresharedKey string `json:"preshared_key,omitempty"`
+	// KeepAlive holds the value of the "keep_alive" field.
+	KeepAlive bool `json:"keep_alive,omitempty"`
 	// Endpoint holds the value of the "endpoint" field.
 	Endpoint types.Inet `json:"endpoint,omitempty"`
 	// AllowedIps holds the value of the "allowed_ips" field.
-	AllowedIps string `json:"allowed_ips,omitempty"`
+	AllowedIps types.CidrSlice `json:"allowed_ips,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DeviceQuery when eager-loading is set.
 	Edges        DeviceEdges `json:"edges"`
@@ -70,12 +71,16 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case device.FieldDNS:
-			values[i] = new([]byte)
-		case device.FieldName, device.FieldDescription, device.FieldType, device.FieldPublicKey, device.FieldPresharedKey, device.FieldAllowedIps:
+		case device.FieldKeepAlive:
+			values[i] = new(sql.NullBool)
+		case device.FieldName, device.FieldDescription, device.FieldType, device.FieldPublicKey, device.FieldPresharedKey:
 			values[i] = new(sql.NullString)
+		case device.FieldAllowedIps:
+			values[i] = new(types.CidrSlice)
 		case device.FieldEndpoint:
 			values[i] = new(types.Inet)
+		case device.FieldDNS:
+			values[i] = new(types.InetSlice)
 		case device.FieldID:
 			values[i] = new(uuid.UUID)
 		case device.ForeignKeys[0]: // user_devices
@@ -120,12 +125,10 @@ func (d *Device) assignValues(columns []string, values []any) error {
 				d.Type = value.String
 			}
 		case device.FieldDNS:
-			if value, ok := values[i].(*[]byte); !ok {
+			if value, ok := values[i].(*types.InetSlice); !ok {
 				return fmt.Errorf("unexpected type %T for field dns", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &d.DNS); err != nil {
-					return fmt.Errorf("unmarshal field dns: %w", err)
-				}
+			} else if value != nil {
+				d.DNS = *value
 			}
 		case device.FieldPublicKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -139,6 +142,12 @@ func (d *Device) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				d.PresharedKey = value.String
 			}
+		case device.FieldKeepAlive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field keep_alive", values[i])
+			} else if value.Valid {
+				d.KeepAlive = value.Bool
+			}
 		case device.FieldEndpoint:
 			if value, ok := values[i].(*types.Inet); !ok {
 				return fmt.Errorf("unexpected type %T for field endpoint", values[i])
@@ -146,10 +155,10 @@ func (d *Device) assignValues(columns []string, values []any) error {
 				d.Endpoint = *value
 			}
 		case device.FieldAllowedIps:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*types.CidrSlice); !ok {
 				return fmt.Errorf("unexpected type %T for field allowed_ips", values[i])
-			} else if value.Valid {
-				d.AllowedIps = value.String
+			} else if value != nil {
+				d.AllowedIps = *value
 			}
 		case device.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -217,11 +226,14 @@ func (d *Device) String() string {
 	builder.WriteString("preshared_key=")
 	builder.WriteString(d.PresharedKey)
 	builder.WriteString(", ")
+	builder.WriteString("keep_alive=")
+	builder.WriteString(fmt.Sprintf("%v", d.KeepAlive))
+	builder.WriteString(", ")
 	builder.WriteString("endpoint=")
 	builder.WriteString(fmt.Sprintf("%v", d.Endpoint))
 	builder.WriteString(", ")
 	builder.WriteString("allowed_ips=")
-	builder.WriteString(d.AllowedIps)
+	builder.WriteString(fmt.Sprintf("%v", d.AllowedIps))
 	builder.WriteByte(')')
 	return builder.String()
 }

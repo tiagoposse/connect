@@ -3,6 +3,8 @@ package utils
 import (
 	"errors"
 	"fmt"
+
+	"github.com/go-faster/jx"
 )
 
 func NewMaxItemsError(msg string) maxItemsError {
@@ -19,4 +21,11 @@ func (m maxItemsError) Error() string {
 
 func IsMaxItemsError(err error) bool {
 	return errors.As(err, &maxItemsError{})
+}
+
+// RawError renders err as json string.
+func RawError(err error) jx.Raw {
+	var e jx.Encoder
+	e.Str(err.Error())
+	return e.Bytes()
 }

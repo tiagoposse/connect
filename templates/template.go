@@ -315,7 +315,17 @@ func ogenToEnt(f *gen.Field, expr string, name string) string {
 	case field.TypeJSON, field.TypeOther:
 		// bs, _ := json.Marshal(f.Type)
 		// fmt.Println(string(bs))
-		return fmt.Sprintf("JsonConvert(%s, %s{}).(%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
+		// fmt.Printf("%#v\n", f.Type.RType)
+		// if regexp.MustCompile(`\*.+`).MatchString(f.Type.RType.Ident) {
+		// 	return fmt.Sprintf("JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
+		// }
+
+		// switch f.Type.RType.Ident {
+		// case "[]string":
+		// 	return fmt.Sprintf("*JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
+		// default:
+		return fmt.Sprintf("*JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
+		// }
 	default:
 		return expr
 	}
@@ -346,7 +356,7 @@ func entToOgen(f *gen.Field, expr, schemaName string) string {
 					} else if items["type"] == "object" {
 						return fmt.Sprintf("*JsonConvert(%s, &[]%s%sItem{}).(*[]%s%sItem)", expr, schemaName, f.StructField(), schemaName, f.StructField())
 					} else {
-						return fmt.Sprintf("JsonConvert(%s, []%s{}).([]%s)", expr, items["type"].(string), items["type"].(string))
+						return fmt.Sprintf("*JsonConvert(%s, &[]%s{}).(*[]%s)", expr, items["type"].(string), items["type"].(string))
 					}
 				}
 			}

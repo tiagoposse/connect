@@ -40,6 +40,7 @@ func (a Annotation) Merge(o schema.Annotation) schema.Annotation {
 	if ant.Sort != nil && a.Sort == nil {
 		a.Sort = ant.Sort
 	}
+
 	if ant.ReturnTotal != nil && a.ReturnTotal == nil {
 		a.ReturnTotal = ant.ReturnTotal
 	}

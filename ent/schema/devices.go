@@ -27,35 +27,39 @@ func (Device) Fields() []ent.Field {
 		field.String("name"),
 		field.String("description").Optional(),
 		field.String("type"),
-		field.Strings("dns").Annotations(
-			exclusion.SkipCreate(),
-			entoas.Schema(ogen.String().AsArray()),
-		),
+		field.Other("dns", types.InetSlice{}).
+			SchemaType(map[string]string{dialect.Postgres: "varchar"}).
+			Annotations(
+				entoas.Schema(ogen.String().AsArray()),
+			),
 		field.String("public_key").Immutable().Unique(),
 		field.String("preshared_key").
 			Immutable().Unique().
 			Annotations(
 				entoas.Groups("create"),
 				exclusion.SkipCreate(),
-				exclusion.SkipUpdate(),
 			),
+		field.Bool("keep_alive"),
 		field.String("endpoint").
 			Unique().GoType(types.Inet{}).
 			Annotations(
-				exclusion.SkipCreate(),
-				entoas.Schema(&ogen.Schema{Type: "string"}),
+				entoas.Schema(ogen.String()),
 			).
 			SchemaType(map[string]string{
 			dialect.Postgres: "inet",
 		}).Unique(),
-		field.String("allowed_ips").Annotations(exclusion.SkipCreate()),
+		field.Other("allowed_ips", types.CidrSlice{}).
+		SchemaType(map[string]string{dialect.Postgres: "varchar"}).
+		Annotations(
+			entoas.Schema(ogen.String().AsArray()),
+		),
 	}
 }
 
 // Edges of the Device.
 func (Device) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("devices").Unique().Immutable(),
+		edge.From("user", User.Type).Ref("devices").Unique().Immutable().Required(),
 	}
 }
 
@@ -65,7 +69,7 @@ func (Device) Annotations() []schema.Annotation {
 		entoas.ListOperation(entoas.OperationGroups("list")),
 		entoas.ReadOperation(entoas.OperationGroups("read")),
 		entoas.UpdateOperation(entoas.OperationGroups("update")),
-		filter.WithFieldFilter("user"),
+		filter.WithFieldFilter("id", "user", "name", "type", "endpoint", "allowed_ips", "public_key"),
 		ogauth.WithCreateScopes(types.AdminAll, types.AdminDevicesWrite),
 		ogauth.WithUpdateScopes(types.AdminAll, types.AdminDevicesWrite),
 		ogauth.WithDeleteScopes(types.AdminAll, types.AdminDevicesWrite),

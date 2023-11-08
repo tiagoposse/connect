@@ -30,12 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("creating ogent-auth extension: %v", err)
 	}
-	// filter.Mutator(
-	// 	filter.WithPage(filter.Name("x-page"), filter.In("header")),
-	// 	filter.WithItemsPerPage(filter.Name("x-items-per-page"), filter.In("header")),
-	// 	filter.WithReturnTotal(filter.Name("x-total"), filter.In("header")),
-	// 	filter.WithSort(),
-	// ),)
+
 	listExt := filter.NewOperationExtension(
 		filter.WithPage(filter.Name("x-page"), filter.In("header")),
 		filter.WithItemsPerPage(filter.Name("x-items-per-page"), filter.In("header")),
@@ -74,7 +69,6 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 	secReqs := []ogen.SecurityRequirement{map[string][]string{"ApiKeyAuth": {}}, map[string][]string{"CookieAuth": {}}}
 	authHeader := map[string]*ogen.Parameter{
 		"Set-Cookie": {Schema: ogen.String(), Required: true},
-
 	}
 
 	locationHeader := map[string]*ogen.Parameter{
@@ -85,6 +79,8 @@ func addCustomPaths(graph *gen.Graph, spec *ogen.Spec) error {
 		"Set-Cookie": {Schema: ogen.String(), Required: true},
 		"Location":   {Schema: &ogen.Schema{Type: "string", Format: "uri"}, Required: true},
 	}
+
+	// spec.Paths["/devices"].Post.RequestBody.Content["application/json"].Schema.Required = []string{"name", "type", "public_key"}
 
 	spec.Paths["/status"] = new(ogen.PathItem).
 		SetDescription("Check auth status").

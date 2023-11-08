@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/netip"
+	"strings"
 )
 
 // Inet represents a single IP address
@@ -45,6 +46,66 @@ func (i Inet) ParseString(s string) Inet {
 		panic(err)
 	}
 	return i
+}
+
+type InetSlice []Inet
+
+// Scan implements the Scanner interface
+func (i *InetSlice) Scan(value any) (err error) {
+	ips := make([]Inet, 0)
+
+	for _, s := range strings.Split(value.(string), ",") {
+		parsed := net.ParseIP(s)
+		if parsed == nil {
+			return fmt.Errorf("ip %s is not valid", parsed)
+		}
+		ips = append(ips, Inet{IP: parsed})
+	}
+
+	*i = ips
+	return nil
+}
+
+// Value implements the driver Valuer interface
+func (i InetSlice) Value() (driver.Value, error) {
+	ips := make([]string, 0)
+	for _, ip := range i {
+		ips = append(ips, ip.String())
+	}
+
+	return strings.Join(ips, ","), nil
+}
+
+
+
+// CidrSlice represents a list o Cidr ranges
+type CidrSlice []Cidr
+
+// Scan implements the Scanner interface
+func (c *CidrSlice) Scan(value any) (err error) {
+	ls := make([]Cidr, 0)
+
+	for _, s := range strings.Split(value.(string), ",") {
+		item := &Cidr{}
+		if err := item.Scan(s); err != nil {
+			return err
+		}
+
+		ls = append(ls, *item)
+	}
+
+	*c = ls
+
+	return
+}
+
+// Value implements the driver Valuer interface
+func (i CidrSlice) Value() (driver.Value, error) {
+	ls := make([]string, 0)
+	for _, cidr := range i {
+		ls = append(ls, cidr.String())
+	}
+	return strings.Join(ls, ","), nil
 }
 
 // Cidr represents a Cidr range

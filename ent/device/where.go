@@ -70,6 +70,11 @@ func Type(v string) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldType, v))
 }
 
+// DNS applies equality check predicate on the "dns" field. It's identical to DNSEQ.
+func DNS(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldDNS, v))
+}
+
 // PublicKey applies equality check predicate on the "public_key" field. It's identical to PublicKeyEQ.
 func PublicKey(v string) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldPublicKey, v))
@@ -80,13 +85,18 @@ func PresharedKey(v string) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldPresharedKey, v))
 }
 
+// KeepAlive applies equality check predicate on the "keep_alive" field. It's identical to KeepAliveEQ.
+func KeepAlive(v bool) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldKeepAlive, v))
+}
+
 // Endpoint applies equality check predicate on the "endpoint" field. It's identical to EndpointEQ.
 func Endpoint(v types.Inet) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldEndpoint, v))
 }
 
 // AllowedIps applies equality check predicate on the "allowed_ips" field. It's identical to AllowedIpsEQ.
-func AllowedIps(v string) predicate.Device {
+func AllowedIps(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldAllowedIps, v))
 }
 
@@ -295,6 +305,46 @@ func TypeContainsFold(v string) predicate.Device {
 	return predicate.Device(sql.FieldContainsFold(FieldType, v))
 }
 
+// DNSEQ applies the EQ predicate on the "dns" field.
+func DNSEQ(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldDNS, v))
+}
+
+// DNSNEQ applies the NEQ predicate on the "dns" field.
+func DNSNEQ(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldNEQ(FieldDNS, v))
+}
+
+// DNSIn applies the In predicate on the "dns" field.
+func DNSIn(vs ...types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldIn(FieldDNS, vs...))
+}
+
+// DNSNotIn applies the NotIn predicate on the "dns" field.
+func DNSNotIn(vs ...types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldNotIn(FieldDNS, vs...))
+}
+
+// DNSGT applies the GT predicate on the "dns" field.
+func DNSGT(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldGT(FieldDNS, v))
+}
+
+// DNSGTE applies the GTE predicate on the "dns" field.
+func DNSGTE(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldGTE(FieldDNS, v))
+}
+
+// DNSLT applies the LT predicate on the "dns" field.
+func DNSLT(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldLT(FieldDNS, v))
+}
+
+// DNSLTE applies the LTE predicate on the "dns" field.
+func DNSLTE(v types.InetSlice) predicate.Device {
+	return predicate.Device(sql.FieldLTE(FieldDNS, v))
+}
+
 // PublicKeyEQ applies the EQ predicate on the "public_key" field.
 func PublicKeyEQ(v string) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldPublicKey, v))
@@ -425,6 +475,16 @@ func PresharedKeyContainsFold(v string) predicate.Device {
 	return predicate.Device(sql.FieldContainsFold(FieldPresharedKey, v))
 }
 
+// KeepAliveEQ applies the EQ predicate on the "keep_alive" field.
+func KeepAliveEQ(v bool) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldKeepAlive, v))
+}
+
+// KeepAliveNEQ applies the NEQ predicate on the "keep_alive" field.
+func KeepAliveNEQ(v bool) predicate.Device {
+	return predicate.Device(sql.FieldNEQ(FieldKeepAlive, v))
+}
+
 // EndpointEQ applies the EQ predicate on the "endpoint" field.
 func EndpointEQ(v types.Inet) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldEndpoint, v))
@@ -496,68 +556,43 @@ func EndpointContainsFold(v types.Inet) predicate.Device {
 }
 
 // AllowedIpsEQ applies the EQ predicate on the "allowed_ips" field.
-func AllowedIpsEQ(v string) predicate.Device {
+func AllowedIpsEQ(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldAllowedIps, v))
 }
 
 // AllowedIpsNEQ applies the NEQ predicate on the "allowed_ips" field.
-func AllowedIpsNEQ(v string) predicate.Device {
+func AllowedIpsNEQ(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldNEQ(FieldAllowedIps, v))
 }
 
 // AllowedIpsIn applies the In predicate on the "allowed_ips" field.
-func AllowedIpsIn(vs ...string) predicate.Device {
+func AllowedIpsIn(vs ...types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldIn(FieldAllowedIps, vs...))
 }
 
 // AllowedIpsNotIn applies the NotIn predicate on the "allowed_ips" field.
-func AllowedIpsNotIn(vs ...string) predicate.Device {
+func AllowedIpsNotIn(vs ...types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldNotIn(FieldAllowedIps, vs...))
 }
 
 // AllowedIpsGT applies the GT predicate on the "allowed_ips" field.
-func AllowedIpsGT(v string) predicate.Device {
+func AllowedIpsGT(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldGT(FieldAllowedIps, v))
 }
 
 // AllowedIpsGTE applies the GTE predicate on the "allowed_ips" field.
-func AllowedIpsGTE(v string) predicate.Device {
+func AllowedIpsGTE(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldGTE(FieldAllowedIps, v))
 }
 
 // AllowedIpsLT applies the LT predicate on the "allowed_ips" field.
-func AllowedIpsLT(v string) predicate.Device {
+func AllowedIpsLT(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldLT(FieldAllowedIps, v))
 }
 
 // AllowedIpsLTE applies the LTE predicate on the "allowed_ips" field.
-func AllowedIpsLTE(v string) predicate.Device {
+func AllowedIpsLTE(v types.CidrSlice) predicate.Device {
 	return predicate.Device(sql.FieldLTE(FieldAllowedIps, v))
-}
-
-// AllowedIpsContains applies the Contains predicate on the "allowed_ips" field.
-func AllowedIpsContains(v string) predicate.Device {
-	return predicate.Device(sql.FieldContains(FieldAllowedIps, v))
-}
-
-// AllowedIpsHasPrefix applies the HasPrefix predicate on the "allowed_ips" field.
-func AllowedIpsHasPrefix(v string) predicate.Device {
-	return predicate.Device(sql.FieldHasPrefix(FieldAllowedIps, v))
-}
-
-// AllowedIpsHasSuffix applies the HasSuffix predicate on the "allowed_ips" field.
-func AllowedIpsHasSuffix(v string) predicate.Device {
-	return predicate.Device(sql.FieldHasSuffix(FieldAllowedIps, v))
-}
-
-// AllowedIpsEqualFold applies the EqualFold predicate on the "allowed_ips" field.
-func AllowedIpsEqualFold(v string) predicate.Device {
-	return predicate.Device(sql.FieldEqualFold(FieldAllowedIps, v))
-}
-
-// AllowedIpsContainsFold applies the ContainsFold predicate on the "allowed_ips" field.
-func AllowedIpsContainsFold(v string) predicate.Device {
-	return predicate.Device(sql.FieldContainsFold(FieldAllowedIps, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

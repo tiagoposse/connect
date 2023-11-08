@@ -632,8 +632,12 @@ type CreateDeviceReq struct {
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	Type        string    `json:"type"`
+	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
-	User        OptString `json:"user"`
+	KeepAlive   bool      `json:"keep_alive"`
+	Endpoint    string    `json:"endpoint"`
+	AllowedIps  []string  `json:"allowed_ips"`
+	User        string    `json:"user"`
 }
 
 // GetName returns the value of Name.
@@ -651,13 +655,33 @@ func (s *CreateDeviceReq) GetType() string {
 	return s.Type
 }
 
+// GetDNS returns the value of DNS.
+func (s *CreateDeviceReq) GetDNS() []string {
+	return s.DNS
+}
+
 // GetPublicKey returns the value of PublicKey.
 func (s *CreateDeviceReq) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *CreateDeviceReq) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
+// GetEndpoint returns the value of Endpoint.
+func (s *CreateDeviceReq) GetEndpoint() string {
+	return s.Endpoint
+}
+
+// GetAllowedIps returns the value of AllowedIps.
+func (s *CreateDeviceReq) GetAllowedIps() []string {
+	return s.AllowedIps
+}
+
 // GetUser returns the value of User.
-func (s *CreateDeviceReq) GetUser() OptString {
+func (s *CreateDeviceReq) GetUser() string {
 	return s.User
 }
 
@@ -676,13 +700,33 @@ func (s *CreateDeviceReq) SetType(val string) {
 	s.Type = val
 }
 
+// SetDNS sets the value of DNS.
+func (s *CreateDeviceReq) SetDNS(val []string) {
+	s.DNS = val
+}
+
 // SetPublicKey sets the value of PublicKey.
 func (s *CreateDeviceReq) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *CreateDeviceReq) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
+// SetEndpoint sets the value of Endpoint.
+func (s *CreateDeviceReq) SetEndpoint(val string) {
+	s.Endpoint = val
+}
+
+// SetAllowedIps sets the value of AllowedIps.
+func (s *CreateDeviceReq) SetAllowedIps(val []string) {
+	s.AllowedIps = val
+}
+
 // SetUser sets the value of User.
-func (s *CreateDeviceReq) SetUser(val OptString) {
+func (s *CreateDeviceReq) SetUser(val string) {
 	s.User = val
 }
 
@@ -745,14 +789,8 @@ func (s *CreateGroupReq) SetUsers(val []string) {
 }
 
 type CreateGroupReqRulesItem struct {
-	ID     string                      `json:"id"`
 	Target string                      `json:"target"`
 	Type   CreateGroupReqRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *CreateGroupReqRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -763,11 +801,6 @@ func (s *CreateGroupReqRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *CreateGroupReqRulesItem) GetType() CreateGroupReqRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *CreateGroupReqRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -1119,8 +1152,9 @@ type DeviceCreate struct {
 	DNS          []string  `json:"dns"`
 	PublicKey    string    `json:"public_key"`
 	PresharedKey string    `json:"preshared_key"`
+	KeepAlive    bool      `json:"keep_alive"`
 	Endpoint     string    `json:"endpoint"`
-	AllowedIps   string    `json:"allowed_ips"`
+	AllowedIps   []string  `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
@@ -1158,13 +1192,18 @@ func (s *DeviceCreate) GetPresharedKey() string {
 	return s.PresharedKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *DeviceCreate) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *DeviceCreate) GetEndpoint() string {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *DeviceCreate) GetAllowedIps() string {
+func (s *DeviceCreate) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -1203,13 +1242,18 @@ func (s *DeviceCreate) SetPresharedKey(val string) {
 	s.PresharedKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *DeviceCreate) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *DeviceCreate) SetEndpoint(val string) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *DeviceCreate) SetAllowedIps(val string) {
+func (s *DeviceCreate) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -1223,8 +1267,9 @@ type DeviceList struct {
 	Type        string    `json:"type"`
 	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
+	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
-	AllowedIps  string    `json:"allowed_ips"`
+	AllowedIps  []string  `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
@@ -1257,13 +1302,18 @@ func (s *DeviceList) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *DeviceList) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *DeviceList) GetEndpoint() string {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *DeviceList) GetAllowedIps() string {
+func (s *DeviceList) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -1297,13 +1347,18 @@ func (s *DeviceList) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *DeviceList) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *DeviceList) SetEndpoint(val string) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *DeviceList) SetAllowedIps(val string) {
+func (s *DeviceList) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -1315,8 +1370,9 @@ type DeviceRead struct {
 	Type        string    `json:"type"`
 	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
+	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
-	AllowedIps  string    `json:"allowed_ips"`
+	AllowedIps  []string  `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
@@ -1349,13 +1405,18 @@ func (s *DeviceRead) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *DeviceRead) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *DeviceRead) GetEndpoint() string {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *DeviceRead) GetAllowedIps() string {
+func (s *DeviceRead) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -1389,13 +1450,18 @@ func (s *DeviceRead) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *DeviceRead) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *DeviceRead) SetEndpoint(val string) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *DeviceRead) SetAllowedIps(val string) {
+func (s *DeviceRead) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -1409,8 +1475,9 @@ type DeviceUpdate struct {
 	Type        string    `json:"type"`
 	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
+	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
-	AllowedIps  string    `json:"allowed_ips"`
+	AllowedIps  []string  `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
@@ -1443,13 +1510,18 @@ func (s *DeviceUpdate) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *DeviceUpdate) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *DeviceUpdate) GetEndpoint() string {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *DeviceUpdate) GetAllowedIps() string {
+func (s *DeviceUpdate) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -1483,13 +1555,18 @@ func (s *DeviceUpdate) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *DeviceUpdate) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *DeviceUpdate) SetEndpoint(val string) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *DeviceUpdate) SetAllowedIps(val string) {
+func (s *DeviceUpdate) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -1751,14 +1828,8 @@ func (s *GroupCreate) SetRules(val []GroupCreateRulesItem) {
 func (*GroupCreate) createGroupRes() {}
 
 type GroupCreateRulesItem struct {
-	ID     string                   `json:"id"`
 	Target string                   `json:"target"`
 	Type   GroupCreateRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GroupCreateRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -1769,11 +1840,6 @@ func (s *GroupCreateRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *GroupCreateRulesItem) GetType() GroupCreateRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GroupCreateRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -2005,14 +2071,8 @@ func (s *GroupList) SetRules(val []GroupListRulesItem) {
 }
 
 type GroupListRulesItem struct {
-	ID     string                 `json:"id"`
 	Target string                 `json:"target"`
 	Type   GroupListRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GroupListRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -2023,11 +2083,6 @@ func (s *GroupListRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *GroupListRulesItem) GetType() GroupListRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GroupListRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -2261,14 +2316,8 @@ func (s *GroupRead) SetRules(val []GroupReadRulesItem) {
 func (*GroupRead) readGroupRes() {}
 
 type GroupReadRulesItem struct {
-	ID     string                 `json:"id"`
 	Target string                 `json:"target"`
 	Type   GroupReadRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GroupReadRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -2279,11 +2328,6 @@ func (s *GroupReadRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *GroupReadRulesItem) GetType() GroupReadRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GroupReadRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -2517,14 +2561,8 @@ func (s *GroupUpdate) SetRules(val []GroupUpdateRulesItem) {
 func (*GroupUpdate) updateGroupRes() {}
 
 type GroupUpdateRulesItem struct {
-	ID     string                   `json:"id"`
 	Target string                   `json:"target"`
 	Type   GroupUpdateRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GroupUpdateRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -2535,11 +2573,6 @@ func (s *GroupUpdateRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *GroupUpdateRulesItem) GetType() GroupUpdateRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GroupUpdateRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -2803,41 +2836,257 @@ func (s *GroupUsersList) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
-type ListApiKeyOKApplicationJSON []ApiKeyList
+// ListApiKeyOKHeaders wraps []ApiKeyList with response headers.
+type ListApiKeyOKHeaders struct {
+	XTotal   int
+	Response []ApiKeyList
+}
 
-func (*ListApiKeyOKApplicationJSON) listApiKeyRes() {}
+// GetXTotal returns the value of XTotal.
+func (s *ListApiKeyOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
 
-type ListAuditOKApplicationJSON []AuditList
+// GetResponse returns the value of Response.
+func (s *ListApiKeyOKHeaders) GetResponse() []ApiKeyList {
+	return s.Response
+}
 
-func (*ListAuditOKApplicationJSON) listAuditRes() {}
+// SetXTotal sets the value of XTotal.
+func (s *ListApiKeyOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
 
-type ListDeviceOKApplicationJSON []DeviceList
+// SetResponse sets the value of Response.
+func (s *ListApiKeyOKHeaders) SetResponse(val []ApiKeyList) {
+	s.Response = val
+}
 
-func (*ListDeviceOKApplicationJSON) listDeviceRes() {}
+func (*ListApiKeyOKHeaders) listApiKeyRes() {}
 
-type ListGroupOKApplicationJSON []GroupList
+// ListAuditOKHeaders wraps []AuditList with response headers.
+type ListAuditOKHeaders struct {
+	XTotal   int
+	Response []AuditList
+}
 
-func (*ListGroupOKApplicationJSON) listGroupRes() {}
+// GetXTotal returns the value of XTotal.
+func (s *ListAuditOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
 
-type ListGroupUsersOKApplicationJSON []GroupUsersList
+// GetResponse returns the value of Response.
+func (s *ListAuditOKHeaders) GetResponse() []AuditList {
+	return s.Response
+}
 
-func (*ListGroupUsersOKApplicationJSON) listGroupUsersRes() {}
+// SetXTotal sets the value of XTotal.
+func (s *ListAuditOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
 
-type ListUserAuditOKApplicationJSON []UserAuditList
+// SetResponse sets the value of Response.
+func (s *ListAuditOKHeaders) SetResponse(val []AuditList) {
+	s.Response = val
+}
 
-func (*ListUserAuditOKApplicationJSON) listUserAuditRes() {}
+func (*ListAuditOKHeaders) listAuditRes() {}
 
-type ListUserDevicesOKApplicationJSON []UserDevicesList
+// ListDeviceOKHeaders wraps []DeviceList with response headers.
+type ListDeviceOKHeaders struct {
+	XTotal   int
+	Response []DeviceList
+}
 
-func (*ListUserDevicesOKApplicationJSON) listUserDevicesRes() {}
+// GetXTotal returns the value of XTotal.
+func (s *ListDeviceOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
 
-type ListUserKeysOKApplicationJSON []UserKeysList
+// GetResponse returns the value of Response.
+func (s *ListDeviceOKHeaders) GetResponse() []DeviceList {
+	return s.Response
+}
 
-func (*ListUserKeysOKApplicationJSON) listUserKeysRes() {}
+// SetXTotal sets the value of XTotal.
+func (s *ListDeviceOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
 
-type ListUserOKApplicationJSON []UserList
+// SetResponse sets the value of Response.
+func (s *ListDeviceOKHeaders) SetResponse(val []DeviceList) {
+	s.Response = val
+}
 
-func (*ListUserOKApplicationJSON) listUserRes() {}
+func (*ListDeviceOKHeaders) listDeviceRes() {}
+
+// ListGroupOKHeaders wraps []GroupList with response headers.
+type ListGroupOKHeaders struct {
+	XTotal   int
+	Response []GroupList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListGroupOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListGroupOKHeaders) GetResponse() []GroupList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListGroupOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListGroupOKHeaders) SetResponse(val []GroupList) {
+	s.Response = val
+}
+
+func (*ListGroupOKHeaders) listGroupRes() {}
+
+// ListGroupUsersOKHeaders wraps []GroupUsersList with response headers.
+type ListGroupUsersOKHeaders struct {
+	XTotal   int
+	Response []GroupUsersList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListGroupUsersOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListGroupUsersOKHeaders) GetResponse() []GroupUsersList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListGroupUsersOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListGroupUsersOKHeaders) SetResponse(val []GroupUsersList) {
+	s.Response = val
+}
+
+func (*ListGroupUsersOKHeaders) listGroupUsersRes() {}
+
+// ListUserAuditOKHeaders wraps []UserAuditList with response headers.
+type ListUserAuditOKHeaders struct {
+	XTotal   int
+	Response []UserAuditList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListUserAuditOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListUserAuditOKHeaders) GetResponse() []UserAuditList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListUserAuditOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListUserAuditOKHeaders) SetResponse(val []UserAuditList) {
+	s.Response = val
+}
+
+func (*ListUserAuditOKHeaders) listUserAuditRes() {}
+
+// ListUserDevicesOKHeaders wraps []UserDevicesList with response headers.
+type ListUserDevicesOKHeaders struct {
+	XTotal   int
+	Response []UserDevicesList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListUserDevicesOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListUserDevicesOKHeaders) GetResponse() []UserDevicesList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListUserDevicesOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListUserDevicesOKHeaders) SetResponse(val []UserDevicesList) {
+	s.Response = val
+}
+
+func (*ListUserDevicesOKHeaders) listUserDevicesRes() {}
+
+// ListUserKeysOKHeaders wraps []UserKeysList with response headers.
+type ListUserKeysOKHeaders struct {
+	XTotal   int
+	Response []UserKeysList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListUserKeysOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListUserKeysOKHeaders) GetResponse() []UserKeysList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListUserKeysOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListUserKeysOKHeaders) SetResponse(val []UserKeysList) {
+	s.Response = val
+}
+
+func (*ListUserKeysOKHeaders) listUserKeysRes() {}
+
+// ListUserOKHeaders wraps []UserList with response headers.
+type ListUserOKHeaders struct {
+	XTotal   int
+	Response []UserList
+}
+
+// GetXTotal returns the value of XTotal.
+func (s *ListUserOKHeaders) GetXTotal() int {
+	return s.XTotal
+}
+
+// GetResponse returns the value of Response.
+func (s *ListUserOKHeaders) GetResponse() []UserList {
+	return s.Response
+}
+
+// SetXTotal sets the value of XTotal.
+func (s *ListUserOKHeaders) SetXTotal(val int) {
+	s.XTotal = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ListUserOKHeaders) SetResponse(val []UserList) {
+	s.Response = val
+}
+
+func (*ListUserOKHeaders) listUserRes() {}
 
 // LogoutOK is response for Logout operation.
 type LogoutOK struct {
@@ -3374,8 +3623,9 @@ type UpdateDeviceReq struct {
 	Description OptString `json:"description"`
 	Type        OptString `json:"type"`
 	DNS         []string  `json:"dns"`
+	KeepAlive   OptBool   `json:"keep_alive"`
 	Endpoint    OptString `json:"endpoint"`
-	AllowedIps  OptString `json:"allowed_ips"`
+	AllowedIps  []string  `json:"allowed_ips"`
 	User        OptString `json:"user"`
 }
 
@@ -3399,13 +3649,18 @@ func (s *UpdateDeviceReq) GetDNS() []string {
 	return s.DNS
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *UpdateDeviceReq) GetKeepAlive() OptBool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *UpdateDeviceReq) GetEndpoint() OptString {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *UpdateDeviceReq) GetAllowedIps() OptString {
+func (s *UpdateDeviceReq) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -3434,13 +3689,18 @@ func (s *UpdateDeviceReq) SetDNS(val []string) {
 	s.DNS = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *UpdateDeviceReq) SetKeepAlive(val OptBool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *UpdateDeviceReq) SetEndpoint(val OptString) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *UpdateDeviceReq) SetAllowedIps(val OptString) {
+func (s *UpdateDeviceReq) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -3508,14 +3768,8 @@ func (s *UpdateGroupReq) SetUsers(val []string) {
 }
 
 type UpdateGroupReqRulesItem struct {
-	ID     string                      `json:"id"`
 	Target string                      `json:"target"`
 	Type   UpdateGroupReqRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *UpdateGroupReqRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -3526,11 +3780,6 @@ func (s *UpdateGroupReqRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *UpdateGroupReqRulesItem) GetType() UpdateGroupReqRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *UpdateGroupReqRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.
@@ -3976,8 +4225,9 @@ type UserDevicesList struct {
 	Type        string    `json:"type"`
 	DNS         []string  `json:"dns"`
 	PublicKey   string    `json:"public_key"`
+	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
-	AllowedIps  string    `json:"allowed_ips"`
+	AllowedIps  []string  `json:"allowed_ips"`
 }
 
 // GetID returns the value of ID.
@@ -4010,13 +4260,18 @@ func (s *UserDevicesList) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetKeepAlive returns the value of KeepAlive.
+func (s *UserDevicesList) GetKeepAlive() bool {
+	return s.KeepAlive
+}
+
 // GetEndpoint returns the value of Endpoint.
 func (s *UserDevicesList) GetEndpoint() string {
 	return s.Endpoint
 }
 
 // GetAllowedIps returns the value of AllowedIps.
-func (s *UserDevicesList) GetAllowedIps() string {
+func (s *UserDevicesList) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
@@ -4050,13 +4305,18 @@ func (s *UserDevicesList) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetKeepAlive sets the value of KeepAlive.
+func (s *UserDevicesList) SetKeepAlive(val bool) {
+	s.KeepAlive = val
+}
+
 // SetEndpoint sets the value of Endpoint.
 func (s *UserDevicesList) SetEndpoint(val string) {
 	s.Endpoint = val
 }
 
 // SetAllowedIps sets the value of AllowedIps.
-func (s *UserDevicesList) SetAllowedIps(val string) {
+func (s *UserDevicesList) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
@@ -4122,14 +4382,8 @@ func (s *UserGroupRead) SetRules(val []UserGroupReadRulesItem) {
 func (*UserGroupRead) readUserGroupRes() {}
 
 type UserGroupReadRulesItem struct {
-	ID     string                     `json:"id"`
 	Target string                     `json:"target"`
 	Type   UserGroupReadRulesItemType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *UserGroupReadRulesItem) GetID() string {
-	return s.ID
 }
 
 // GetTarget returns the value of Target.
@@ -4140,11 +4394,6 @@ func (s *UserGroupReadRulesItem) GetTarget() string {
 // GetType returns the value of Type.
 func (s *UserGroupReadRulesItem) GetType() UserGroupReadRulesItemType {
 	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *UserGroupReadRulesItem) SetID(val string) {
-	s.ID = val
 }
 
 // SetTarget sets the value of Target.

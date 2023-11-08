@@ -52,8 +52,8 @@ func (dc *DeviceCreate) SetType(s string) *DeviceCreate {
 }
 
 // SetDNS sets the "dns" field.
-func (dc *DeviceCreate) SetDNS(s []string) *DeviceCreate {
-	dc.mutation.SetDNS(s)
+func (dc *DeviceCreate) SetDNS(ts types.InetSlice) *DeviceCreate {
+	dc.mutation.SetDNS(ts)
 	return dc
 }
 
@@ -69,6 +69,12 @@ func (dc *DeviceCreate) SetPresharedKey(s string) *DeviceCreate {
 	return dc
 }
 
+// SetKeepAlive sets the "keep_alive" field.
+func (dc *DeviceCreate) SetKeepAlive(b bool) *DeviceCreate {
+	dc.mutation.SetKeepAlive(b)
+	return dc
+}
+
 // SetEndpoint sets the "endpoint" field.
 func (dc *DeviceCreate) SetEndpoint(t types.Inet) *DeviceCreate {
 	dc.mutation.SetEndpoint(t)
@@ -76,8 +82,8 @@ func (dc *DeviceCreate) SetEndpoint(t types.Inet) *DeviceCreate {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (dc *DeviceCreate) SetAllowedIps(s string) *DeviceCreate {
-	dc.mutation.SetAllowedIps(s)
+func (dc *DeviceCreate) SetAllowedIps(ts types.CidrSlice) *DeviceCreate {
+	dc.mutation.SetAllowedIps(ts)
 	return dc
 }
 
@@ -98,14 +104,6 @@ func (dc *DeviceCreate) SetNillableID(u *uuid.UUID) *DeviceCreate {
 // SetUserID sets the "user" edge to the User entity by ID.
 func (dc *DeviceCreate) SetUserID(id string) *DeviceCreate {
 	dc.mutation.SetUserID(id)
-	return dc
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (dc *DeviceCreate) SetNillableUserID(id *string) *DeviceCreate {
-	if id != nil {
-		dc = dc.SetUserID(*id)
-	}
 	return dc
 }
 
@@ -172,11 +170,17 @@ func (dc *DeviceCreate) check() error {
 	if _, ok := dc.mutation.PresharedKey(); !ok {
 		return &ValidationError{Name: "preshared_key", err: errors.New(`ent: missing required field "Device.preshared_key"`)}
 	}
+	if _, ok := dc.mutation.KeepAlive(); !ok {
+		return &ValidationError{Name: "keep_alive", err: errors.New(`ent: missing required field "Device.keep_alive"`)}
+	}
 	if _, ok := dc.mutation.Endpoint(); !ok {
 		return &ValidationError{Name: "endpoint", err: errors.New(`ent: missing required field "Device.endpoint"`)}
 	}
 	if _, ok := dc.mutation.AllowedIps(); !ok {
 		return &ValidationError{Name: "allowed_ips", err: errors.New(`ent: missing required field "Device.allowed_ips"`)}
+	}
+	if _, ok := dc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Device.user"`)}
 	}
 	return nil
 }
@@ -227,7 +231,7 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 		_node.Type = value
 	}
 	if value, ok := dc.mutation.DNS(); ok {
-		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+		_spec.SetField(device.FieldDNS, field.TypeOther, value)
 		_node.DNS = value
 	}
 	if value, ok := dc.mutation.PublicKey(); ok {
@@ -238,12 +242,16 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 		_spec.SetField(device.FieldPresharedKey, field.TypeString, value)
 		_node.PresharedKey = value
 	}
+	if value, ok := dc.mutation.KeepAlive(); ok {
+		_spec.SetField(device.FieldKeepAlive, field.TypeBool, value)
+		_node.KeepAlive = value
+	}
 	if value, ok := dc.mutation.Endpoint(); ok {
 		_spec.SetField(device.FieldEndpoint, field.TypeString, value)
 		_node.Endpoint = value
 	}
 	if value, ok := dc.mutation.AllowedIps(); ok {
-		_spec.SetField(device.FieldAllowedIps, field.TypeString, value)
+		_spec.SetField(device.FieldAllowedIps, field.TypeOther, value)
 		_node.AllowedIps = value
 	}
 	if nodes := dc.mutation.UserIDs(); len(nodes) > 0 {
@@ -358,7 +366,7 @@ func (u *DeviceUpsert) UpdateType() *DeviceUpsert {
 }
 
 // SetDNS sets the "dns" field.
-func (u *DeviceUpsert) SetDNS(v []string) *DeviceUpsert {
+func (u *DeviceUpsert) SetDNS(v types.InetSlice) *DeviceUpsert {
 	u.Set(device.FieldDNS, v)
 	return u
 }
@@ -366,6 +374,18 @@ func (u *DeviceUpsert) SetDNS(v []string) *DeviceUpsert {
 // UpdateDNS sets the "dns" field to the value that was provided on create.
 func (u *DeviceUpsert) UpdateDNS() *DeviceUpsert {
 	u.SetExcluded(device.FieldDNS)
+	return u
+}
+
+// SetKeepAlive sets the "keep_alive" field.
+func (u *DeviceUpsert) SetKeepAlive(v bool) *DeviceUpsert {
+	u.Set(device.FieldKeepAlive, v)
+	return u
+}
+
+// UpdateKeepAlive sets the "keep_alive" field to the value that was provided on create.
+func (u *DeviceUpsert) UpdateKeepAlive() *DeviceUpsert {
+	u.SetExcluded(device.FieldKeepAlive)
 	return u
 }
 
@@ -382,7 +402,7 @@ func (u *DeviceUpsert) UpdateEndpoint() *DeviceUpsert {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (u *DeviceUpsert) SetAllowedIps(v string) *DeviceUpsert {
+func (u *DeviceUpsert) SetAllowedIps(v types.CidrSlice) *DeviceUpsert {
 	u.Set(device.FieldAllowedIps, v)
 	return u
 }
@@ -497,7 +517,7 @@ func (u *DeviceUpsertOne) UpdateType() *DeviceUpsertOne {
 }
 
 // SetDNS sets the "dns" field.
-func (u *DeviceUpsertOne) SetDNS(v []string) *DeviceUpsertOne {
+func (u *DeviceUpsertOne) SetDNS(v types.InetSlice) *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.SetDNS(v)
 	})
@@ -507,6 +527,20 @@ func (u *DeviceUpsertOne) SetDNS(v []string) *DeviceUpsertOne {
 func (u *DeviceUpsertOne) UpdateDNS() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateDNS()
+	})
+}
+
+// SetKeepAlive sets the "keep_alive" field.
+func (u *DeviceUpsertOne) SetKeepAlive(v bool) *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetKeepAlive(v)
+	})
+}
+
+// UpdateKeepAlive sets the "keep_alive" field to the value that was provided on create.
+func (u *DeviceUpsertOne) UpdateKeepAlive() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateKeepAlive()
 	})
 }
 
@@ -525,7 +559,7 @@ func (u *DeviceUpsertOne) UpdateEndpoint() *DeviceUpsertOne {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (u *DeviceUpsertOne) SetAllowedIps(v string) *DeviceUpsertOne {
+func (u *DeviceUpsertOne) SetAllowedIps(v types.CidrSlice) *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.SetAllowedIps(v)
 	})
@@ -809,7 +843,7 @@ func (u *DeviceUpsertBulk) UpdateType() *DeviceUpsertBulk {
 }
 
 // SetDNS sets the "dns" field.
-func (u *DeviceUpsertBulk) SetDNS(v []string) *DeviceUpsertBulk {
+func (u *DeviceUpsertBulk) SetDNS(v types.InetSlice) *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.SetDNS(v)
 	})
@@ -819,6 +853,20 @@ func (u *DeviceUpsertBulk) SetDNS(v []string) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateDNS() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateDNS()
+	})
+}
+
+// SetKeepAlive sets the "keep_alive" field.
+func (u *DeviceUpsertBulk) SetKeepAlive(v bool) *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetKeepAlive(v)
+	})
+}
+
+// UpdateKeepAlive sets the "keep_alive" field to the value that was provided on create.
+func (u *DeviceUpsertBulk) UpdateKeepAlive() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateKeepAlive()
 	})
 }
 
@@ -837,7 +885,7 @@ func (u *DeviceUpsertBulk) UpdateEndpoint() *DeviceUpsertBulk {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (u *DeviceUpsertBulk) SetAllowedIps(v string) *DeviceUpsertBulk {
+func (u *DeviceUpsertBulk) SetAllowedIps(v types.CidrSlice) *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.SetAllowedIps(v)
 	})

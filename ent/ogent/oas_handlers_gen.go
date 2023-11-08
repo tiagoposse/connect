@@ -1627,13 +1627,17 @@ func (s *Server) handleListApiKeyRequest(args [0]string, argsEscaped bool, w htt
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 			},
 			Raw: r,
 		}
@@ -1737,13 +1741,17 @@ func (s *Server) handleListAuditRequest(args [0]string, argsEscaped bool, w http
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 				{
 					Name: "id",
 					In:   "query",
@@ -1752,6 +1760,10 @@ func (s *Server) handleListAuditRequest(args [0]string, argsEscaped bool, w http
 					Name: "action",
 					In:   "query",
 				}: params.Action,
+				{
+					Name: "author",
+					In:   "query",
+				}: params.Author,
 			},
 			Raw: r,
 		}
@@ -1917,17 +1929,45 @@ func (s *Server) handleListDeviceRequest(args [0]string, argsEscaped bool, w htt
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
+				{
+					Name: "id",
+					In:   "query",
+				}: params.ID,
 				{
 					Name: "user",
 					In:   "query",
 				}: params.User,
+				{
+					Name: "name",
+					In:   "query",
+				}: params.Name,
+				{
+					Name: "type",
+					In:   "query",
+				}: params.Type,
+				{
+					Name: "endpoint",
+					In:   "query",
+				}: params.Endpoint,
+				{
+					Name: "allowed_ips",
+					In:   "query",
+				}: params.AllowedIps,
+				{
+					Name: "public_key",
+					In:   "query",
+				}: params.PublicKey,
 			},
 			Raw: r,
 		}
@@ -2093,13 +2133,33 @@ func (s *Server) handleListGroupRequest(args [0]string, argsEscaped bool, w http
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
+				{
+					Name: "id",
+					In:   "query",
+				}: params.ID,
+				{
+					Name: "name",
+					In:   "query",
+				}: params.Name,
+				{
+					Name: "scopes",
+					In:   "query",
+				}: params.Scopes,
+				{
+					Name: "cidr",
+					In:   "query",
+				}: params.Cidr,
 			},
 			Raw: r,
 		}
@@ -2207,13 +2267,17 @@ func (s *Server) handleListGroupUsersRequest(args [1]string, argsEscaped bool, w
 					In:   "path",
 				}: params.ID,
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 			},
 			Raw: r,
 		}
@@ -2317,17 +2381,45 @@ func (s *Server) handleListUserRequest(args [0]string, argsEscaped bool, w http.
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 				{
 					Name: "id",
 					In:   "query",
 				}: params.ID,
+				{
+					Name: "firstname",
+					In:   "query",
+				}: params.Firstname,
+				{
+					Name: "lastname",
+					In:   "query",
+				}: params.Lastname,
+				{
+					Name: "provider",
+					In:   "query",
+				}: params.Provider,
+				{
+					Name: "email",
+					In:   "query",
+				}: params.Email,
+				{
+					Name: "disabled",
+					In:   "query",
+				}: params.Disabled,
+				{
+					Name: "disabled_reason",
+					In:   "query",
+				}: params.DisabledReason,
 			},
 			Raw: r,
 		}
@@ -2435,13 +2527,17 @@ func (s *Server) handleListUserAuditRequest(args [1]string, argsEscaped bool, w 
 					In:   "path",
 				}: params.ID,
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 			},
 			Raw: r,
 		}
@@ -2549,13 +2645,17 @@ func (s *Server) handleListUserDevicesRequest(args [1]string, argsEscaped bool, 
 					In:   "path",
 				}: params.ID,
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 			},
 			Raw: r,
 		}
@@ -2663,13 +2763,17 @@ func (s *Server) handleListUserKeysRequest(args [1]string, argsEscaped bool, w h
 					In:   "path",
 				}: params.ID,
 				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
+					Name: "x-page",
+					In:   "header",
+				}: params.XPage,
 				{
-					Name: "itemsPerPage",
+					Name: "x-items-per-page",
+					In:   "header",
+				}: params.XItemsPerPage,
+				{
+					Name: "sort",
 					In:   "query",
-				}: params.ItemsPerPage,
+				}: params.Sort,
 			},
 			Raw: r,
 		}

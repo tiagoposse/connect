@@ -25,6 +25,8 @@ const (
 	FieldPublicKey = "public_key"
 	// FieldPresharedKey holds the string denoting the preshared_key field in the database.
 	FieldPresharedKey = "preshared_key"
+	// FieldKeepAlive holds the string denoting the keep_alive field in the database.
+	FieldKeepAlive = "keep_alive"
 	// FieldEndpoint holds the string denoting the endpoint field in the database.
 	FieldEndpoint = "endpoint"
 	// FieldAllowedIps holds the string denoting the allowed_ips field in the database.
@@ -51,6 +53,7 @@ var Columns = []string{
 	FieldDNS,
 	FieldPublicKey,
 	FieldPresharedKey,
+	FieldKeepAlive,
 	FieldEndpoint,
 	FieldAllowedIps,
 }
@@ -104,6 +107,11 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
+// ByDNS orders the results by the dns field.
+func ByDNS(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDNS, opts...).ToFunc()
+}
+
 // ByPublicKey orders the results by the public_key field.
 func ByPublicKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPublicKey, opts...).ToFunc()
@@ -112,6 +120,11 @@ func ByPublicKey(opts ...sql.OrderTermOption) OrderOption {
 // ByPresharedKey orders the results by the preshared_key field.
 func ByPresharedKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPresharedKey, opts...).ToFunc()
+}
+
+// ByKeepAlive orders the results by the keep_alive field.
+func ByKeepAlive(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeepAlive, opts...).ToFunc()
 }
 
 // ByEndpoint orders the results by the endpoint field.

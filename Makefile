@@ -8,10 +8,10 @@ gen-back:
 
 gen-front:
 	@docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
-		-g typescript-fetch \
+		-g typescript-axios \
 		-i /local/ent/openapi.json \
 		-o /local/frontend/src/lib/api \
-		--additional-properties=addResponseHeaders=true \
+		--additional-properties=addResponseHeaders=true,paramNaming=camelCase \
 		--parameter-name-mappings x-page=page,x-items-per-page=itemsPerPage
 
 build-dev:

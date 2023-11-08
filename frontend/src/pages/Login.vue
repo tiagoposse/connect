@@ -1,4 +1,3 @@
-<!-- src/components/AdminPage.vue -->
 <template>
   <v-form @submit="login">
     <v-card>
@@ -16,7 +15,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { DefaultApiConfig, AuthAPI } from '../lib/apis';
+import { AuthAPI } from '@/lib/apis';
+import { DefaultApiConfig } from '@/lib/utils';
 
 const loginData = ref({
   username: '',

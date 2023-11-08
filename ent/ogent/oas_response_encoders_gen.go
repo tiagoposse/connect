@@ -690,13 +690,33 @@ func encodeGoogleAuthSyncResponse(response GoogleAuthSyncRes, w http.ResponseWri
 
 func encodeListApiKeyResponse(response ListApiKeyRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListApiKeyOKApplicationJSON:
+	case *ListApiKeyOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -762,13 +782,33 @@ func encodeListApiKeyResponse(response ListApiKeyRes, w http.ResponseWriter, spa
 
 func encodeListAuditResponse(response ListAuditRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListAuditOKApplicationJSON:
+	case *ListAuditOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -834,13 +874,33 @@ func encodeListAuditResponse(response ListAuditRes, w http.ResponseWriter, span 
 
 func encodeListDeviceResponse(response ListDeviceRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListDeviceOKApplicationJSON:
+	case *ListDeviceOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -906,13 +966,33 @@ func encodeListDeviceResponse(response ListDeviceRes, w http.ResponseWriter, spa
 
 func encodeListGroupResponse(response ListGroupRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListGroupOKApplicationJSON:
+	case *ListGroupOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -978,13 +1058,33 @@ func encodeListGroupResponse(response ListGroupRes, w http.ResponseWriter, span 
 
 func encodeListGroupUsersResponse(response ListGroupUsersRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListGroupUsersOKApplicationJSON:
+	case *ListGroupUsersOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -1050,13 +1150,33 @@ func encodeListGroupUsersResponse(response ListGroupUsersRes, w http.ResponseWri
 
 func encodeListUserResponse(response ListUserRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListUserOKApplicationJSON:
+	case *ListUserOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -1122,13 +1242,33 @@ func encodeListUserResponse(response ListUserRes, w http.ResponseWriter, span tr
 
 func encodeListUserAuditResponse(response ListUserAuditRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListUserAuditOKApplicationJSON:
+	case *ListUserAuditOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -1194,13 +1334,33 @@ func encodeListUserAuditResponse(response ListUserAuditRes, w http.ResponseWrite
 
 func encodeListUserDevicesResponse(response ListUserDevicesRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListUserDevicesOKApplicationJSON:
+	case *ListUserDevicesOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
@@ -1266,13 +1426,33 @@ func encodeListUserDevicesResponse(response ListUserDevicesRes, w http.ResponseW
 
 func encodeListUserKeysResponse(response ListUserKeysRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *ListUserKeysOKApplicationJSON:
+	case *ListUserKeysOKHeaders:
 		w.Header().Set("Content-Type", "application/json")
+		// Encoding response headers.
+		{
+			h := uri.NewHeaderEncoder(w.Header())
+			// Encode "x-total" header.
+			{
+				cfg := uri.HeaderParameterEncodingConfig{
+					Name:    "x-total",
+					Explode: false,
+				}
+				if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+					return e.EncodeValue(conv.IntToString(response.XTotal))
+				}); err != nil {
+					return errors.Wrap(err, "encode x-total header")
+				}
+			}
+		}
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))
 
 		e := jx.GetEncoder()
-		response.Encode(e)
+		e.ArrStart()
+		for _, elem := range response.Response {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}

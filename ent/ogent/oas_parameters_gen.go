@@ -349,28 +349,38 @@ func decodeDeleteUserParams(args [1]string, argsEscaped bool, r *http.Request) (
 // ListApiKeyParams is parameters of listApiKey operation.
 type ListApiKeyParams struct {
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
+	XItemsPerPage OptInt
+	Sort          OptString
 }
 
 func unpackListApiKeyParams(packed middleware.Parameters) (params ListApiKeyParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
+			params.XPage = v.(OptInt)
 		}
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	return params
@@ -378,17 +388,16 @@ func unpackListApiKeyParams(packed middleware.Parameters) (params ListApiKeyPara
 
 func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (params ListApiKeyParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: page.
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -400,18 +409,18 @@ func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.Page.Get(); ok {
+				if value, ok := params.XPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -438,22 +447,20 @@ func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -465,18 +472,18 @@ func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.ItemsPerPage.Get(); ok {
+				if value, ok := params.XItemsPerPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -503,7 +510,48 @@ func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}
@@ -514,30 +562,41 @@ func decodeListApiKeyParams(args [0]string, argsEscaped bool, r *http.Request) (
 // ListAuditParams is parameters of listAudit operation.
 type ListAuditParams struct {
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
-	ID           OptString
-	Action       OptString
+	XItemsPerPage OptInt
+	Sort          OptString
+	ID            OptString
+	Action        OptString
+	Author        OptString
 }
 
 func unpackListAuditParams(packed middleware.Parameters) (params ListAuditParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
+			params.XPage = v.(OptInt)
 		}
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	{
@@ -558,22 +617,30 @@ func unpackListAuditParams(packed middleware.Parameters) (params ListAuditParams
 			params.Action = v.(OptString)
 		}
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "author",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Author = v.(OptString)
+		}
+	}
 	return params
 }
 
 func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (params ListAuditParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: page.
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -585,18 +652,18 @@ func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (p
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.Page.Get(); ok {
+				if value, ok := params.XPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -623,22 +690,20 @@ func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (p
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -650,18 +715,18 @@ func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (p
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.ItemsPerPage.Get(); ok {
+				if value, ok := params.XItemsPerPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -688,7 +753,48 @@ func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (p
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}
@@ -775,192 +881,17 @@ func decodeListAuditParams(args [0]string, argsEscaped bool, r *http.Request) (p
 			Err:  err,
 		}
 	}
-	return params, nil
-}
-
-// ListDeviceParams is parameters of listDevice operation.
-type ListDeviceParams struct {
-	// What page to render.
-	Page OptInt
-	// Item count to render per page.
-	ItemsPerPage OptInt
-	User         OptString
-}
-
-func unpackListDeviceParams(packed middleware.Parameters) (params ListDeviceParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "user",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.User = v.(OptString)
-		}
-	}
-	return params
-}
-
-func decodeListDeviceParams(args [0]string, argsEscaped bool, r *http.Request) (params ListDeviceParams, _ error) {
-	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: page.
+	// Decode query: author.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
+			Name:    "author",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.Page.SetTo(paramsDotPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := func() error {
-				if value, ok := params.Page.Get(); ok {
-					if err := func() error {
-						if err := (validate.Int{
-							MinSet:        true,
-							Min:           1,
-							MaxSet:        false,
-							Max:           0,
-							MinExclusive:  false,
-							MaxExclusive:  false,
-							MultipleOfSet: false,
-							MultipleOf:    0,
-						}).Validate(int64(value)); err != nil {
-							return errors.Wrap(err, "int")
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Decode query: itemsPerPage.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotItemsPerPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := func() error {
-				if value, ok := params.ItemsPerPage.Get(); ok {
-					if err := func() error {
-						if err := (validate.Int{
-							MinSet:        true,
-							Min:           1,
-							MaxSet:        true,
-							Max:           255,
-							MinExclusive:  false,
-							MaxExclusive:  false,
-							MultipleOfSet: false,
-							MultipleOf:    0,
-						}).Validate(int64(value)); err != nil {
-							return errors.Wrap(err, "int")
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Decode query: user.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "user",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotUserVal string
+				var paramsDotAuthorVal string
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -972,12 +903,12 @@ func decodeListDeviceParams(args [0]string, argsEscaped bool, r *http.Request) (
 						return err
 					}
 
-					paramsDotUserVal = c
+					paramsDotAuthorVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.User.SetTo(paramsDotUserVal)
+				params.Author.SetTo(paramsDotAuthorVal)
 				return nil
 			}); err != nil {
 				return err
@@ -986,7 +917,7 @@ func decodeListDeviceParams(args [0]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "user",
+			Name: "author",
 			In:   "query",
 			Err:  err,
 		}
@@ -994,368 +925,48 @@ func decodeListDeviceParams(args [0]string, argsEscaped bool, r *http.Request) (
 	return params, nil
 }
 
-// ListGroupParams is parameters of listGroup operation.
-type ListGroupParams struct {
+// ListDeviceParams is parameters of listDevice operation.
+type ListDeviceParams struct {
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
+	XItemsPerPage OptInt
+	Sort          OptString
+	ID            OptString
+	User          OptString
+	Name          OptString
+	Type          OptString
+	Endpoint      OptString
+	AllowedIps    OptString
+	PublicKey     OptString
 }
 
-func unpackListGroupParams(packed middleware.Parameters) (params ListGroupParams) {
+func unpackListDeviceParams(packed middleware.Parameters) (params ListDeviceParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
+			Name: "x-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
-		}
-	}
-	return params
-}
-
-func decodeListGroupParams(args [0]string, argsEscaped bool, r *http.Request) (params ListGroupParams, _ error) {
-	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: page.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.Page.SetTo(paramsDotPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := func() error {
-				if value, ok := params.Page.Get(); ok {
-					if err := func() error {
-						if err := (validate.Int{
-							MinSet:        true,
-							Min:           1,
-							MaxSet:        false,
-							Max:           0,
-							MinExclusive:  false,
-							MaxExclusive:  false,
-							MultipleOfSet: false,
-							MultipleOf:    0,
-						}).Validate(int64(value)); err != nil {
-							return errors.Wrap(err, "int")
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Decode query: itemsPerPage.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotItemsPerPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := func() error {
-				if value, ok := params.ItemsPerPage.Get(); ok {
-					if err := func() error {
-						if err := (validate.Int{
-							MinSet:        true,
-							Min:           1,
-							MaxSet:        true,
-							Max:           255,
-							MinExclusive:  false,
-							MaxExclusive:  false,
-							MultipleOfSet: false,
-							MultipleOf:    0,
-						}).Validate(int64(value)); err != nil {
-							return errors.Wrap(err, "int")
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
-
-// ListGroupUsersParams is parameters of listGroupUsers operation.
-type ListGroupUsersParams struct {
-	// ID of the Group.
-	ID string
-	// What page to render.
-	Page OptInt
-	// Item count to render per page.
-	ItemsPerPage OptInt
-}
-
-func unpackListGroupUsersParams(packed middleware.Parameters) (params ListGroupUsersParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "id",
-			In:   "path",
-		}
-		params.ID = packed[key].(string)
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
-		}
-	}
-	return params
-}
-
-func decodeListGroupUsersParams(args [1]string, argsEscaped bool, r *http.Request) (params ListGroupUsersParams, _ error) {
-	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode path: id.
-	if err := func() error {
-		param := args[0]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[0])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "id",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToString(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "id",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	// Decode query: page.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.Page.SetTo(paramsDotPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Decode query: itemsPerPage.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToInt(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotItemsPerPageVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
-
-// ListUserParams is parameters of listUser operation.
-type ListUserParams struct {
-	// What page to render.
-	Page OptInt
-	// Item count to render per page.
-	ItemsPerPage OptInt
-	ID           OptString
-}
-
-func unpackListUserParams(packed middleware.Parameters) (params ListUserParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	{
@@ -1367,22 +978,75 @@ func unpackListUserParams(packed middleware.Parameters) (params ListUserParams) 
 			params.ID = v.(OptString)
 		}
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "user",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.User = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "name",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Name = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "type",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Type = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "endpoint",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Endpoint = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "allowed_ips",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.AllowedIps = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "public_key",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.PublicKey = v.(OptString)
+		}
+	}
 	return params
 }
 
-func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (params ListUserParams, _ error) {
+func decodeListDeviceParams(args [0]string, argsEscaped bool, r *http.Request) (params ListDeviceParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: page.
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1394,18 +1058,18 @@ func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (pa
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.Page.Get(); ok {
+				if value, ok := params.XPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -1432,22 +1096,20 @@ func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (pa
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1459,18 +1121,18 @@ func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (pa
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
 			}
 			if err := func() error {
-				if value, ok := params.ItemsPerPage.Get(); ok {
+				if value, ok := params.XItemsPerPage.Get(); ok {
 					if err := func() error {
 						if err := (validate.Int{
 							MinSet:        true,
@@ -1497,7 +1159,48 @@ func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (pa
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}
@@ -1543,6 +1246,1458 @@ func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (pa
 			Err:  err,
 		}
 	}
+	// Decode query: user.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "user",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotUserVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotUserVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.User.SetTo(paramsDotUserVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "user",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: name.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "name",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNameVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNameVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Name.SetTo(paramsDotNameVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "name",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: type.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "type",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotTypeVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotTypeVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Type.SetTo(paramsDotTypeVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "type",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: endpoint.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "endpoint",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEndpointVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEndpointVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Endpoint.SetTo(paramsDotEndpointVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "endpoint",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: allowed_ips.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "allowed_ips",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotAllowedIpsVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotAllowedIpsVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.AllowedIps.SetTo(paramsDotAllowedIpsVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "allowed_ips",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: public_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "public_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPublicKeyVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPublicKeyVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.PublicKey.SetTo(paramsDotPublicKeyVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "public_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListGroupParams is parameters of listGroup operation.
+type ListGroupParams struct {
+	// What page to render.
+	XPage OptInt
+	// Item count to render per page.
+	XItemsPerPage OptInt
+	Sort          OptString
+	ID            OptString
+	Name          OptString
+	Scopes        OptString
+	Cidr          OptString
+}
+
+func unpackListGroupParams(packed middleware.Parameters) (params ListGroupParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "x-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ID = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "name",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Name = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "scopes",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Scopes = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "cidr",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Cidr = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeListGroupParams(args [0]string, argsEscaped bool, r *http.Request) (params ListGroupParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: x-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XPage.SetTo(paramsDotXPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.XPage.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode header: x-items-per-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXItemsPerPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.XItemsPerPage.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           255,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ID.SetTo(paramsDotIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: name.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "name",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNameVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNameVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Name.SetTo(paramsDotNameVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "name",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: scopes.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "scopes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotScopesVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotScopesVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Scopes.SetTo(paramsDotScopesVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "scopes",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: cidr.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "cidr",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotCidrVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotCidrVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Cidr.SetTo(paramsDotCidrVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "cidr",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListGroupUsersParams is parameters of listGroupUsers operation.
+type ListGroupUsersParams struct {
+	// ID of the Group.
+	ID string
+	// What page to render.
+	XPage OptInt
+	// Item count to render per page.
+	XItemsPerPage OptInt
+	Sort          OptString
+}
+
+func unpackListGroupUsersParams(packed middleware.Parameters) (params ListGroupUsersParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "x-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeListGroupUsersParams(args [1]string, argsEscaped bool, r *http.Request) (params ListGroupUsersParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: x-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XPage.SetTo(paramsDotXPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode header: x-items-per-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXItemsPerPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListUserParams is parameters of listUser operation.
+type ListUserParams struct {
+	// What page to render.
+	XPage OptInt
+	// Item count to render per page.
+	XItemsPerPage  OptInt
+	Sort           OptString
+	ID             OptString
+	Firstname      OptString
+	Lastname       OptString
+	Provider       OptString
+	Email          OptString
+	Disabled       OptString
+	DisabledReason OptString
+}
+
+func unpackListUserParams(packed middleware.Parameters) (params ListUserParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "x-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Sort = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ID = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "firstname",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Firstname = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "lastname",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Lastname = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "provider",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Provider = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "email",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Email = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "disabled",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Disabled = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "disabled_reason",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.DisabledReason = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeListUserParams(args [0]string, argsEscaped bool, r *http.Request) (params ListUserParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: x-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XPage.SetTo(paramsDotXPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.XPage.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode header: x-items-per-page.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotXItemsPerPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.XItemsPerPage.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           255,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ID.SetTo(paramsDotIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: firstname.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "firstname",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotFirstnameVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotFirstnameVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Firstname.SetTo(paramsDotFirstnameVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "firstname",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: lastname.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "lastname",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotLastnameVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotLastnameVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Lastname.SetTo(paramsDotLastnameVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "lastname",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: provider.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "provider",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotProviderVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotProviderVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Provider.SetTo(paramsDotProviderVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "provider",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: email.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "email",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEmailVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEmailVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Email.SetTo(paramsDotEmailVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "email",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: disabled.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "disabled",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDisabledVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDisabledVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Disabled.SetTo(paramsDotDisabledVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "disabled",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: disabled_reason.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "disabled_reason",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDisabledReasonVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDisabledReasonVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.DisabledReason.SetTo(paramsDotDisabledReasonVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "disabled_reason",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
@@ -1551,9 +2706,10 @@ type ListUserAuditParams struct {
 	// ID of the User.
 	ID string
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
+	XItemsPerPage OptInt
+	Sort          OptString
 }
 
 func unpackListUserAuditParams(packed middleware.Parameters) (params ListUserAuditParams) {
@@ -1566,20 +2722,29 @@ func unpackListUserAuditParams(packed middleware.Parameters) (params ListUserAud
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
+			params.XPage = v.(OptInt)
 		}
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	return params
@@ -1587,6 +2752,7 @@ func unpackListUserAuditParams(packed middleware.Parameters) (params ListUserAud
 
 func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request) (params ListUserAuditParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -1632,17 +2798,15 @@ func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request
 			Err:  err,
 		}
 	}
-	// Decode query: page.
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1654,12 +2818,12 @@ func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -1668,22 +2832,20 @@ func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1695,12 +2857,12 @@ func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -1709,7 +2871,48 @@ func decodeListUserAuditParams(args [1]string, argsEscaped bool, r *http.Request
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}
@@ -1722,9 +2925,10 @@ type ListUserDevicesParams struct {
 	// ID of the User.
 	ID string
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
+	XItemsPerPage OptInt
+	Sort          OptString
 }
 
 func unpackListUserDevicesParams(packed middleware.Parameters) (params ListUserDevicesParams) {
@@ -1737,20 +2941,29 @@ func unpackListUserDevicesParams(packed middleware.Parameters) (params ListUserD
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
+			params.XPage = v.(OptInt)
 		}
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	return params
@@ -1758,6 +2971,7 @@ func unpackListUserDevicesParams(packed middleware.Parameters) (params ListUserD
 
 func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListUserDevicesParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -1803,17 +3017,15 @@ func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Reque
 			Err:  err,
 		}
 	}
-	// Decode query: page.
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1825,12 +3037,12 @@ func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Reque
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -1839,22 +3051,20 @@ func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Reque
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1866,12 +3076,12 @@ func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Reque
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -1880,7 +3090,48 @@ func decodeListUserDevicesParams(args [1]string, argsEscaped bool, r *http.Reque
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}
@@ -1893,9 +3144,10 @@ type ListUserKeysParams struct {
 	// ID of the User.
 	ID string
 	// What page to render.
-	Page OptInt
+	XPage OptInt
 	// Item count to render per page.
-	ItemsPerPage OptInt
+	XItemsPerPage OptInt
+	Sort          OptString
 }
 
 func unpackListUserKeysParams(packed middleware.Parameters) (params ListUserKeysParams) {
@@ -1908,20 +3160,29 @@ func unpackListUserKeysParams(packed middleware.Parameters) (params ListUserKeys
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 		}
 		if v, ok := packed[key]; ok {
-			params.Page = v.(OptInt)
+			params.XPage = v.(OptInt)
 		}
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.XItemsPerPage = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "sort",
 			In:   "query",
 		}
 		if v, ok := packed[key]; ok {
-			params.ItemsPerPage = v.(OptInt)
+			params.Sort = v.(OptString)
 		}
 	}
 	return params
@@ -1929,6 +3190,7 @@ func unpackListUserKeysParams(packed middleware.Parameters) (params ListUserKeys
 
 func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request) (params ListUserKeysParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -1974,17 +3236,15 @@ func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request)
 			Err:  err,
 		}
 	}
-	// Decode query: page.
+	// Decode header: x-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "page",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -1996,12 +3256,12 @@ func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request)
 						return err
 					}
 
-					paramsDotPageVal = c
+					paramsDotXPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.Page.SetTo(paramsDotPageVal)
+				params.XPage.SetTo(paramsDotXPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -2010,22 +3270,20 @@ func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request)
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "page",
-			In:   "query",
+			Name: "x-page",
+			In:   "header",
 			Err:  err,
 		}
 	}
-	// Decode query: itemsPerPage.
+	// Decode header: x-items-per-page.
 	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "itemsPerPage",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "x-items-per-page",
+			Explode: false,
 		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotItemsPerPageVal int
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotXItemsPerPageVal int
 				if err := func() error {
 					val, err := d.DecodeValue()
 					if err != nil {
@@ -2037,12 +3295,12 @@ func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request)
 						return err
 					}
 
-					paramsDotItemsPerPageVal = c
+					paramsDotXItemsPerPageVal = c
 					return nil
 				}(); err != nil {
 					return err
 				}
-				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				params.XItemsPerPage.SetTo(paramsDotXItemsPerPageVal)
 				return nil
 			}); err != nil {
 				return err
@@ -2051,7 +3309,48 @@ func decodeListUserKeysParams(args [1]string, argsEscaped bool, r *http.Request)
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "itemsPerPage",
+			Name: "x-items-per-page",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: sort.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sort",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotSortVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotSortVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Sort.SetTo(paramsDotSortVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sort",
 			In:   "query",
 			Err:  err,
 		}

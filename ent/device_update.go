@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/tiagoposse/connect/ent/device"
 	"github.com/tiagoposse/connect/ent/predicate"
@@ -62,14 +61,14 @@ func (du *DeviceUpdate) SetType(s string) *DeviceUpdate {
 }
 
 // SetDNS sets the "dns" field.
-func (du *DeviceUpdate) SetDNS(s []string) *DeviceUpdate {
-	du.mutation.SetDNS(s)
+func (du *DeviceUpdate) SetDNS(ts types.InetSlice) *DeviceUpdate {
+	du.mutation.SetDNS(ts)
 	return du
 }
 
-// AppendDNS appends s to the "dns" field.
-func (du *DeviceUpdate) AppendDNS(s []string) *DeviceUpdate {
-	du.mutation.AppendDNS(s)
+// SetKeepAlive sets the "keep_alive" field.
+func (du *DeviceUpdate) SetKeepAlive(b bool) *DeviceUpdate {
+	du.mutation.SetKeepAlive(b)
 	return du
 }
 
@@ -80,8 +79,8 @@ func (du *DeviceUpdate) SetEndpoint(t types.Inet) *DeviceUpdate {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (du *DeviceUpdate) SetAllowedIps(s string) *DeviceUpdate {
-	du.mutation.SetAllowedIps(s)
+func (du *DeviceUpdate) SetAllowedIps(ts types.CidrSlice) *DeviceUpdate {
+	du.mutation.SetAllowedIps(ts)
 	return du
 }
 
@@ -117,7 +116,18 @@ func (du *DeviceUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (du *DeviceUpdate) check() error {
+	if _, ok := du.mutation.UserID(); du.mutation.UserCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Device.user"`)
+	}
+	return nil
+}
+
 func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := du.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	if ps := du.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -139,18 +149,16 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(device.FieldType, field.TypeString, value)
 	}
 	if value, ok := du.mutation.DNS(); ok {
-		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+		_spec.SetField(device.FieldDNS, field.TypeOther, value)
 	}
-	if value, ok := du.mutation.AppendedDNS(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, device.FieldDNS, value)
-		})
+	if value, ok := du.mutation.KeepAlive(); ok {
+		_spec.SetField(device.FieldKeepAlive, field.TypeBool, value)
 	}
 	if value, ok := du.mutation.Endpoint(); ok {
 		_spec.SetField(device.FieldEndpoint, field.TypeString, value)
 	}
 	if value, ok := du.mutation.AllowedIps(); ok {
-		_spec.SetField(device.FieldAllowedIps, field.TypeString, value)
+		_spec.SetField(device.FieldAllowedIps, field.TypeOther, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, du.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -205,14 +213,14 @@ func (duo *DeviceUpdateOne) SetType(s string) *DeviceUpdateOne {
 }
 
 // SetDNS sets the "dns" field.
-func (duo *DeviceUpdateOne) SetDNS(s []string) *DeviceUpdateOne {
-	duo.mutation.SetDNS(s)
+func (duo *DeviceUpdateOne) SetDNS(ts types.InetSlice) *DeviceUpdateOne {
+	duo.mutation.SetDNS(ts)
 	return duo
 }
 
-// AppendDNS appends s to the "dns" field.
-func (duo *DeviceUpdateOne) AppendDNS(s []string) *DeviceUpdateOne {
-	duo.mutation.AppendDNS(s)
+// SetKeepAlive sets the "keep_alive" field.
+func (duo *DeviceUpdateOne) SetKeepAlive(b bool) *DeviceUpdateOne {
+	duo.mutation.SetKeepAlive(b)
 	return duo
 }
 
@@ -223,8 +231,8 @@ func (duo *DeviceUpdateOne) SetEndpoint(t types.Inet) *DeviceUpdateOne {
 }
 
 // SetAllowedIps sets the "allowed_ips" field.
-func (duo *DeviceUpdateOne) SetAllowedIps(s string) *DeviceUpdateOne {
-	duo.mutation.SetAllowedIps(s)
+func (duo *DeviceUpdateOne) SetAllowedIps(ts types.CidrSlice) *DeviceUpdateOne {
+	duo.mutation.SetAllowedIps(ts)
 	return duo
 }
 
@@ -273,7 +281,18 @@ func (duo *DeviceUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (duo *DeviceUpdateOne) check() error {
+	if _, ok := duo.mutation.UserID(); duo.mutation.UserCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Device.user"`)
+	}
+	return nil
+}
+
 func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err error) {
+	if err := duo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(device.Table, device.Columns, sqlgraph.NewFieldSpec(device.FieldID, field.TypeUUID))
 	id, ok := duo.mutation.ID()
 	if !ok {
@@ -312,18 +331,16 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 		_spec.SetField(device.FieldType, field.TypeString, value)
 	}
 	if value, ok := duo.mutation.DNS(); ok {
-		_spec.SetField(device.FieldDNS, field.TypeJSON, value)
+		_spec.SetField(device.FieldDNS, field.TypeOther, value)
 	}
-	if value, ok := duo.mutation.AppendedDNS(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, device.FieldDNS, value)
-		})
+	if value, ok := duo.mutation.KeepAlive(); ok {
+		_spec.SetField(device.FieldKeepAlive, field.TypeBool, value)
 	}
 	if value, ok := duo.mutation.Endpoint(); ok {
 		_spec.SetField(device.FieldEndpoint, field.TypeString, value)
 	}
 	if value, ok := duo.mutation.AllowedIps(); ok {
-		_spec.SetField(device.FieldAllowedIps, field.TypeString, value)
+		_spec.SetField(device.FieldAllowedIps, field.TypeOther, value)
 	}
 	_node = &Device{config: duo.config}
 	_spec.Assign = _node.assignValues

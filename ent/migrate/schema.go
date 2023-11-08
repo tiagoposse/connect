@@ -57,12 +57,13 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "type", Type: field.TypeString},
-		{Name: "dns", Type: field.TypeJSON},
+		{Name: "dns", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "varchar"}},
 		{Name: "public_key", Type: field.TypeString, Unique: true},
 		{Name: "preshared_key", Type: field.TypeString, Unique: true},
+		{Name: "keep_alive", Type: field.TypeBool},
 		{Name: "endpoint", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "inet"}},
-		{Name: "allowed_ips", Type: field.TypeString},
-		{Name: "user_devices", Type: field.TypeString, Nullable: true},
+		{Name: "allowed_ips", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "varchar"}},
+		{Name: "user_devices", Type: field.TypeString},
 	}
 	// DevicesTable holds the schema information for the "devices" table.
 	DevicesTable = &schema.Table{
@@ -72,9 +73,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "devices_users_devices",
-				Columns:    []*schema.Column{DevicesColumns[9]},
+				Columns:    []*schema.Column{DevicesColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
