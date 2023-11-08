@@ -1,6 +1,6 @@
 
 import { DefaultApiConfig, type FilterArgs, type GenericAPI, type PaginationArgs } from '@/lib/utils';
-import { GroupApi, type CreateGroupRequest, type GroupList } from '@/lib/api';
+import { GroupApi, type CreateGroupRequest } from '@/lib/api';
 
 export const GroupsAPI = new GroupApi(DefaultApiConfig);
 
@@ -9,14 +9,6 @@ export const GenericGroupsAPI: GenericAPI = {
   update: async (id: string, payload: CreateGroupRequest) => { return await GroupsAPI.updateGroup({ id, updateGroupRequest: payload }) },
   remove: async (id: string) => { return await GroupsAPI.deleteGroup({ id }) },
   fetch: async (params: PaginationArgs, filters: FilterArgs) => { return await GroupsAPI.listGroupRaw({ ...params, ...filters }) },
-  toCard: (item: GroupList) => {
-    return {
-      id: item.id,
-      title: item.name,
-      subtitle: '',
-      fields: [],
-    }
-  },
   headers: [
     {
       title: 'Name',

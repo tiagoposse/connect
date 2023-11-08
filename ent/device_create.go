@@ -87,6 +87,12 @@ func (dc *DeviceCreate) SetAllowedIps(ts types.CidrSlice) *DeviceCreate {
 	return dc
 }
 
+// SetUserID sets the "user_id" field.
+func (dc *DeviceCreate) SetUserID(s string) *DeviceCreate {
+	dc.mutation.SetUserID(s)
+	return dc
+}
+
 // SetID sets the "id" field.
 func (dc *DeviceCreate) SetID(u uuid.UUID) *DeviceCreate {
 	dc.mutation.SetID(u)
@@ -98,12 +104,6 @@ func (dc *DeviceCreate) SetNillableID(u *uuid.UUID) *DeviceCreate {
 	if u != nil {
 		dc.SetID(*u)
 	}
-	return dc
-}
-
-// SetUserID sets the "user" edge to the User entity by ID.
-func (dc *DeviceCreate) SetUserID(id string) *DeviceCreate {
-	dc.mutation.SetUserID(id)
 	return dc
 }
 
@@ -178,6 +178,9 @@ func (dc *DeviceCreate) check() error {
 	}
 	if _, ok := dc.mutation.AllowedIps(); !ok {
 		return &ValidationError{Name: "allowed_ips", err: errors.New(`ent: missing required field "Device.allowed_ips"`)}
+	}
+	if _, ok := dc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Device.user_id"`)}
 	}
 	if _, ok := dc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Device.user"`)}
@@ -268,7 +271,7 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_devices = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -435,6 +438,9 @@ func (u *DeviceUpsertOne) UpdateNewValues() *DeviceUpsertOne {
 		}
 		if _, exists := u.create.mutation.PresharedKey(); exists {
 			s.SetIgnore(device.FieldPresharedKey)
+		}
+		if _, exists := u.create.mutation.UserID(); exists {
+			s.SetIgnore(device.FieldUserID)
 		}
 	}))
 	return u
@@ -760,6 +766,9 @@ func (u *DeviceUpsertBulk) UpdateNewValues() *DeviceUpsertBulk {
 			}
 			if _, exists := b.mutation.PresharedKey(); exists {
 				s.SetIgnore(device.FieldPresharedKey)
+			}
+			if _, exists := b.mutation.UserID(); exists {
+				s.SetIgnore(device.FieldUserID)
 			}
 		}
 	}))

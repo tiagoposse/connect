@@ -53,13 +53,14 @@ func (Device) Fields() []ent.Field {
 		Annotations(
 			entoas.Schema(ogen.String().AsArray()),
 		),
+		field.String("user_id").Immutable(),
 	}
 }
 
 // Edges of the Device.
 func (Device) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("devices").Unique().Immutable().Required(),
+		edge.From("user", User.Type).Ref("devices").Unique().Immutable().Required().Field("user_id"),
 	}
 }
 

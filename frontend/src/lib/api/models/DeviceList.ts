@@ -73,6 +73,12 @@ export interface DeviceList {
      * @memberof DeviceList
      */
     allowedIps: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeviceList
+     */
+    userId: string;
 }
 
 /**
@@ -88,6 +94,7 @@ export function instanceOfDeviceList(value: object): boolean {
     isInstance = isInstance && "keepAlive" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
+    isInstance = isInstance && "userId" in value;
 
     return isInstance;
 }
@@ -111,6 +118,7 @@ export function DeviceListFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'keepAlive': json['keep_alive'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
+        'userId': json['user_id'],
     };
 }
 
@@ -132,6 +140,7 @@ export function DeviceListToJSON(value?: DeviceList | null): any {
         'keep_alive': value.keepAlive,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
+        'user_id': value.userId,
     };
 }
 

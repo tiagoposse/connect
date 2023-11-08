@@ -39,12 +39,17 @@ func (s *ApiKeyCreate) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfApiKeyCreate = [3]string{
+var jsonFieldsNameOfApiKeyCreate = [4]string{
 	0: "id",
 	1: "name",
 	2: "scopes",
+	3: "user_id",
 }
 
 // Decode decodes ApiKeyCreate from json.
@@ -98,6 +103,18 @@ func (s *ApiKeyCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"scopes\"")
 			}
+		case "user_id":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -108,7 +125,7 @@ func (s *ApiKeyCreate) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -219,12 +236,17 @@ func (s *ApiKeyList) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfApiKeyList = [3]string{
+var jsonFieldsNameOfApiKeyList = [4]string{
 	0: "id",
 	1: "name",
 	2: "scopes",
+	3: "user_id",
 }
 
 // Decode decodes ApiKeyList from json.
@@ -278,6 +300,18 @@ func (s *ApiKeyList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"scopes\"")
 			}
+		case "user_id":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -288,7 +322,7 @@ func (s *ApiKeyList) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -399,12 +433,17 @@ func (s *ApiKeyRead) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfApiKeyRead = [3]string{
+var jsonFieldsNameOfApiKeyRead = [4]string{
 	0: "id",
 	1: "name",
 	2: "scopes",
+	3: "user_id",
 }
 
 // Decode decodes ApiKeyRead from json.
@@ -458,6 +497,18 @@ func (s *ApiKeyRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"scopes\"")
 			}
+		case "user_id":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -468,7 +519,7 @@ func (s *ApiKeyRead) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -599,9 +650,13 @@ func (s *ApiKeyUserRead) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfApiKeyUserRead = [8]string{
+var jsonFieldsNameOfApiKeyUserRead = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -610,6 +665,7 @@ var jsonFieldsNameOfApiKeyUserRead = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes ApiKeyUserRead from json.
@@ -617,7 +673,7 @@ func (s *ApiKeyUserRead) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode ApiKeyUserRead to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -713,6 +769,18 @@ func (s *ApiKeyUserRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -722,8 +790,9 @@ func (s *ApiKeyUserRead) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1074,9 +1143,13 @@ func (s *AuditUserRead) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfAuditUserRead = [8]string{
+var jsonFieldsNameOfAuditUserRead = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -1085,6 +1158,7 @@ var jsonFieldsNameOfAuditUserRead = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes AuditUserRead from json.
@@ -1092,7 +1166,7 @@ func (s *AuditUserRead) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode AuditUserRead to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -1188,6 +1262,18 @@ func (s *AuditUserRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -1197,8 +1283,9 @@ func (s *AuditUserRead) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1270,16 +1357,21 @@ func (s *CreateApiKeyReq) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
+	{
 		e.FieldStart("user")
 		e.Str(s.User)
 	}
 }
 
-var jsonFieldsNameOfCreateApiKeyReq = [4]string{
+var jsonFieldsNameOfCreateApiKeyReq = [5]string{
 	0: "name",
 	1: "key",
 	2: "scopes",
-	3: "user",
+	3: "user_id",
+	4: "user",
 }
 
 // Decode decodes CreateApiKeyReq from json.
@@ -1333,8 +1425,20 @@ func (s *CreateApiKeyReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"scopes\"")
 			}
-		case "user":
+		case "user_id":
 			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
+		case "user":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.User = string(v)
@@ -1355,7 +1459,7 @@ func (s *CreateApiKeyReq) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1493,12 +1597,16 @@ func (s *CreateDeviceReq) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
+	{
 		e.FieldStart("user")
 		e.Str(s.User)
 	}
 }
 
-var jsonFieldsNameOfCreateDeviceReq = [9]string{
+var jsonFieldsNameOfCreateDeviceReq = [10]string{
 	0: "name",
 	1: "description",
 	2: "type",
@@ -1507,7 +1615,8 @@ var jsonFieldsNameOfCreateDeviceReq = [9]string{
 	5: "keep_alive",
 	6: "endpoint",
 	7: "allowed_ips",
-	8: "user",
+	8: "user_id",
+	9: "user",
 }
 
 // Decode decodes CreateDeviceReq from json.
@@ -1629,8 +1738,20 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
-		case "user":
+		case "user_id":
 			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
+		case "user":
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.User = string(v)
@@ -1652,7 +1773,7 @@ func (s *CreateDeviceReq) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111101,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2162,8 +2283,8 @@ func (s *CreateUserReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		e.FieldStart("group")
-		e.Str(s.Group)
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
 	}
 	{
 		if s.Devices != nil {
@@ -2195,9 +2316,13 @@ func (s *CreateUserReq) encodeFields(e *jx.Encoder) {
 			e.ArrEnd()
 		}
 	}
+	{
+		e.FieldStart("group")
+		e.Str(s.Group)
+	}
 }
 
-var jsonFieldsNameOfCreateUserReq = [13]string{
+var jsonFieldsNameOfCreateUserReq = [14]string{
 	0:  "email",
 	1:  "firstname",
 	2:  "lastname",
@@ -2207,10 +2332,11 @@ var jsonFieldsNameOfCreateUserReq = [13]string{
 	6:  "photo_url",
 	7:  "disabled",
 	8:  "disabled_reason",
-	9:  "group",
+	9:  "group_id",
 	10: "devices",
 	11: "keys",
 	12: "audit",
+	13: "group",
 }
 
 // Decode decodes CreateUserReq from json.
@@ -2322,17 +2448,17 @@ func (s *CreateUserReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
-		case "group":
+		case "group_id":
 			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
-				s.Group = string(v)
+				s.GroupID = string(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"group\"")
+				return errors.Wrap(err, "decode field \"group_id\"")
 			}
 		case "devices":
 			if err := func() error {
@@ -2391,6 +2517,18 @@ func (s *CreateUserReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"audit\"")
 			}
+		case "group":
+			requiredBitSet[1] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.Group = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -2402,7 +2540,7 @@ func (s *CreateUserReq) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b10001111,
-		0b00000010,
+		0b00100010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2507,19 +2645,24 @@ func (s *DeviceCreate) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfDeviceCreate = [10]string{
-	0: "id",
-	1: "name",
-	2: "description",
-	3: "type",
-	4: "dns",
-	5: "public_key",
-	6: "preshared_key",
-	7: "keep_alive",
-	8: "endpoint",
-	9: "allowed_ips",
+var jsonFieldsNameOfDeviceCreate = [11]string{
+	0:  "id",
+	1:  "name",
+	2:  "description",
+	3:  "type",
+	4:  "dns",
+	5:  "public_key",
+	6:  "preshared_key",
+	7:  "keep_alive",
+	8:  "endpoint",
+	9:  "allowed_ips",
+	10: "user_id",
 }
 
 // Decode decodes DeviceCreate from json.
@@ -2665,6 +2808,18 @@ func (s *DeviceCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
+		case "user_id":
+			requiredBitSet[1] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -2676,7 +2831,7 @@ func (s *DeviceCreate) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2777,9 +2932,13 @@ func (s *DeviceList) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfDeviceList = [9]string{
+var jsonFieldsNameOfDeviceList = [10]string{
 	0: "id",
 	1: "name",
 	2: "description",
@@ -2789,6 +2948,7 @@ var jsonFieldsNameOfDeviceList = [9]string{
 	6: "keep_alive",
 	7: "endpoint",
 	8: "allowed_ips",
+	9: "user_id",
 }
 
 // Decode decodes DeviceList from json.
@@ -2922,6 +3082,18 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
+		case "user_id":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -2933,7 +3105,7 @@ func (s *DeviceList) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3034,9 +3206,13 @@ func (s *DeviceRead) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfDeviceRead = [9]string{
+var jsonFieldsNameOfDeviceRead = [10]string{
 	0: "id",
 	1: "name",
 	2: "description",
@@ -3046,6 +3222,7 @@ var jsonFieldsNameOfDeviceRead = [9]string{
 	6: "keep_alive",
 	7: "endpoint",
 	8: "allowed_ips",
+	9: "user_id",
 }
 
 // Decode decodes DeviceRead from json.
@@ -3179,6 +3356,18 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
+		case "user_id":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -3190,7 +3379,7 @@ func (s *DeviceRead) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3291,9 +3480,13 @@ func (s *DeviceUpdate) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfDeviceUpdate = [9]string{
+var jsonFieldsNameOfDeviceUpdate = [10]string{
 	0: "id",
 	1: "name",
 	2: "description",
@@ -3303,6 +3496,7 @@ var jsonFieldsNameOfDeviceUpdate = [9]string{
 	6: "keep_alive",
 	7: "endpoint",
 	8: "allowed_ips",
+	9: "user_id",
 }
 
 // Decode decodes DeviceUpdate from json.
@@ -3436,6 +3630,18 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
+		case "user_id":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -3447,7 +3653,7 @@ func (s *DeviceUpdate) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3538,9 +3744,13 @@ func (s *DeviceUserRead) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfDeviceUserRead = [8]string{
+var jsonFieldsNameOfDeviceUserRead = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -3549,6 +3759,7 @@ var jsonFieldsNameOfDeviceUserRead = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes DeviceUserRead from json.
@@ -3556,7 +3767,7 @@ func (s *DeviceUserRead) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode DeviceUserRead to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -3652,6 +3863,18 @@ func (s *DeviceUserRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -3661,8 +3884,9 @@ func (s *DeviceUserRead) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5341,9 +5565,13 @@ func (s *GroupUsersList) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfGroupUsersList = [8]string{
+var jsonFieldsNameOfGroupUsersList = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -5352,6 +5580,7 @@ var jsonFieldsNameOfGroupUsersList = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes GroupUsersList from json.
@@ -5359,7 +5588,7 @@ func (s *GroupUsersList) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode GroupUsersList to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -5455,6 +5684,18 @@ func (s *GroupUsersList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -5464,8 +5705,9 @@ func (s *GroupUsersList) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -6825,9 +7067,9 @@ func (s *UpdateUserReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.Group.Set {
-			e.FieldStart("group")
-			s.Group.Encode(e)
+		if s.GroupID.Set {
+			e.FieldStart("group_id")
+			s.GroupID.Encode(e)
 		}
 	}
 	{
@@ -6860,9 +7102,15 @@ func (s *UpdateUserReq) encodeFields(e *jx.Encoder) {
 			e.ArrEnd()
 		}
 	}
+	{
+		if s.Group.Set {
+			e.FieldStart("group")
+			s.Group.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUpdateUserReq = [12]string{
+var jsonFieldsNameOfUpdateUserReq = [13]string{
 	0:  "email",
 	1:  "firstname",
 	2:  "lastname",
@@ -6871,10 +7119,11 @@ var jsonFieldsNameOfUpdateUserReq = [12]string{
 	5:  "photo_url",
 	6:  "disabled",
 	7:  "disabled_reason",
-	8:  "group",
+	8:  "group_id",
 	9:  "devices",
 	10: "keys",
 	11: "audit",
+	12: "group",
 }
 
 // Decode decodes UpdateUserReq from json.
@@ -6965,15 +7214,15 @@ func (s *UpdateUserReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
-		case "group":
+		case "group_id":
 			if err := func() error {
-				s.Group.Reset()
-				if err := s.Group.Decode(d); err != nil {
+				s.GroupID.Reset()
+				if err := s.GroupID.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"group\"")
+				return errors.Wrap(err, "decode field \"group_id\"")
 			}
 		case "devices":
 			if err := func() error {
@@ -7031,6 +7280,16 @@ func (s *UpdateUserReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"audit\"")
+			}
+		case "group":
+			if err := func() error {
+				s.Group.Reset()
+				if err := s.Group.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group\"")
 			}
 		default:
 			return d.Skip()
@@ -7231,9 +7490,13 @@ func (s *UserCreate) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfUserCreate = [8]string{
+var jsonFieldsNameOfUserCreate = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -7242,6 +7505,7 @@ var jsonFieldsNameOfUserCreate = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes UserCreate from json.
@@ -7249,7 +7513,7 @@ func (s *UserCreate) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UserCreate to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -7345,6 +7609,18 @@ func (s *UserCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -7354,8 +7630,9 @@ func (s *UserCreate) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -7441,6 +7718,10 @@ func (s *UserDevicesList) encodeFields(e *jx.Encoder) {
 		e.Str(s.PublicKey)
 	}
 	{
+		e.FieldStart("preshared_key")
+		e.Str(s.PresharedKey)
+	}
+	{
 		e.FieldStart("keep_alive")
 		e.Bool(s.KeepAlive)
 	}
@@ -7456,18 +7737,24 @@ func (s *UserDevicesList) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfUserDevicesList = [9]string{
-	0: "id",
-	1: "name",
-	2: "description",
-	3: "type",
-	4: "dns",
-	5: "public_key",
-	6: "keep_alive",
-	7: "endpoint",
-	8: "allowed_ips",
+var jsonFieldsNameOfUserDevicesList = [11]string{
+	0:  "id",
+	1:  "name",
+	2:  "description",
+	3:  "type",
+	4:  "dns",
+	5:  "public_key",
+	6:  "preshared_key",
+	7:  "keep_alive",
+	8:  "endpoint",
+	9:  "allowed_ips",
+	10: "user_id",
 }
 
 // Decode decodes UserDevicesList from json.
@@ -7557,8 +7844,20 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"public_key\"")
 			}
-		case "keep_alive":
+		case "preshared_key":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.PresharedKey = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"preshared_key\"")
+			}
+		case "keep_alive":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Bool()
 				s.KeepAlive = bool(v)
@@ -7570,7 +7869,7 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keep_alive\"")
 			}
 		case "endpoint":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.Endpoint = string(v)
@@ -7582,7 +7881,7 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"endpoint\"")
 			}
 		case "allowed_ips":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				s.AllowedIps = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -7601,6 +7900,18 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"allowed_ips\"")
 			}
+		case "user_id":
+			requiredBitSet[1] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -7612,7 +7923,7 @@ func (s *UserDevicesList) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111011,
-		0b00000001,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8080,12 +8391,17 @@ func (s *UserKeysList) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("user_id")
+		e.Str(s.UserID)
+	}
 }
 
-var jsonFieldsNameOfUserKeysList = [3]string{
+var jsonFieldsNameOfUserKeysList = [4]string{
 	0: "id",
 	1: "name",
 	2: "scopes",
+	3: "user_id",
 }
 
 // Decode decodes UserKeysList from json.
@@ -8139,6 +8455,18 @@ func (s *UserKeysList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"scopes\"")
 			}
+		case "user_id":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.UserID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"user_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -8149,7 +8477,7 @@ func (s *UserKeysList) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8280,9 +8608,13 @@ func (s *UserList) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfUserList = [8]string{
+var jsonFieldsNameOfUserList = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -8291,6 +8623,7 @@ var jsonFieldsNameOfUserList = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes UserList from json.
@@ -8298,7 +8631,7 @@ func (s *UserList) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UserList to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -8394,6 +8727,18 @@ func (s *UserList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -8403,8 +8748,9 @@ func (s *UserList) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8495,9 +8841,13 @@ func (s *UserRead) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfUserRead = [8]string{
+var jsonFieldsNameOfUserRead = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -8506,6 +8856,7 @@ var jsonFieldsNameOfUserRead = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes UserRead from json.
@@ -8513,7 +8864,7 @@ func (s *UserRead) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UserRead to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -8609,6 +8960,18 @@ func (s *UserRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -8618,8 +8981,9 @@ func (s *UserRead) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8710,9 +9074,13 @@ func (s *UserUpdate) encodeFields(e *jx.Encoder) {
 			s.DisabledReason.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("group_id")
+		e.Str(s.GroupID)
+	}
 }
 
-var jsonFieldsNameOfUserUpdate = [8]string{
+var jsonFieldsNameOfUserUpdate = [9]string{
 	0: "id",
 	1: "email",
 	2: "firstname",
@@ -8721,6 +9089,7 @@ var jsonFieldsNameOfUserUpdate = [8]string{
 	5: "photo_url",
 	6: "disabled",
 	7: "disabled_reason",
+	8: "group_id",
 }
 
 // Decode decodes UserUpdate from json.
@@ -8728,7 +9097,7 @@ func (s *UserUpdate) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode UserUpdate to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -8824,6 +9193,18 @@ func (s *UserUpdate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"disabled_reason\"")
 			}
+		case "group_id":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.GroupID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group_id\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -8833,8 +9214,9 @@ func (s *UserUpdate) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b01011111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

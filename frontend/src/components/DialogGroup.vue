@@ -34,50 +34,57 @@ import { useDataDialogStore } from '@/stores/dialogs';
 const dialogStore = useDataDialogStore();
 
 onMounted(() => {
-  dialogStore.registerCallback(async () => {
-  const validation = [] as (string | boolean)[]
-  validation.push(validationRules.required(payload.value.name, 'name'))
-  validation.push(validationRules.nonEmptyArray(payload.value.scopes, 'scopes'))
-  validation.push(validationRules.required(payload.value.cidr, 'cidr'))
-  validation.push(validationRules.cidr(payload.value.cidr))
-
-  const errors = [] as string[]
-  validation.forEach((v) => {
-    if (typeof v === 'string') {
-      errors.push(v)
-    }
-  })
-
-  if (errors.length > 0) {
-    throw new ValidationError(errors)
-  }
-
-  const rules = [] as CreateGroupRequestRulesInner[]
-  for (const index in payload.value.allowRules.slice(0, payload.value.allowRules.length -1)) {
-    rules.push({
-      target: payload.value.allowRules[index],
-      type: CreateGroupRequestRulesInnerTypeEnum.Allow,
-    })
-  }
-
-  for (const index in payload.value.denyRules.slice(0, payload.value.allowRules.length -1)) {
-    rules.push({
-      target: payload.value.denyRules[index],
-      type: CreateGroupRequestRulesInnerTypeEnum.Deny,
-    })
+  if (Object.keys(dialogStore.item).length > 0) {
+    payload.value = dialogStore.item
+  } else {
+    dialogStore.item = payload.value
   }
   
-  await GroupsAPI.createGroup({
-    createGroupRequest: {
-      name: payload.value.name,
-      rules,
-      scopes: payload.value.scopes,
-      cidr: payload.value.cidr,
-    }
-  })
+  dialogStore.registerCallback(async () => {
+    const validation = [] as (string | boolean)[]
+    validation.push(validationRules.required(payload.value.name, 'name'))
+    validation.push(validationRules.nonEmptyArray(payload.value.scopes, 'scopes'))
+    validation.push(validationRules.required(payload.value.cidr, 'cidr'))
+    validation.push(validationRules.cidr(payload.value.cidr))
 
-  return true
-})})
+    const errors = [] as string[]
+    validation.forEach((v) => {
+      if (typeof v === 'string') {
+        errors.push(v)
+      }
+    })
+
+    if (errors.length > 0) {
+      throw new ValidationError(errors)
+    }
+
+    const rules = [] as CreateGroupRequestRulesInner[]
+    for (const index in payload.value.allowRules.slice(0, payload.value.allowRules.length -1)) {
+      rules.push({
+        target: payload.value.allowRules[index],
+        type: CreateGroupRequestRulesInnerTypeEnum.Allow,
+      })
+    }
+
+    for (const index in payload.value.denyRules.slice(0, payload.value.allowRules.length -1)) {
+      rules.push({
+        target: payload.value.denyRules[index],
+        type: CreateGroupRequestRulesInnerTypeEnum.Deny,
+      })
+    }
+    
+    await GroupsAPI.createGroup({
+      createGroupRequest: {
+        name: payload.value.name,
+        rules,
+        scopes: payload.value.scopes,
+        cidr: payload.value.cidr,
+      }
+    })
+
+    return true
+  })
+})
 
 const payload = ref({
   allowRules: [''],

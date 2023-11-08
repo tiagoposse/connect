@@ -42,6 +42,12 @@ export interface CreateApiKeyRequest {
      * @type {string}
      * @memberof CreateApiKeyRequest
      */
+    userId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateApiKeyRequest
+     */
     user: string;
 }
 
@@ -64,6 +70,7 @@ export function instanceOfCreateApiKeyRequest(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "key" in value;
     isInstance = isInstance && "scopes" in value;
+    isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "user" in value;
 
     return isInstance;
@@ -82,6 +89,7 @@ export function CreateApiKeyRequestFromJSONTyped(json: any, ignoreDiscriminator:
         'name': json['name'],
         'key': json['key'],
         'scopes': json['scopes'],
+        'userId': json['user_id'],
         'user': json['user'],
     };
 }
@@ -98,6 +106,7 @@ export function CreateApiKeyRequestToJSON(value?: CreateApiKeyRequest | null): a
         'name': value.name,
         'key': value.key,
         'scopes': value.scopes,
+        'user_id': value.userId,
         'user': value.user,
     };
 }

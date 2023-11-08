@@ -1,6 +1,6 @@
 
 import { DefaultApiConfig, type FilterArgs, type GenericAPI, type PaginationArgs, type DataTableHeader } from '@/lib/utils';
-import { DeviceApi, type CreateDeviceRequest, type DeviceList } from '@/lib/api';
+import { DeviceApi, type CreateDeviceRequest } from '@/lib/api';
 
 export const DevicesAPI = new DeviceApi(DefaultApiConfig)
 
@@ -41,14 +41,6 @@ export const GenericDevicesAPI: GenericAPI = {
   remove: async (id: string) => { return await DevicesAPI.deleteDevice({ id }) },
   fetch: async (params: PaginationArgs, filters: FilterArgs) => {
     return await DevicesAPI.listDeviceRaw({ ...params, ...filters }) 
-  },
-  toCard: (item: DeviceList) => {
-    return {
-      id: item.id,
-      title: item.name,
-      subtitle: '',
-      fields: [],
-    }
   },
   headers,
 }

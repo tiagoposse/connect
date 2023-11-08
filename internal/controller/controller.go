@@ -87,7 +87,7 @@ func (c *Controller) Init(ctx context.Context) error {
 		SetEmail("admin@local.com").
 		SetPassword(fmt.Sprintf("%s.%s", password, salt)).
 		SetSalt(salt).
-		SetGroupID("0").
+		SetGroupID("super-admins").
 		SetProvider("userpass").
 		Save(ctx); err == nil {
 		log.Printf("Admin password is %s", password)

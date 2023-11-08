@@ -359,7 +359,8 @@ func (c *ApiKeyClient) QueryUser(ak *ApiKey) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *ApiKeyClient) Hooks() []Hook {
-	return c.hooks.ApiKey
+	hooks := c.hooks.ApiKey
+	return append(hooks[:len(hooks):len(hooks)], apikey.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -937,22 +938,6 @@ func (c *UserClient) GetX(ctx context.Context, id string) *User {
 	return obj
 }
 
-// QueryGroup queries the group edge of a User.
-func (c *UserClient) QueryGroup(u *User) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupTable, user.GroupColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryDevices queries the devices edge of a User.
 func (c *UserClient) QueryDevices(u *User) *DeviceQuery {
 	query := (&DeviceClient{config: c.config}).Query()
@@ -1001,9 +986,26 @@ func (c *UserClient) QueryAudit(u *User) *AuditQuery {
 	return query
 }
 
+// QueryGroup queries the group edge of a User.
+func (c *UserClient) QueryGroup(u *User) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupTable, user.GroupColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
+	hooks := c.hooks.User
+	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

@@ -108,6 +108,9 @@
                       ]
                     }
                   },
+                  "user_id": {
+                    "type": "string"
+                  },
                   "user": {
                     "type": "string"
                   }
@@ -116,6 +119,7 @@
                   "name",
                   "key",
                   "scopes",
+                  "user_id",
                   "user"
                 ]
               }
@@ -828,6 +832,9 @@
                       "type": "string"
                     }
                   },
+                  "user_id": {
+                    "type": "string"
+                  },
                   "user": {
                     "type": "string"
                   }
@@ -840,6 +847,7 @@
                   "keep_alive",
                   "endpoint",
                   "allowed_ips",
+                  "user_id",
                   "user"
                 ]
               }
@@ -1902,7 +1910,7 @@
                   "disabled_reason": {
                     "type": "string"
                   },
-                  "group": {
+                  "group_id": {
                     "type": "string"
                   },
                   "devices": {
@@ -1923,6 +1931,9 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "group": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -1931,6 +1942,7 @@
                   "lastname",
                   "provider",
                   "disabled",
+                  "group_id",
                   "group"
                 ]
               }
@@ -2090,7 +2102,7 @@
                   "disabled_reason": {
                     "type": "string"
                   },
-                  "group": {
+                  "group_id": {
                     "type": "string"
                   },
                   "devices": {
@@ -2111,6 +2123,9 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "group": {
+                    "type": "string"
                   }
                 }
               }
@@ -2451,6 +2466,9 @@
               ]
             }
           },
+          "user_id": {
+            "type": "string"
+          },
           "user": {
             "$ref": "#/components/schemas/User"
           }
@@ -2460,6 +2478,7 @@
           "name",
           "key",
           "scopes",
+          "user_id",
           "user"
         ]
       },
@@ -2481,12 +2500,16 @@
                 "admin.*"
               ]
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
-          "scopes"
+          "scopes",
+          "user_id"
         ]
       },
       "ApiKeyList": {
@@ -2507,12 +2530,16 @@
                 "admin.*"
               ]
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
-          "scopes"
+          "scopes",
+          "user_id"
         ]
       },
       "ApiKeyRead": {
@@ -2533,12 +2560,16 @@
                 "admin.*"
               ]
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
-          "scopes"
+          "scopes",
+          "user_id"
         ]
       },
       "ApiKey_UserRead": {
@@ -2567,6 +2598,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2575,7 +2609,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "Audit": {
@@ -2665,6 +2700,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2673,7 +2711,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "Device": {
@@ -2716,6 +2755,9 @@
               "type": "string"
             }
           },
+          "user_id": {
+            "type": "string"
+          },
           "user": {
             "$ref": "#/components/schemas/User"
           }
@@ -2730,6 +2772,7 @@
           "keep_alive",
           "endpoint",
           "allowed_ips",
+          "user_id",
           "user"
         ]
       },
@@ -2772,6 +2815,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2783,7 +2829,8 @@
           "preshared_key",
           "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user_id"
         ]
       },
       "DeviceList": {
@@ -2822,6 +2869,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2832,7 +2882,8 @@
           "public_key",
           "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user_id"
         ]
       },
       "DeviceRead": {
@@ -2871,6 +2922,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2881,7 +2935,8 @@
           "public_key",
           "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user_id"
         ]
       },
       "DeviceUpdate": {
@@ -2920,6 +2975,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2930,7 +2988,8 @@
           "public_key",
           "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user_id"
         ]
       },
       "Device_UserRead": {
@@ -2959,6 +3018,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -2967,7 +3029,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "Group": {
@@ -3322,6 +3385,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3330,7 +3396,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "User": {
@@ -3366,8 +3433,8 @@
           "disabled_reason": {
             "type": "string"
           },
-          "group": {
-            "$ref": "#/components/schemas/Group"
+          "group_id": {
+            "type": "string"
           },
           "devices": {
             "type": "array",
@@ -3386,6 +3453,9 @@
             "items": {
               "$ref": "#/components/schemas/Audit"
             }
+          },
+          "group": {
+            "$ref": "#/components/schemas/Group"
           }
         },
         "required": [
@@ -3395,6 +3465,7 @@
           "lastname",
           "provider",
           "disabled",
+          "group_id",
           "group"
         ]
       },
@@ -3424,6 +3495,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3432,7 +3506,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "UserList": {
@@ -3461,6 +3536,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3469,7 +3547,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "UserRead": {
@@ -3498,6 +3577,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3506,7 +3588,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "UserUpdate": {
@@ -3535,6 +3618,9 @@
           },
           "disabled_reason": {
             "type": "string"
+          },
+          "group_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3543,7 +3629,8 @@
           "firstname",
           "lastname",
           "provider",
-          "disabled"
+          "disabled",
+          "group_id"
         ]
       },
       "User_AuditList": {
@@ -3590,6 +3677,9 @@
           "public_key": {
             "type": "string"
           },
+          "preshared_key": {
+            "type": "string"
+          },
           "keep_alive": {
             "type": "boolean"
           },
@@ -3601,6 +3691,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -3609,9 +3702,11 @@
           "type",
           "dns",
           "public_key",
+          "preshared_key",
           "keep_alive",
           "endpoint",
-          "allowed_ips"
+          "allowed_ips",
+          "user_id"
         ]
       },
       "User_GroupRead": {
@@ -3696,12 +3791,16 @@
                 "admin.*"
               ]
             }
+          },
+          "user_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
-          "scopes"
+          "scopes",
+          "user_id"
         ]
       }
     },

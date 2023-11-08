@@ -29,6 +29,7 @@ type ApiKeyCreate struct {
 	ID     int                      `json:"id"`
 	Name   string                   `json:"name"`
 	Scopes []ApiKeyCreateScopesItem `json:"scopes"`
+	UserID string                   `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -46,6 +47,11 @@ func (s *ApiKeyCreate) GetScopes() []ApiKeyCreateScopesItem {
 	return s.Scopes
 }
 
+// GetUserID returns the value of UserID.
+func (s *ApiKeyCreate) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *ApiKeyCreate) SetID(val int) {
 	s.ID = val
@@ -59,6 +65,11 @@ func (s *ApiKeyCreate) SetName(val string) {
 // SetScopes sets the value of Scopes.
 func (s *ApiKeyCreate) SetScopes(val []ApiKeyCreateScopesItem) {
 	s.Scopes = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *ApiKeyCreate) SetUserID(val string) {
+	s.UserID = val
 }
 
 func (*ApiKeyCreate) createApiKeyRes() {}
@@ -109,6 +120,7 @@ type ApiKeyList struct {
 	ID     int                    `json:"id"`
 	Name   string                 `json:"name"`
 	Scopes []ApiKeyListScopesItem `json:"scopes"`
+	UserID string                 `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -126,6 +138,11 @@ func (s *ApiKeyList) GetScopes() []ApiKeyListScopesItem {
 	return s.Scopes
 }
 
+// GetUserID returns the value of UserID.
+func (s *ApiKeyList) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *ApiKeyList) SetID(val int) {
 	s.ID = val
@@ -139,6 +156,11 @@ func (s *ApiKeyList) SetName(val string) {
 // SetScopes sets the value of Scopes.
 func (s *ApiKeyList) SetScopes(val []ApiKeyListScopesItem) {
 	s.Scopes = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *ApiKeyList) SetUserID(val string) {
+	s.UserID = val
 }
 
 type ApiKeyListScopesItem string
@@ -187,6 +209,7 @@ type ApiKeyRead struct {
 	ID     int                    `json:"id"`
 	Name   string                 `json:"name"`
 	Scopes []ApiKeyReadScopesItem `json:"scopes"`
+	UserID string                 `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -204,6 +227,11 @@ func (s *ApiKeyRead) GetScopes() []ApiKeyReadScopesItem {
 	return s.Scopes
 }
 
+// GetUserID returns the value of UserID.
+func (s *ApiKeyRead) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *ApiKeyRead) SetID(val int) {
 	s.ID = val
@@ -217,6 +245,11 @@ func (s *ApiKeyRead) SetName(val string) {
 // SetScopes sets the value of Scopes.
 func (s *ApiKeyRead) SetScopes(val []ApiKeyReadScopesItem) {
 	s.Scopes = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *ApiKeyRead) SetUserID(val string) {
+	s.UserID = val
 }
 
 func (*ApiKeyRead) readApiKeyRes() {}
@@ -272,6 +305,7 @@ type ApiKeyUserRead struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -314,6 +348,11 @@ func (s *ApiKeyUserRead) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *ApiKeyUserRead) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *ApiKeyUserRead) SetID(val string) {
 	s.ID = val
@@ -352,6 +391,11 @@ func (s *ApiKeyUserRead) SetDisabled(val bool) {
 // SetDisabledReason sets the value of DisabledReason.
 func (s *ApiKeyUserRead) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
+}
+
+// SetGroupID sets the value of GroupID.
+func (s *ApiKeyUserRead) SetGroupID(val string) {
+	s.GroupID = val
 }
 
 func (*ApiKeyUserRead) readApiKeyUserRes() {}
@@ -442,6 +486,7 @@ type AuditUserRead struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -484,6 +529,11 @@ func (s *AuditUserRead) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *AuditUserRead) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *AuditUserRead) SetID(val string) {
 	s.ID = val
@@ -524,6 +574,11 @@ func (s *AuditUserRead) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
+// SetGroupID sets the value of GroupID.
+func (s *AuditUserRead) SetGroupID(val string) {
+	s.GroupID = val
+}
+
 func (*AuditUserRead) readAuditUserRes() {}
 
 type CookieAuth struct {
@@ -544,6 +599,7 @@ type CreateApiKeyReq struct {
 	Name   string                      `json:"name"`
 	Key    string                      `json:"key"`
 	Scopes []CreateApiKeyReqScopesItem `json:"scopes"`
+	UserID string                      `json:"user_id"`
 	User   string                      `json:"user"`
 }
 
@@ -560,6 +616,11 @@ func (s *CreateApiKeyReq) GetKey() string {
 // GetScopes returns the value of Scopes.
 func (s *CreateApiKeyReq) GetScopes() []CreateApiKeyReqScopesItem {
 	return s.Scopes
+}
+
+// GetUserID returns the value of UserID.
+func (s *CreateApiKeyReq) GetUserID() string {
+	return s.UserID
 }
 
 // GetUser returns the value of User.
@@ -580,6 +641,11 @@ func (s *CreateApiKeyReq) SetKey(val string) {
 // SetScopes sets the value of Scopes.
 func (s *CreateApiKeyReq) SetScopes(val []CreateApiKeyReqScopesItem) {
 	s.Scopes = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *CreateApiKeyReq) SetUserID(val string) {
+	s.UserID = val
 }
 
 // SetUser sets the value of User.
@@ -637,6 +703,7 @@ type CreateDeviceReq struct {
 	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  []string  `json:"allowed_ips"`
+	UserID      string    `json:"user_id"`
 	User        string    `json:"user"`
 }
 
@@ -678,6 +745,11 @@ func (s *CreateDeviceReq) GetEndpoint() string {
 // GetAllowedIps returns the value of AllowedIps.
 func (s *CreateDeviceReq) GetAllowedIps() []string {
 	return s.AllowedIps
+}
+
+// GetUserID returns the value of UserID.
+func (s *CreateDeviceReq) GetUserID() string {
+	return s.UserID
 }
 
 // GetUser returns the value of User.
@@ -723,6 +795,11 @@ func (s *CreateDeviceReq) SetEndpoint(val string) {
 // SetAllowedIps sets the value of AllowedIps.
 func (s *CreateDeviceReq) SetAllowedIps(val []string) {
 	s.AllowedIps = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *CreateDeviceReq) SetUserID(val string) {
+	s.UserID = val
 }
 
 // SetUser sets the value of User.
@@ -982,10 +1059,11 @@ type CreateUserReq struct {
 	PhotoURL       OptString   `json:"photo_url"`
 	Disabled       bool        `json:"disabled"`
 	DisabledReason OptString   `json:"disabled_reason"`
-	Group          string      `json:"group"`
+	GroupID        string      `json:"group_id"`
 	Devices        []uuid.UUID `json:"devices"`
 	Keys           []int       `json:"keys"`
 	Audit          []string    `json:"audit"`
+	Group          string      `json:"group"`
 }
 
 // GetEmail returns the value of Email.
@@ -1033,9 +1111,9 @@ func (s *CreateUserReq) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
-// GetGroup returns the value of Group.
-func (s *CreateUserReq) GetGroup() string {
-	return s.Group
+// GetGroupID returns the value of GroupID.
+func (s *CreateUserReq) GetGroupID() string {
+	return s.GroupID
 }
 
 // GetDevices returns the value of Devices.
@@ -1051,6 +1129,11 @@ func (s *CreateUserReq) GetKeys() []int {
 // GetAudit returns the value of Audit.
 func (s *CreateUserReq) GetAudit() []string {
 	return s.Audit
+}
+
+// GetGroup returns the value of Group.
+func (s *CreateUserReq) GetGroup() string {
+	return s.Group
 }
 
 // SetEmail sets the value of Email.
@@ -1098,9 +1181,9 @@ func (s *CreateUserReq) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
-// SetGroup sets the value of Group.
-func (s *CreateUserReq) SetGroup(val string) {
-	s.Group = val
+// SetGroupID sets the value of GroupID.
+func (s *CreateUserReq) SetGroupID(val string) {
+	s.GroupID = val
 }
 
 // SetDevices sets the value of Devices.
@@ -1116,6 +1199,11 @@ func (s *CreateUserReq) SetKeys(val []int) {
 // SetAudit sets the value of Audit.
 func (s *CreateUserReq) SetAudit(val []string) {
 	s.Audit = val
+}
+
+// SetGroup sets the value of Group.
+func (s *CreateUserReq) SetGroup(val string) {
+	s.Group = val
 }
 
 // DeleteApiKeyNoContent is response for DeleteApiKey operation.
@@ -1155,6 +1243,7 @@ type DeviceCreate struct {
 	KeepAlive    bool      `json:"keep_alive"`
 	Endpoint     string    `json:"endpoint"`
 	AllowedIps   []string  `json:"allowed_ips"`
+	UserID       string    `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -1207,6 +1296,11 @@ func (s *DeviceCreate) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
+// GetUserID returns the value of UserID.
+func (s *DeviceCreate) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *DeviceCreate) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1257,6 +1351,11 @@ func (s *DeviceCreate) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
+// SetUserID sets the value of UserID.
+func (s *DeviceCreate) SetUserID(val string) {
+	s.UserID = val
+}
+
 func (*DeviceCreate) createDeviceRes() {}
 
 // Ref: #/components/schemas/DeviceList
@@ -1270,6 +1369,7 @@ type DeviceList struct {
 	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  []string  `json:"allowed_ips"`
+	UserID      string    `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -1317,6 +1417,11 @@ func (s *DeviceList) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
+// GetUserID returns the value of UserID.
+func (s *DeviceList) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *DeviceList) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1362,6 +1467,11 @@ func (s *DeviceList) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
+// SetUserID sets the value of UserID.
+func (s *DeviceList) SetUserID(val string) {
+	s.UserID = val
+}
+
 // Ref: #/components/schemas/DeviceRead
 type DeviceRead struct {
 	ID          uuid.UUID `json:"id"`
@@ -1373,6 +1483,7 @@ type DeviceRead struct {
 	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  []string  `json:"allowed_ips"`
+	UserID      string    `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -1420,6 +1531,11 @@ func (s *DeviceRead) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
+// GetUserID returns the value of UserID.
+func (s *DeviceRead) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *DeviceRead) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1465,6 +1581,11 @@ func (s *DeviceRead) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
+// SetUserID sets the value of UserID.
+func (s *DeviceRead) SetUserID(val string) {
+	s.UserID = val
+}
+
 func (*DeviceRead) readDeviceRes() {}
 
 // Ref: #/components/schemas/DeviceUpdate
@@ -1478,6 +1599,7 @@ type DeviceUpdate struct {
 	KeepAlive   bool      `json:"keep_alive"`
 	Endpoint    string    `json:"endpoint"`
 	AllowedIps  []string  `json:"allowed_ips"`
+	UserID      string    `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -1525,6 +1647,11 @@ func (s *DeviceUpdate) GetAllowedIps() []string {
 	return s.AllowedIps
 }
 
+// GetUserID returns the value of UserID.
+func (s *DeviceUpdate) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *DeviceUpdate) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1570,6 +1697,11 @@ func (s *DeviceUpdate) SetAllowedIps(val []string) {
 	s.AllowedIps = val
 }
 
+// SetUserID sets the value of UserID.
+func (s *DeviceUpdate) SetUserID(val string) {
+	s.UserID = val
+}
+
 func (*DeviceUpdate) updateDeviceRes() {}
 
 // Ref: #/components/schemas/Device_UserRead
@@ -1582,6 +1714,7 @@ type DeviceUserRead struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -1624,6 +1757,11 @@ func (s *DeviceUserRead) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *DeviceUserRead) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *DeviceUserRead) SetID(val string) {
 	s.ID = val
@@ -1662,6 +1800,11 @@ func (s *DeviceUserRead) SetDisabled(val bool) {
 // SetDisabledReason sets the value of DisabledReason.
 func (s *DeviceUserRead) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
+}
+
+// SetGroupID sets the value of GroupID.
+func (s *DeviceUserRead) SetGroupID(val string) {
+	s.GroupID = val
 }
 
 func (*DeviceUserRead) readDeviceUserRes() {}
@@ -2754,6 +2897,7 @@ type GroupUsersList struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -2796,6 +2940,11 @@ func (s *GroupUsersList) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *GroupUsersList) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *GroupUsersList) SetID(val string) {
 	s.ID = val
@@ -2834,6 +2983,11 @@ func (s *GroupUsersList) SetDisabled(val bool) {
 // SetDisabledReason sets the value of DisabledReason.
 func (s *GroupUsersList) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
+}
+
+// SetGroupID sets the value of GroupID.
+func (s *GroupUsersList) SetGroupID(val string) {
+	s.GroupID = val
 }
 
 // ListApiKeyOKHeaders wraps []ApiKeyList with response headers.
@@ -3960,10 +4114,11 @@ type UpdateUserReq struct {
 	PhotoURL       OptString   `json:"photo_url"`
 	Disabled       OptBool     `json:"disabled"`
 	DisabledReason OptString   `json:"disabled_reason"`
-	Group          OptString   `json:"group"`
+	GroupID        OptString   `json:"group_id"`
 	Devices        []uuid.UUID `json:"devices"`
 	Keys           []int       `json:"keys"`
 	Audit          []string    `json:"audit"`
+	Group          OptString   `json:"group"`
 }
 
 // GetEmail returns the value of Email.
@@ -4006,9 +4161,9 @@ func (s *UpdateUserReq) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
-// GetGroup returns the value of Group.
-func (s *UpdateUserReq) GetGroup() OptString {
-	return s.Group
+// GetGroupID returns the value of GroupID.
+func (s *UpdateUserReq) GetGroupID() OptString {
+	return s.GroupID
 }
 
 // GetDevices returns the value of Devices.
@@ -4024,6 +4179,11 @@ func (s *UpdateUserReq) GetKeys() []int {
 // GetAudit returns the value of Audit.
 func (s *UpdateUserReq) GetAudit() []string {
 	return s.Audit
+}
+
+// GetGroup returns the value of Group.
+func (s *UpdateUserReq) GetGroup() OptString {
+	return s.Group
 }
 
 // SetEmail sets the value of Email.
@@ -4066,9 +4226,9 @@ func (s *UpdateUserReq) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
-// SetGroup sets the value of Group.
-func (s *UpdateUserReq) SetGroup(val OptString) {
-	s.Group = val
+// SetGroupID sets the value of GroupID.
+func (s *UpdateUserReq) SetGroupID(val OptString) {
+	s.GroupID = val
 }
 
 // SetDevices sets the value of Devices.
@@ -4084,6 +4244,11 @@ func (s *UpdateUserReq) SetKeys(val []int) {
 // SetAudit sets the value of Audit.
 func (s *UpdateUserReq) SetAudit(val []string) {
 	s.Audit = val
+}
+
+// SetGroup sets the value of Group.
+func (s *UpdateUserReq) SetGroup(val OptString) {
+	s.Group = val
 }
 
 // Ref: #/components/schemas/User_AuditList
@@ -4133,6 +4298,7 @@ type UserCreate struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -4175,6 +4341,11 @@ func (s *UserCreate) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *UserCreate) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *UserCreate) SetID(val string) {
 	s.ID = val
@@ -4215,19 +4386,26 @@ func (s *UserCreate) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
+// SetGroupID sets the value of GroupID.
+func (s *UserCreate) SetGroupID(val string) {
+	s.GroupID = val
+}
+
 func (*UserCreate) createUserRes() {}
 
 // Ref: #/components/schemas/User_DevicesList
 type UserDevicesList struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Description OptString `json:"description"`
-	Type        string    `json:"type"`
-	DNS         []string  `json:"dns"`
-	PublicKey   string    `json:"public_key"`
-	KeepAlive   bool      `json:"keep_alive"`
-	Endpoint    string    `json:"endpoint"`
-	AllowedIps  []string  `json:"allowed_ips"`
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Description  OptString `json:"description"`
+	Type         string    `json:"type"`
+	DNS          []string  `json:"dns"`
+	PublicKey    string    `json:"public_key"`
+	PresharedKey string    `json:"preshared_key"`
+	KeepAlive    bool      `json:"keep_alive"`
+	Endpoint     string    `json:"endpoint"`
+	AllowedIps   []string  `json:"allowed_ips"`
+	UserID       string    `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -4260,6 +4438,11 @@ func (s *UserDevicesList) GetPublicKey() string {
 	return s.PublicKey
 }
 
+// GetPresharedKey returns the value of PresharedKey.
+func (s *UserDevicesList) GetPresharedKey() string {
+	return s.PresharedKey
+}
+
 // GetKeepAlive returns the value of KeepAlive.
 func (s *UserDevicesList) GetKeepAlive() bool {
 	return s.KeepAlive
@@ -4273,6 +4456,11 @@ func (s *UserDevicesList) GetEndpoint() string {
 // GetAllowedIps returns the value of AllowedIps.
 func (s *UserDevicesList) GetAllowedIps() []string {
 	return s.AllowedIps
+}
+
+// GetUserID returns the value of UserID.
+func (s *UserDevicesList) GetUserID() string {
+	return s.UserID
 }
 
 // SetID sets the value of ID.
@@ -4305,6 +4493,11 @@ func (s *UserDevicesList) SetPublicKey(val string) {
 	s.PublicKey = val
 }
 
+// SetPresharedKey sets the value of PresharedKey.
+func (s *UserDevicesList) SetPresharedKey(val string) {
+	s.PresharedKey = val
+}
+
 // SetKeepAlive sets the value of KeepAlive.
 func (s *UserDevicesList) SetKeepAlive(val bool) {
 	s.KeepAlive = val
@@ -4318,6 +4511,11 @@ func (s *UserDevicesList) SetEndpoint(val string) {
 // SetAllowedIps sets the value of AllowedIps.
 func (s *UserDevicesList) SetAllowedIps(val []string) {
 	s.AllowedIps = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *UserDevicesList) SetUserID(val string) {
+	s.UserID = val
 }
 
 // Ref: #/components/schemas/User_GroupRead
@@ -4570,6 +4768,7 @@ type UserKeysList struct {
 	ID     int                      `json:"id"`
 	Name   string                   `json:"name"`
 	Scopes []UserKeysListScopesItem `json:"scopes"`
+	UserID string                   `json:"user_id"`
 }
 
 // GetID returns the value of ID.
@@ -4587,6 +4786,11 @@ func (s *UserKeysList) GetScopes() []UserKeysListScopesItem {
 	return s.Scopes
 }
 
+// GetUserID returns the value of UserID.
+func (s *UserKeysList) GetUserID() string {
+	return s.UserID
+}
+
 // SetID sets the value of ID.
 func (s *UserKeysList) SetID(val int) {
 	s.ID = val
@@ -4600,6 +4804,11 @@ func (s *UserKeysList) SetName(val string) {
 // SetScopes sets the value of Scopes.
 func (s *UserKeysList) SetScopes(val []UserKeysListScopesItem) {
 	s.Scopes = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *UserKeysList) SetUserID(val string) {
+	s.UserID = val
 }
 
 type UserKeysListScopesItem string
@@ -4653,6 +4862,7 @@ type UserList struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -4695,6 +4905,11 @@ func (s *UserList) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *UserList) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *UserList) SetID(val string) {
 	s.ID = val
@@ -4735,6 +4950,11 @@ func (s *UserList) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
+// SetGroupID sets the value of GroupID.
+func (s *UserList) SetGroupID(val string) {
+	s.GroupID = val
+}
+
 // Ref: #/components/schemas/UserRead
 type UserRead struct {
 	ID             string    `json:"id"`
@@ -4745,6 +4965,7 @@ type UserRead struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -4787,6 +5008,11 @@ func (s *UserRead) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *UserRead) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *UserRead) SetID(val string) {
 	s.ID = val
@@ -4827,6 +5053,11 @@ func (s *UserRead) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
 }
 
+// SetGroupID sets the value of GroupID.
+func (s *UserRead) SetGroupID(val string) {
+	s.GroupID = val
+}
+
 func (*UserRead) readUserRes() {}
 
 // Ref: #/components/schemas/UserUpdate
@@ -4839,6 +5070,7 @@ type UserUpdate struct {
 	PhotoURL       OptString `json:"photo_url"`
 	Disabled       bool      `json:"disabled"`
 	DisabledReason OptString `json:"disabled_reason"`
+	GroupID        string    `json:"group_id"`
 }
 
 // GetID returns the value of ID.
@@ -4881,6 +5113,11 @@ func (s *UserUpdate) GetDisabledReason() OptString {
 	return s.DisabledReason
 }
 
+// GetGroupID returns the value of GroupID.
+func (s *UserUpdate) GetGroupID() string {
+	return s.GroupID
+}
+
 // SetID sets the value of ID.
 func (s *UserUpdate) SetID(val string) {
 	s.ID = val
@@ -4919,6 +5156,11 @@ func (s *UserUpdate) SetDisabled(val bool) {
 // SetDisabledReason sets the value of DisabledReason.
 func (s *UserUpdate) SetDisabledReason(val OptString) {
 	s.DisabledReason = val
+}
+
+// SetGroupID sets the value of GroupID.
+func (s *UserUpdate) SetGroupID(val string) {
+	s.GroupID = val
 }
 
 func (*UserUpdate) updateUserRes() {}

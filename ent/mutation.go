@@ -260,27 +260,51 @@ func (m *ApiKeyMutation) ResetScopes() {
 	m.scopes = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *ApiKeyMutation) SetUserID(id string) {
-	m.user = &id
+// SetUserID sets the "user_id" field.
+func (m *ApiKeyMutation) SetUserID(s string) {
+	m.user = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ApiKeyMutation) UserID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the ApiKey entity.
+// If the ApiKey object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ApiKeyMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ApiKeyMutation) ResetUserID() {
+	m.user = nil
 }
 
 // ClearUser clears the "user" edge to the User entity.
 func (m *ApiKeyMutation) ClearUser() {
 	m.cleareduser = true
+	m.clearedFields[apikey.FieldUserID] = struct{}{}
 }
 
 // UserCleared reports if the "user" edge to the User entity was cleared.
 func (m *ApiKeyMutation) UserCleared() bool {
 	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *ApiKeyMutation) UserID() (id string, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
 }
 
 // UserIDs returns the "user" edge IDs in the mutation.
@@ -333,7 +357,7 @@ func (m *ApiKeyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ApiKeyMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, apikey.FieldName)
 	}
@@ -342,6 +366,9 @@ func (m *ApiKeyMutation) Fields() []string {
 	}
 	if m.scopes != nil {
 		fields = append(fields, apikey.FieldScopes)
+	}
+	if m.user != nil {
+		fields = append(fields, apikey.FieldUserID)
 	}
 	return fields
 }
@@ -357,6 +384,8 @@ func (m *ApiKeyMutation) Field(name string) (ent.Value, bool) {
 		return m.Key()
 	case apikey.FieldScopes:
 		return m.Scopes()
+	case apikey.FieldUserID:
+		return m.UserID()
 	}
 	return nil, false
 }
@@ -372,6 +401,8 @@ func (m *ApiKeyMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldKey(ctx)
 	case apikey.FieldScopes:
 		return m.OldScopes(ctx)
+	case apikey.FieldUserID:
+		return m.OldUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown ApiKey field %s", name)
 }
@@ -401,6 +432,13 @@ func (m *ApiKeyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetScopes(v)
+		return nil
+	case apikey.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown ApiKey field %s", name)
@@ -459,6 +497,9 @@ func (m *ApiKeyMutation) ResetField(name string) error {
 		return nil
 	case apikey.FieldScopes:
 		m.ResetScopes()
+		return nil
+	case apikey.FieldUserID:
+		m.ResetUserID()
 		return nil
 	}
 	return fmt.Errorf("unknown ApiKey field %s", name)
@@ -545,7 +586,6 @@ type AuditMutation struct {
 	typ           string
 	id            *string
 	action        *string
-	author        *string
 	clearedFields map[string]struct{}
 	user          *string
 	cleareduser   bool
@@ -696,12 +736,12 @@ func (m *AuditMutation) ResetAction() {
 
 // SetAuthor sets the "author" field.
 func (m *AuditMutation) SetAuthor(s string) {
-	m.author = &s
+	m.user = &s
 }
 
 // Author returns the value of the "author" field in the mutation.
 func (m *AuditMutation) Author() (r string, exists bool) {
-	v := m.author
+	v := m.user
 	if v == nil {
 		return
 	}
@@ -727,7 +767,7 @@ func (m *AuditMutation) OldAuthor(ctx context.Context) (v string, err error) {
 
 // ResetAuthor resets all changes to the "author" field.
 func (m *AuditMutation) ResetAuthor() {
-	m.author = nil
+	m.user = nil
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
@@ -738,6 +778,7 @@ func (m *AuditMutation) SetUserID(id string) {
 // ClearUser clears the "user" edge to the User entity.
 func (m *AuditMutation) ClearUser() {
 	m.cleareduser = true
+	m.clearedFields[audit.FieldAuthor] = struct{}{}
 }
 
 // UserCleared reports if the "user" edge to the User entity was cleared.
@@ -807,7 +848,7 @@ func (m *AuditMutation) Fields() []string {
 	if m.action != nil {
 		fields = append(fields, audit.FieldAction)
 	}
-	if m.author != nil {
+	if m.user != nil {
 		fields = append(fields, audit.FieldAuthor)
 	}
 	return fields
@@ -1455,27 +1496,51 @@ func (m *DeviceMutation) ResetAllowedIps() {
 	m.allowed_ips = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *DeviceMutation) SetUserID(id string) {
-	m.user = &id
+// SetUserID sets the "user_id" field.
+func (m *DeviceMutation) SetUserID(s string) {
+	m.user = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *DeviceMutation) UserID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Device entity.
+// If the Device object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeviceMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *DeviceMutation) ResetUserID() {
+	m.user = nil
 }
 
 // ClearUser clears the "user" edge to the User entity.
 func (m *DeviceMutation) ClearUser() {
 	m.cleareduser = true
+	m.clearedFields[device.FieldUserID] = struct{}{}
 }
 
 // UserCleared reports if the "user" edge to the User entity was cleared.
 func (m *DeviceMutation) UserCleared() bool {
 	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *DeviceMutation) UserID() (id string, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
 }
 
 // UserIDs returns the "user" edge IDs in the mutation.
@@ -1528,7 +1593,7 @@ func (m *DeviceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeviceMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.name != nil {
 		fields = append(fields, device.FieldName)
 	}
@@ -1556,6 +1621,9 @@ func (m *DeviceMutation) Fields() []string {
 	if m.allowed_ips != nil {
 		fields = append(fields, device.FieldAllowedIps)
 	}
+	if m.user != nil {
+		fields = append(fields, device.FieldUserID)
+	}
 	return fields
 }
 
@@ -1582,6 +1650,8 @@ func (m *DeviceMutation) Field(name string) (ent.Value, bool) {
 		return m.Endpoint()
 	case device.FieldAllowedIps:
 		return m.AllowedIps()
+	case device.FieldUserID:
+		return m.UserID()
 	}
 	return nil, false
 }
@@ -1609,6 +1679,8 @@ func (m *DeviceMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldEndpoint(ctx)
 	case device.FieldAllowedIps:
 		return m.OldAllowedIps(ctx)
+	case device.FieldUserID:
+		return m.OldUserID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Device field %s", name)
 }
@@ -1680,6 +1752,13 @@ func (m *DeviceMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAllowedIps(v)
+		return nil
+	case device.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Device field %s", name)
@@ -1765,6 +1844,9 @@ func (m *DeviceMutation) ResetField(name string) error {
 		return nil
 	case device.FieldAllowedIps:
 		m.ResetAllowedIps()
+		return nil
+	case device.FieldUserID:
+		m.ResetUserID()
 		return nil
 	}
 	return fmt.Errorf("unknown Device field %s", name)
@@ -2463,8 +2545,6 @@ type UserMutation struct {
 	disabled        *bool
 	disabled_reason *string
 	clearedFields   map[string]struct{}
-	group           *string
-	clearedgroup    bool
 	devices         map[uuid.UUID]struct{}
 	removeddevices  map[uuid.UUID]struct{}
 	cleareddevices  bool
@@ -2474,6 +2554,8 @@ type UserMutation struct {
 	audit           map[string]struct{}
 	removedaudit    map[string]struct{}
 	clearedaudit    bool
+	group           *string
+	clearedgroup    bool
 	done            bool
 	oldValue        func(context.Context) (*User, error)
 	predicates      []predicate.User
@@ -2959,43 +3041,40 @@ func (m *UserMutation) ResetDisabledReason() {
 	delete(m.clearedFields, user.FieldDisabledReason)
 }
 
-// SetGroupID sets the "group" edge to the Group entity by id.
-func (m *UserMutation) SetGroupID(id string) {
-	m.group = &id
+// SetGroupID sets the "group_id" field.
+func (m *UserMutation) SetGroupID(s string) {
+	m.group = &s
 }
 
-// ClearGroup clears the "group" edge to the Group entity.
-func (m *UserMutation) ClearGroup() {
-	m.clearedgroup = true
-}
-
-// GroupCleared reports if the "group" edge to the Group entity was cleared.
-func (m *UserMutation) GroupCleared() bool {
-	return m.clearedgroup
-}
-
-// GroupID returns the "group" edge ID in the mutation.
-func (m *UserMutation) GroupID() (id string, exists bool) {
-	if m.group != nil {
-		return *m.group, true
+// GroupID returns the value of the "group_id" field in the mutation.
+func (m *UserMutation) GroupID() (r string, exists bool) {
+	v := m.group
+	if v == nil {
+		return
 	}
-	return
+	return *v, true
 }
 
-// GroupIDs returns the "group" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// GroupID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) GroupIDs() (ids []string) {
-	if id := m.group; id != nil {
-		ids = append(ids, *id)
+// OldGroupID returns the old "group_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldGroupID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
 	}
-	return
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupID: %w", err)
+	}
+	return oldValue.GroupID, nil
 }
 
-// ResetGroup resets all changes to the "group" edge.
-func (m *UserMutation) ResetGroup() {
+// ResetGroupID resets all changes to the "group_id" field.
+func (m *UserMutation) ResetGroupID() {
 	m.group = nil
-	m.clearedgroup = false
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by ids.
@@ -3160,6 +3239,33 @@ func (m *UserMutation) ResetAudit() {
 	m.removedaudit = nil
 }
 
+// ClearGroup clears the "group" edge to the Group entity.
+func (m *UserMutation) ClearGroup() {
+	m.clearedgroup = true
+	m.clearedFields[user.FieldGroupID] = struct{}{}
+}
+
+// GroupCleared reports if the "group" edge to the Group entity was cleared.
+func (m *UserMutation) GroupCleared() bool {
+	return m.clearedgroup
+}
+
+// GroupIDs returns the "group" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GroupID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) GroupIDs() (ids []string) {
+	if id := m.group; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGroup resets all changes to the "group" edge.
+func (m *UserMutation) ResetGroup() {
+	m.group = nil
+	m.clearedgroup = false
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -3194,7 +3300,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -3222,6 +3328,9 @@ func (m *UserMutation) Fields() []string {
 	if m.disabled_reason != nil {
 		fields = append(fields, user.FieldDisabledReason)
 	}
+	if m.group != nil {
+		fields = append(fields, user.FieldGroupID)
+	}
 	return fields
 }
 
@@ -3248,6 +3357,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Disabled()
 	case user.FieldDisabledReason:
 		return m.DisabledReason()
+	case user.FieldGroupID:
+		return m.GroupID()
 	}
 	return nil, false
 }
@@ -3275,6 +3386,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDisabled(ctx)
 	case user.FieldDisabledReason:
 		return m.OldDisabledReason(ctx)
+	case user.FieldGroupID:
+		return m.OldGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -3346,6 +3459,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisabledReason(v)
+		return nil
+	case user.FieldGroupID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -3450,6 +3570,9 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldDisabledReason:
 		m.ResetDisabledReason()
 		return nil
+	case user.FieldGroupID:
+		m.ResetGroupID()
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -3457,9 +3580,6 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.group != nil {
-		edges = append(edges, user.EdgeGroup)
-	}
 	if m.devices != nil {
 		edges = append(edges, user.EdgeDevices)
 	}
@@ -3469,6 +3589,9 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.audit != nil {
 		edges = append(edges, user.EdgeAudit)
 	}
+	if m.group != nil {
+		edges = append(edges, user.EdgeGroup)
+	}
 	return edges
 }
 
@@ -3476,10 +3599,6 @@ func (m *UserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case user.EdgeGroup:
-		if id := m.group; id != nil {
-			return []ent.Value{*id}
-		}
 	case user.EdgeDevices:
 		ids := make([]ent.Value, 0, len(m.devices))
 		for id := range m.devices {
@@ -3498,6 +3617,10 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeGroup:
+		if id := m.group; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
@@ -3546,9 +3669,6 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.clearedgroup {
-		edges = append(edges, user.EdgeGroup)
-	}
 	if m.cleareddevices {
 		edges = append(edges, user.EdgeDevices)
 	}
@@ -3558,6 +3678,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedaudit {
 		edges = append(edges, user.EdgeAudit)
 	}
+	if m.clearedgroup {
+		edges = append(edges, user.EdgeGroup)
+	}
 	return edges
 }
 
@@ -3565,14 +3688,14 @@ func (m *UserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
-	case user.EdgeGroup:
-		return m.clearedgroup
 	case user.EdgeDevices:
 		return m.cleareddevices
 	case user.EdgeKeys:
 		return m.clearedkeys
 	case user.EdgeAudit:
 		return m.clearedaudit
+	case user.EdgeGroup:
+		return m.clearedgroup
 	}
 	return false
 }
@@ -3592,9 +3715,6 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
-	case user.EdgeGroup:
-		m.ResetGroup()
-		return nil
 	case user.EdgeDevices:
 		m.ResetDevices()
 		return nil
@@ -3603,6 +3723,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeAudit:
 		m.ResetAudit()
+		return nil
+	case user.EdgeGroup:
+		m.ResetGroup()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

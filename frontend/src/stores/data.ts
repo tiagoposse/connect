@@ -2,7 +2,7 @@ import type { FilterArgs, PaginationArgs } from '@/lib/utils';
 import type { GenericAPI } from '@/lib/utils';
 import { defineStore } from 'pinia'
 import { useNotificationsStore } from './notifications';
-import type { CardItem, ReadonlyDataTableHeader } from '@/lib/utils';
+import type { ReadonlyDataTableHeader } from '@/lib/utils';
 import { RequestError } from '@/lib/errors';
 
 export const useDataStore = defineStore('data', {
@@ -14,11 +14,9 @@ export const useDataStore = defineStore('data', {
     filters: {} as { [key: string]: string },
     itemsPerPage: 50,
     page: 1,
+    editAllowed: true,
   }),
   getters: {
-    gridItems(): CardItem[] {
-      return this.items.map((item) => this.api!.toCard(item))
-    },
     headers(): ReadonlyDataTableHeader[] {
       return this.api!.headers
     },
@@ -36,7 +34,6 @@ export const useDataStore = defineStore('data', {
     async fetch(params: PaginationArgs, filters: FilterArgs) {
       try {
         const resp = await this.api!.fetch(params, filters)
-        console.log(resp)
         this.items = await resp.value()
         this.total = parseInt(resp.raw.headers.get('X-Total')!);
       } catch (e: any) {

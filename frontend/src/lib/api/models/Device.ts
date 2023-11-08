@@ -88,6 +88,12 @@ export interface Device {
     allowedIps: Array<string>;
     /**
      * 
+     * @type {string}
+     * @memberof Device
+     */
+    userId: string;
+    /**
+     * 
      * @type {User}
      * @memberof Device
      */
@@ -108,6 +114,7 @@ export function instanceOfDevice(value: object): boolean {
     isInstance = isInstance && "keepAlive" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
+    isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "user" in value;
 
     return isInstance;
@@ -133,6 +140,7 @@ export function DeviceFromJSONTyped(json: any, ignoreDiscriminator: boolean): De
         'keepAlive': json['keep_alive'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
+        'userId': json['user_id'],
         'user': UserFromJSON(json['user']),
     };
 }
@@ -156,6 +164,7 @@ export function DeviceToJSON(value?: Device | null): any {
         'keep_alive': value.keepAlive,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
+        'user_id': value.userId,
         'user': UserToJSON(value.user),
     };
 }

@@ -72,6 +72,12 @@ export interface CreateDeviceRequest {
      * @type {string}
      * @memberof CreateDeviceRequest
      */
+    userId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateDeviceRequest
+     */
     user: string;
 }
 
@@ -87,6 +93,7 @@ export function instanceOfCreateDeviceRequest(value: object): boolean {
     isInstance = isInstance && "keepAlive" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
+    isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "user" in value;
 
     return isInstance;
@@ -110,6 +117,7 @@ export function CreateDeviceRequestFromJSONTyped(json: any, ignoreDiscriminator:
         'keepAlive': json['keep_alive'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
+        'userId': json['user_id'],
         'user': json['user'],
     };
 }
@@ -131,6 +139,7 @@ export function CreateDeviceRequestToJSON(value?: CreateDeviceRequest | null): a
         'keep_alive': value.keepAlive,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
+        'user_id': value.userId,
         'user': value.user,
     };
 }

@@ -23,7 +23,6 @@ type ApiKeyQuery struct {
 	inters     []Interceptor
 	predicates []predicate.ApiKey
 	withUser   *UserQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -369,18 +368,11 @@ func (akq *ApiKeyQuery) prepareQuery(ctx context.Context) error {
 func (akq *ApiKeyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ApiKey, error) {
 	var (
 		nodes       = []*ApiKey{}
-		withFKs     = akq.withFKs
 		_spec       = akq.querySpec()
 		loadedTypes = [1]bool{
 			akq.withUser != nil,
 		}
 	)
-	if akq.withUser != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, apikey.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ApiKey).scanValues(nil, columns)
 	}
@@ -412,10 +404,7 @@ func (akq *ApiKeyQuery) loadUser(ctx context.Context, query *UserQuery, nodes []
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*ApiKey)
 	for i := range nodes {
-		if nodes[i].user_keys == nil {
-			continue
-		}
-		fk := *nodes[i].user_keys
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -432,7 +421,7 @@ func (akq *ApiKeyQuery) loadUser(ctx context.Context, query *UserQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_keys" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -465,6 +454,9 @@ func (akq *ApiKeyQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != apikey.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if akq.withUser != nil {
+			_spec.Node.AddColumnOnce(apikey.FieldUserID)
 		}
 	}
 	if ps := akq.predicates; len(ps) > 0 {

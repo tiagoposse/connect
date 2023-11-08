@@ -24,7 +24,6 @@ type Audit struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AuditQuery when eager-loading is set.
 	Edges        AuditEdges `json:"edges"`
-	user_audit   *string
 	selectValues sql.SelectValues
 }
 
@@ -56,8 +55,6 @@ func (*Audit) scanValues(columns []string) ([]any, error) {
 	for i := range columns {
 		switch columns[i] {
 		case audit.FieldID, audit.FieldAction, audit.FieldAuthor:
-			values[i] = new(sql.NullString)
-		case audit.ForeignKeys[0]: // user_audit
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -91,13 +88,6 @@ func (a *Audit) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field author", values[i])
 			} else if value.Valid {
 				a.Author = value.String
-			}
-		case audit.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_audit", values[i])
-			} else if value.Valid {
-				a.user_audit = new(string)
-				*a.user_audit = value.String
 			}
 		default:
 			a.selectValues.Set(columns[i], values[i])

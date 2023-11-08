@@ -213,6 +213,7 @@ func (h *OgentHandler) CreateApiKey(ctx context.Context, req *CreateApiKeyReq) (
 	b.SetName(req.Name)
 	b.SetKey(req.Key)
 	b.SetScopes(*JsonConvert(req.Scopes, &controller.Scopes{}).(*controller.Scopes))
+	b.SetUserID(req.UserID)
 	// Add all edges.
 	b.SetUserID(req.User)
 	// Add Wiring
@@ -586,6 +587,7 @@ func (h *OgentHandler) CreateDevice(ctx context.Context, req *CreateDeviceReq) (
 	b.SetKeepAlive(req.KeepAlive)
 	b.SetEndpoint(types.Inet{}.ParseString(req.Endpoint))
 	b.SetAllowedIps(*JsonConvert(req.AllowedIps, &types.CidrSlice{}).(*types.CidrSlice))
+	b.SetUserID(req.UserID)
 	// Add all edges.
 	b.SetUserID(req.User)
 	// Add Wiring
@@ -1173,11 +1175,12 @@ func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (Crea
 	if v, ok := req.DisabledReason.Get(); ok {
 		b.SetDisabledReason(v)
 	}
+	b.SetGroupID(req.GroupID)
 	// Add all edges.
-	b.SetGroupID(req.Group)
 	b.AddDeviceIDs(req.Devices...)
 	b.AddKeyIDs(req.Keys...)
 	b.AddAuditIDs(req.Audit...)
+	b.SetGroupID(req.Group)
 	// Add Wiring
 	if err := h.wires.CreateUserWire(ctx, b, req); err != nil {
 		return &R500{
@@ -1378,10 +1381,10 @@ func (h *OgentHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, param
 	if v, ok := req.DisabledReason.Get(); ok {
 		b.SetDisabledReason(v)
 	}
-	// Add all edges.
-	if v, ok := req.Group.Get(); ok {
+	if v, ok := req.GroupID.Get(); ok {
 		b.SetGroupID(v)
 	}
+	// Add all edges.
 	if req.Devices != nil {
 		b.ClearDevices().AddDeviceIDs(req.Devices...)
 	}
@@ -1390,6 +1393,9 @@ func (h *OgentHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, param
 	}
 	if req.Audit != nil {
 		b.ClearAudit().AddAuditIDs(req.Audit...)
+	}
+	if v, ok := req.Group.Get(); ok {
+		b.SetGroupID(v)
 	}
 	// Add Wiring
 	if err := h.wires.UpdateUserWire(ctx, b, req, params); err != nil {
@@ -1428,32 +1434,6 @@ func (h *OgentHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, param
 		return nil, err
 	}
 	return NewUserUpdate(e), nil
-}
-
-// ReadUserGroup handles GET /users/{id}/group requests.
-func (h *OgentHandler) ReadUserGroup(ctx context.Context, params ReadUserGroupParams) (ReadUserGroupRes, error) {
-	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryGroup()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case ent.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewUserGroupRead(e), nil
 }
 
 // ListUserDevices handles GET /users/{id}/devices requests.
@@ -1622,4 +1602,30 @@ func (h *OgentHandler) ListUserAudit(ctx context.Context, params ListUserAuditPa
 		}
 	}
 	return &ListUserAuditOKHeaders{Response: r, XTotal: countQuery}, nil
+}
+
+// ReadUserGroup handles GET /users/{id}/group requests.
+func (h *OgentHandler) ReadUserGroup(ctx context.Context, params ReadUserGroupParams) (ReadUserGroupRes, error) {
+	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryGroup()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case ent.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewUserGroupRead(e), nil
 }

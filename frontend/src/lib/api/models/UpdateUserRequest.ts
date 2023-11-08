@@ -72,7 +72,7 @@ export interface UpdateUserRequest {
      * @type {string}
      * @memberof UpdateUserRequest
      */
-    group?: string;
+    groupId?: string;
     /**
      * 
      * @type {Array<string>}
@@ -91,6 +91,12 @@ export interface UpdateUserRequest {
      * @memberof UpdateUserRequest
      */
     audit?: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateUserRequest
+     */
+    group?: string;
 }
 
 /**
@@ -120,10 +126,11 @@ export function UpdateUserRequestFromJSONTyped(json: any, ignoreDiscriminator: b
         'photoUrl': !exists(json, 'photo_url') ? undefined : json['photo_url'],
         'disabled': !exists(json, 'disabled') ? undefined : json['disabled'],
         'disabledReason': !exists(json, 'disabled_reason') ? undefined : json['disabled_reason'],
-        'group': !exists(json, 'group') ? undefined : json['group'],
+        'groupId': !exists(json, 'group_id') ? undefined : json['group_id'],
         'devices': !exists(json, 'devices') ? undefined : json['devices'],
         'keys': !exists(json, 'keys') ? undefined : json['keys'],
         'audit': !exists(json, 'audit') ? undefined : json['audit'],
+        'group': !exists(json, 'group') ? undefined : json['group'],
     };
 }
 
@@ -144,10 +151,11 @@ export function UpdateUserRequestToJSON(value?: UpdateUserRequest | null): any {
         'photo_url': value.photoUrl,
         'disabled': value.disabled,
         'disabled_reason': value.disabledReason,
-        'group': value.group,
+        'group_id': value.groupId,
         'devices': value.devices,
         'keys': value.keys,
         'audit': value.audit,
+        'group': value.group,
     };
 }
 

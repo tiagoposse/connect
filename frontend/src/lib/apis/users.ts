@@ -1,5 +1,5 @@
 
-import { UserApi, type CreateUserRequest, type UserList } from '@/lib/api';
+import { UserApi, type CreateUserRequest } from '@/lib/api';
 import { DefaultApiConfig, type FilterArgs, type GenericAPI, type PaginationArgs } from '@/lib/utils';
 
 export const UsersAPI = new UserApi(DefaultApiConfig);
@@ -9,14 +9,6 @@ export const GenericUsersAPI: GenericAPI = {
   update: async (id: string, payload: CreateUserRequest) => { return await UsersAPI.updateUser({ id, updateUserRequest: payload }) },
   remove: async (id: string) => { return await UsersAPI.deleteUser({ id }) },
   fetch: async (params: PaginationArgs, filters: FilterArgs) => { return await UsersAPI.listUserRaw({ ...params, ...filters }) },
-  toCard: (item: UserList) => {
-    return {
-      id: item.id,
-      title: `${item.firstname} ${item.lastname}`,
-      subtitle: '',
-      fields: [],
-    }
-  },
   headers: [
     {
       title: 'ID',
@@ -46,7 +38,7 @@ export const GenericUsersAPI: GenericAPI = {
       title: 'Group',
       align: 'start',
       sortable: true,
-      key: 'group',
+      key: 'groupId',
     },
     {
       title: 'Provider',

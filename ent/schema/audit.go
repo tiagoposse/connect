@@ -40,6 +40,6 @@ func (Audit) Fields() []ent.Field {
 // Edges of the Audit.
 func (Audit) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("audit").Unique().Immutable().Required(),
+		edge.From("user", User.Type).Ref("audit").Unique().Immutable().Required().Field("author"),
 	}
 }

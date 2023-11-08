@@ -13,7 +13,11 @@
       <DataToolbar />
     </template>
     <template v-slot:default="{ }">
-      <DataView />
+      <DataView>
+        <template v-slot:card="{ item, update, remove }">
+          <slot name="card" :item="item" :update="update" :remove="remove" />
+        </template>
+      </DataView>
     </template>
     <template v-slot:footer>
       <DataPagination />

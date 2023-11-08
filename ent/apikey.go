@@ -24,10 +24,11 @@ type ApiKey struct {
 	Key string `json:"-"`
 	// Scopes holds the value of the "scopes" field.
 	Scopes controller.Scopes `json:"scopes,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID string `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ApiKeyQuery when eager-loading is set.
 	Edges        ApiKeyEdges `json:"edges"`
-	user_keys    *string
 	selectValues sql.SelectValues
 }
 
@@ -62,9 +63,7 @@ func (*ApiKey) scanValues(columns []string) ([]any, error) {
 			values[i] = new(controller.Scopes)
 		case apikey.FieldID:
 			values[i] = new(sql.NullInt64)
-		case apikey.FieldName, apikey.FieldKey:
-			values[i] = new(sql.NullString)
-		case apikey.ForeignKeys[0]: // user_keys
+		case apikey.FieldName, apikey.FieldKey, apikey.FieldUserID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -105,12 +104,11 @@ func (ak *ApiKey) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				ak.Scopes = *value
 			}
-		case apikey.ForeignKeys[0]:
+		case apikey.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_keys", values[i])
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				ak.user_keys = new(string)
-				*ak.user_keys = value.String
+				ak.UserID = value.String
 			}
 		default:
 			ak.selectValues.Set(columns[i], values[i])
@@ -160,6 +158,9 @@ func (ak *ApiKey) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("scopes=")
 	builder.WriteString(fmt.Sprintf("%v", ak.Scopes))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(ak.UserID)
 	builder.WriteByte(')')
 	return builder.String()
 }

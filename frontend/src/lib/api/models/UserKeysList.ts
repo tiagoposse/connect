@@ -37,6 +37,12 @@ export interface UserKeysList {
      * @memberof UserKeysList
      */
     scopes: Array<UserKeysListScopesEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserKeysList
+     */
+    userId: string;
 }
 
 
@@ -58,6 +64,7 @@ export function instanceOfUserKeysList(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "scopes" in value;
+    isInstance = isInstance && "userId" in value;
 
     return isInstance;
 }
@@ -75,6 +82,7 @@ export function UserKeysListFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'id': json['id'],
         'name': json['name'],
         'scopes': json['scopes'],
+        'userId': json['user_id'],
     };
 }
 
@@ -90,6 +98,7 @@ export function UserKeysListToJSON(value?: UserKeysList | null): any {
         'id': value.id,
         'name': value.name,
         'scopes': value.scopes,
+        'user_id': value.userId,
     };
 }
 

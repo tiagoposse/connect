@@ -108,6 +108,11 @@ func DisabledReason(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldDisabledReason, v))
 }
 
+// GroupID applies equality check predicate on the "group_id" field. It's identical to GroupIDEQ.
+func GroupID(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupID, v))
+}
+
 // EmailEQ applies the EQ predicate on the "email" field.
 func EmailEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldEmail, v))
@@ -678,27 +683,69 @@ func DisabledReasonContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldDisabledReason, v))
 }
 
-// HasGroup applies the HasEdge predicate on the "group" edge.
-func HasGroup() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, GroupTable, GroupColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// GroupIDEQ applies the EQ predicate on the "group_id" field.
+func GroupIDEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupID, v))
 }
 
-// HasGroupWith applies the HasEdge predicate on the "group" edge with a given conditions (other predicates).
-func HasGroupWith(preds ...predicate.Group) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newGroupStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// GroupIDNEQ applies the NEQ predicate on the "group_id" field.
+func GroupIDNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldGroupID, v))
+}
+
+// GroupIDIn applies the In predicate on the "group_id" field.
+func GroupIDIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldGroupID, vs...))
+}
+
+// GroupIDNotIn applies the NotIn predicate on the "group_id" field.
+func GroupIDNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldGroupID, vs...))
+}
+
+// GroupIDGT applies the GT predicate on the "group_id" field.
+func GroupIDGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldGroupID, v))
+}
+
+// GroupIDGTE applies the GTE predicate on the "group_id" field.
+func GroupIDGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldGroupID, v))
+}
+
+// GroupIDLT applies the LT predicate on the "group_id" field.
+func GroupIDLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldGroupID, v))
+}
+
+// GroupIDLTE applies the LTE predicate on the "group_id" field.
+func GroupIDLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldGroupID, v))
+}
+
+// GroupIDContains applies the Contains predicate on the "group_id" field.
+func GroupIDContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldGroupID, v))
+}
+
+// GroupIDHasPrefix applies the HasPrefix predicate on the "group_id" field.
+func GroupIDHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldGroupID, v))
+}
+
+// GroupIDHasSuffix applies the HasSuffix predicate on the "group_id" field.
+func GroupIDHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldGroupID, v))
+}
+
+// GroupIDEqualFold applies the EqualFold predicate on the "group_id" field.
+func GroupIDEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldGroupID, v))
+}
+
+// GroupIDContainsFold applies the ContainsFold predicate on the "group_id" field.
+func GroupIDContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldGroupID, v))
 }
 
 // HasDevices applies the HasEdge predicate on the "devices" edge.
@@ -762,6 +809,29 @@ func HasAudit() predicate.User {
 func HasAuditWith(preds ...predicate.Audit) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newAuditStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGroup applies the HasEdge predicate on the "group" edge.
+func HasGroup() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, GroupTable, GroupColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGroupWith applies the HasEdge predicate on the "group" edge with a given conditions (other predicates).
+func HasGroupWith(preds ...predicate.Group) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newGroupStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

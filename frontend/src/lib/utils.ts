@@ -2,8 +2,12 @@ import {
   VDataTableServer,
 } from "vuetify/labs/VDataTable";
 
-import { Configuration, type ApiResponse } from './api';
+import { Configuration, type ApiResponse, type ResponseContext } from './api';
+import { RequestError } from "./errors";
 
+type ApiError = {
+  error_message: string;
+}
 
 // @ts-ignore
 export const API_URL = `${window.WG_API}/api/v1`;
@@ -11,6 +15,15 @@ export const API_URL = `${window.WG_API}/api/v1`;
 export const DefaultApiConfig = new Configuration({
   basePath: API_URL,
   credentials: 'include',
+  middleware: [{
+    post: async (context: ResponseContext) => {
+      if (!context.response.ok) {
+        throw new RequestError((await context.response.json() as ApiError).error_message)
+      }
+
+      return context.response
+    }
+  }],
 },);
 
 export interface GenericAPI {
@@ -18,7 +31,6 @@ export interface GenericAPI {
   update: (id: string, payload: any) => Promise<any>
   remove: (id: string) => Promise<void>
   fetch: (params: PaginationArgs, filters: FilterArgs) => Promise<ApiResponse<any[]>>
-  toCard: (item: any) => CardItem
   headers: ReadonlyDataTableHeader[]
 }
 

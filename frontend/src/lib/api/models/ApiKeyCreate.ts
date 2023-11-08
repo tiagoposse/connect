@@ -37,6 +37,12 @@ export interface ApiKeyCreate {
      * @memberof ApiKeyCreate
      */
     scopes: Array<ApiKeyCreateScopesEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiKeyCreate
+     */
+    userId: string;
 }
 
 
@@ -58,6 +64,7 @@ export function instanceOfApiKeyCreate(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "scopes" in value;
+    isInstance = isInstance && "userId" in value;
 
     return isInstance;
 }
@@ -75,6 +82,7 @@ export function ApiKeyCreateFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'id': json['id'],
         'name': json['name'],
         'scopes': json['scopes'],
+        'userId': json['user_id'],
     };
 }
 
@@ -90,6 +98,7 @@ export function ApiKeyCreateToJSON(value?: ApiKeyCreate | null): any {
         'id': value.id,
         'name': value.name,
         'scopes': value.scopes,
+        'user_id': value.userId,
     };
 }
 

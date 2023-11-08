@@ -73,6 +73,12 @@ export interface DeviceUpdate {
      * @memberof DeviceUpdate
      */
     allowedIps: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeviceUpdate
+     */
+    userId: string;
 }
 
 /**
@@ -88,6 +94,7 @@ export function instanceOfDeviceUpdate(value: object): boolean {
     isInstance = isInstance && "keepAlive" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
+    isInstance = isInstance && "userId" in value;
 
     return isInstance;
 }
@@ -111,6 +118,7 @@ export function DeviceUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'keepAlive': json['keep_alive'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
+        'userId': json['user_id'],
     };
 }
 
@@ -132,6 +140,7 @@ export function DeviceUpdateToJSON(value?: DeviceUpdate | null): any {
         'keep_alive': value.keepAlive,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
+        'user_id': value.userId,
     };
 }
 

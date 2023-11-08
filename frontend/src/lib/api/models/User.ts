@@ -106,10 +106,10 @@ export interface User {
     disabledReason?: string;
     /**
      * 
-     * @type {Group}
+     * @type {string}
      * @memberof User
      */
-    group: Group;
+    groupId: string;
     /**
      * 
      * @type {Array<Device>}
@@ -128,6 +128,12 @@ export interface User {
      * @memberof User
      */
     audit?: Array<Audit>;
+    /**
+     * 
+     * @type {Group}
+     * @memberof User
+     */
+    group: Group;
 }
 
 /**
@@ -141,6 +147,7 @@ export function instanceOfUser(value: object): boolean {
     isInstance = isInstance && "lastname" in value;
     isInstance = isInstance && "provider" in value;
     isInstance = isInstance && "disabled" in value;
+    isInstance = isInstance && "groupId" in value;
     isInstance = isInstance && "group" in value;
 
     return isInstance;
@@ -166,10 +173,11 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'photoUrl': !exists(json, 'photo_url') ? undefined : json['photo_url'],
         'disabled': json['disabled'],
         'disabledReason': !exists(json, 'disabled_reason') ? undefined : json['disabled_reason'],
-        'group': GroupFromJSON(json['group']),
+        'groupId': json['group_id'],
         'devices': !exists(json, 'devices') ? undefined : ((json['devices'] as Array<any>).map(DeviceFromJSON)),
         'keys': !exists(json, 'keys') ? undefined : ((json['keys'] as Array<any>).map(ApiKeyFromJSON)),
         'audit': !exists(json, 'audit') ? undefined : ((json['audit'] as Array<any>).map(AuditFromJSON)),
+        'group': GroupFromJSON(json['group']),
     };
 }
 
@@ -192,10 +200,11 @@ export function UserToJSON(value?: User | null): any {
         'photo_url': value.photoUrl,
         'disabled': value.disabled,
         'disabled_reason': value.disabledReason,
-        'group': GroupToJSON(value.group),
+        'group_id': value.groupId,
         'devices': value.devices === undefined ? undefined : ((value.devices as Array<any>).map(DeviceToJSON)),
         'keys': value.keys === undefined ? undefined : ((value.keys as Array<any>).map(ApiKeyToJSON)),
         'audit': value.audit === undefined ? undefined : ((value.audit as Array<any>).map(AuditToJSON)),
+        'group': GroupToJSON(value.group),
     };
 }
 

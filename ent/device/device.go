@@ -31,6 +31,8 @@ const (
 	FieldEndpoint = "endpoint"
 	// FieldAllowedIps holds the string denoting the allowed_ips field in the database.
 	FieldAllowedIps = "allowed_ips"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the device in the database.
@@ -41,7 +43,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_devices"
+	UserColumn = "user_id"
 )
 
 // Columns holds all SQL columns for device fields.
@@ -56,23 +58,13 @@ var Columns = []string{
 	FieldKeepAlive,
 	FieldEndpoint,
 	FieldAllowedIps,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "devices"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_devices",
+	FieldUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -135,6 +127,11 @@ func ByEndpoint(opts ...sql.OrderTermOption) OrderOption {
 // ByAllowedIps orders the results by the allowed_ips field.
 func ByAllowedIps(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAllowedIps, opts...).ToFunc()
+}
+
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

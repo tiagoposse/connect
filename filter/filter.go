@@ -47,7 +47,7 @@ func (ext *OperationExtension) generate() gen.Hook {
 					nodeAnt.Decode(ann)
 					ant = ant.Merge(nodeAnt).(Annotation)
 				}
-
+				
 				anns := node.Annotations
 				anns[Annotation{}.Name()] = ant
 				node.Annotations = anns

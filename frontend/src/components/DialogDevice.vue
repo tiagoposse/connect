@@ -46,6 +46,12 @@ const created = ref(false);
 const form = ref();
 
 onMounted(() => {
+  if (Object.keys(dialogStore.item).length > 0) {
+    payload.value = dialogStore.item
+  } else {
+    dialogStore.item = payload.value
+  }
+
   dialogStore.registerCallback(async () => {
     const keyPair = generateKeyPair()
     const validation = [] as (string | boolean)[]
@@ -62,7 +68,7 @@ onMounted(() => {
     }
 
     const data = await useDataStore().create({
-      ...payload,
+      ...payload.value,
       publicKey: b64encode(keyPair.publicKey),
     })
 

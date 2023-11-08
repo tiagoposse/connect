@@ -52,6 +52,12 @@ export interface ApiKey {
     scopes: Array<ApiKeyScopesEnum>;
     /**
      * 
+     * @type {string}
+     * @memberof ApiKey
+     */
+    userId: string;
+    /**
+     * 
      * @type {User}
      * @memberof ApiKey
      */
@@ -78,6 +84,7 @@ export function instanceOfApiKey(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "key" in value;
     isInstance = isInstance && "scopes" in value;
+    isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "user" in value;
 
     return isInstance;
@@ -97,6 +104,7 @@ export function ApiKeyFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ap
         'name': json['name'],
         'key': json['key'],
         'scopes': json['scopes'],
+        'userId': json['user_id'],
         'user': UserFromJSON(json['user']),
     };
 }
@@ -114,6 +122,7 @@ export function ApiKeyToJSON(value?: ApiKey | null): any {
         'name': value.name,
         'key': value.key,
         'scopes': value.scopes,
+        'user_id': value.userId,
         'user': UserToJSON(value.user),
     };
 }

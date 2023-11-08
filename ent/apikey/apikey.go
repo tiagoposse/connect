@@ -3,6 +3,7 @@
 package apikey
 
 import (
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/tiagoposse/go-auth/controller"
@@ -19,6 +20,8 @@ const (
 	FieldKey = "key"
 	// FieldScopes holds the string denoting the scopes field in the database.
 	FieldScopes = "scopes"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the apikey in the database.
@@ -29,7 +32,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_keys"
+	UserColumn = "user_id"
 )
 
 // Columns holds all SQL columns for apikey fields.
@@ -38,12 +41,7 @@ var Columns = []string{
 	FieldName,
 	FieldKey,
 	FieldScopes,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "api_keys"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_keys",
+	FieldUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -53,15 +51,16 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "github.com/tiagoposse/connect/ent/runtime"
 var (
+	Hooks [1]ent.Hook
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DefaultScopes holds the default value on creation for the "scopes" field.
@@ -89,6 +88,11 @@ func ByKey(opts ...sql.OrderTermOption) OrderOption {
 // ByScopes orders the results by the scopes field.
 func ByScopes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldScopes, opts...).ToFunc()
+}
+
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

@@ -35,23 +35,24 @@ type User struct {
 	Disabled bool `json:"disabled,omitempty"`
 	// DisabledReason holds the value of the "disabled_reason" field.
 	DisabledReason string `json:"disabled_reason,omitempty"`
+	// GroupID holds the value of the "group_id" field.
+	GroupID string `json:"group_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
-	group_users  *string
 	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Group holds the value of the group edge.
-	Group *Group `json:"group,omitempty"`
 	// Devices holds the value of the devices edge.
 	Devices []*Device `json:"devices,omitempty"`
 	// Keys holds the value of the keys edge.
 	Keys []*ApiKey `json:"keys,omitempty"`
 	// Audit holds the value of the audit edge.
 	Audit []*Audit `json:"audit,omitempty"`
+	// Group holds the value of the group edge.
+	Group *Group `json:"group,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes  [4]bool
@@ -60,10 +61,37 @@ type UserEdges struct {
 	namedAudit   map[string][]*Audit
 }
 
+// DevicesOrErr returns the Devices value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) DevicesOrErr() ([]*Device, error) {
+	if e.loadedTypes[0] {
+		return e.Devices, nil
+	}
+	return nil, &NotLoadedError{edge: "devices"}
+}
+
+// KeysOrErr returns the Keys value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) KeysOrErr() ([]*ApiKey, error) {
+	if e.loadedTypes[1] {
+		return e.Keys, nil
+	}
+	return nil, &NotLoadedError{edge: "keys"}
+}
+
+// AuditOrErr returns the Audit value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuditOrErr() ([]*Audit, error) {
+	if e.loadedTypes[2] {
+		return e.Audit, nil
+	}
+	return nil, &NotLoadedError{edge: "audit"}
+}
+
 // GroupOrErr returns the Group value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) GroupOrErr() (*Group, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[3] {
 		if e.Group == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: group.Label}
@@ -73,33 +101,6 @@ func (e UserEdges) GroupOrErr() (*Group, error) {
 	return nil, &NotLoadedError{edge: "group"}
 }
 
-// DevicesOrErr returns the Devices value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) DevicesOrErr() ([]*Device, error) {
-	if e.loadedTypes[1] {
-		return e.Devices, nil
-	}
-	return nil, &NotLoadedError{edge: "devices"}
-}
-
-// KeysOrErr returns the Keys value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) KeysOrErr() ([]*ApiKey, error) {
-	if e.loadedTypes[2] {
-		return e.Keys, nil
-	}
-	return nil, &NotLoadedError{edge: "keys"}
-}
-
-// AuditOrErr returns the Audit value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) AuditOrErr() ([]*Audit, error) {
-	if e.loadedTypes[3] {
-		return e.Audit, nil
-	}
-	return nil, &NotLoadedError{edge: "audit"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -107,9 +108,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldDisabled:
 			values[i] = new(sql.NullBool)
-		case user.FieldID, user.FieldEmail, user.FieldFirstname, user.FieldLastname, user.FieldProvider, user.FieldPassword, user.FieldSalt, user.FieldPhotoURL, user.FieldDisabledReason:
-			values[i] = new(sql.NullString)
-		case user.ForeignKeys[0]: // group_users
+		case user.FieldID, user.FieldEmail, user.FieldFirstname, user.FieldLastname, user.FieldProvider, user.FieldPassword, user.FieldSalt, user.FieldPhotoURL, user.FieldDisabledReason, user.FieldGroupID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -186,12 +185,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.DisabledReason = value.String
 			}
-		case user.ForeignKeys[0]:
+		case user.FieldGroupID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field group_users", values[i])
+				return fmt.Errorf("unexpected type %T for field group_id", values[i])
 			} else if value.Valid {
-				u.group_users = new(string)
-				*u.group_users = value.String
+				u.GroupID = value.String
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -204,11 +202,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
-}
-
-// QueryGroup queries the "group" edge of the User entity.
-func (u *User) QueryGroup() *GroupQuery {
-	return NewUserClient(u.config).QueryGroup(u)
 }
 
 // QueryDevices queries the "devices" edge of the User entity.
@@ -224,6 +217,11 @@ func (u *User) QueryKeys() *ApiKeyQuery {
 // QueryAudit queries the "audit" edge of the User entity.
 func (u *User) QueryAudit() *AuditQuery {
 	return NewUserClient(u.config).QueryAudit(u)
+}
+
+// QueryGroup queries the "group" edge of the User entity.
+func (u *User) QueryGroup() *GroupQuery {
+	return NewUserClient(u.config).QueryGroup(u)
 }
 
 // Update returns a builder for updating this User.
@@ -273,6 +271,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("disabled_reason=")
 	builder.WriteString(u.DisabledReason)
+	builder.WriteString(", ")
+	builder.WriteString("group_id=")
+	builder.WriteString(u.GroupID)
 	builder.WriteByte(')')
 	return builder.String()
 }

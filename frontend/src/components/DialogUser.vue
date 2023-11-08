@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { UsersAPI } from '@/lib/apis';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import crypto from 'crypto';
 import type { CreateUserRequest } from '@/lib/api';
 import argon2 from 'argon2-wasm-esm';
@@ -54,13 +54,6 @@ import { ValidationError } from '@/lib/errors';
 
 const dialogStore = useDataDialogStore();
 const identities = useIdentitiesStore()
-
-onMounted(async () => {
-  await identities.fetchGroups()
-  identities.groups.forEach((item) => {
-    existingGroups.value.push({ value: item.id, title: item.name })
-  })
-})
 
 const payload = ref({
   email: '',
@@ -76,43 +69,55 @@ const payload = ref({
 const setPassword = ref(false)
 const existingGroups = ref<{ value: string, title:string} []>([])
 
-onMounted(() => {
-  dialogStore.registerCallback(async () => {
-  const validation = [] as (string | boolean)[]
-  validation.push(validationRules.required(payload.value.email, 'email'))
-  validation.push(validationRules.email(payload.value.email))
-  validation.push(validationRules.required(payload.value.firstname, 'firstname'))
-  validation.push(validationRules.required(payload.value.lastname, 'lastname'))
-  validation.push(validationRules.required(payload.value.group, 'group'))
-
-  const errors = [] as string[]
-  validation.forEach((v) => {
-    if (typeof v === 'string') {
-      errors.push(v)
-    }
+onMounted(async () => {
+  await identities.fetchGroups()
+  identities.groups.forEach((item) => {
+    existingGroups.value.push({ value: item.id, title: item.name })
   })
-  if (errors.length > 0) {
-    throw new ValidationError(errors)
-  }
-  
-  let createUserRequest: CreateUserRequest = {
-    email: payload.value.email,
-    firstname: payload.value.firstname,
-    lastname: payload.value.lastname,
-    photoUrl: payload.value.photoUrl,
-    group: payload.value.group,
-    disabled: payload.value.disabled,
-    disabledReason: payload.value.disabledReason,
-    provider: 'userpass',
+
+  if (Object.keys(dialogStore.item).length > 0) {
+    payload.value = dialogStore.item
+  } else {
+    dialogStore.item = payload.value
   }
 
-  if (payload.value.password !== '') {
-    createUserRequest.salt = crypto.randomBytes(16).toString();
-    createUserRequest.password = await argon2.hash(`${payload.value.password}.${createUserRequest.salt}`)
-  }
+  dialogStore.registerCallback(async () => {
+    const validation = [] as (string | boolean)[]
+    validation.push(validationRules.required(payload.value.email, 'email'))
+    validation.push(validationRules.email(payload.value.email))
+    validation.push(validationRules.required(payload.value.firstname, 'firstname'))
+    validation.push(validationRules.required(payload.value.lastname, 'lastname'))
+    validation.push(validationRules.required(payload.value.group, 'group'))
 
-  await UsersAPI.createUser({ createUserRequest })
-  return true
-})})
+    const errors = [] as string[]
+    validation.forEach((v) => {
+      if (typeof v === 'string') {
+        errors.push(v)
+      }
+    })
+    if (errors.length > 0) {
+      throw new ValidationError(errors)
+    }
+    
+    let createUserRequest: CreateUserRequest = {
+      email: payload.value.email,
+      firstname: payload.value.firstname,
+      lastname: payload.value.lastname,
+      photoUrl: payload.value.photoUrl,
+      group: payload.value.group,
+      disabled: payload.value.disabled,
+      disabledReason: payload.value.disabledReason,
+      provider: 'userpass',
+    }
+
+    if (payload.value.password !== '') {
+      createUserRequest.salt = crypto.randomBytes(16).toString();
+      createUserRequest.password = await argon2.hash(`${payload.value.password}.${createUserRequest.salt}`)
+    }
+
+    await UsersAPI.createUser({ createUserRequest })
+    return true
+  })
+})
 
 </script>

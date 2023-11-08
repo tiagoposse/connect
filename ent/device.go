@@ -37,10 +37,11 @@ type Device struct {
 	Endpoint types.Inet `json:"endpoint,omitempty"`
 	// AllowedIps holds the value of the "allowed_ips" field.
 	AllowedIps types.CidrSlice `json:"allowed_ips,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID string `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DeviceQuery when eager-loading is set.
 	Edges        DeviceEdges `json:"edges"`
-	user_devices *string
 	selectValues sql.SelectValues
 }
 
@@ -73,7 +74,7 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case device.FieldKeepAlive:
 			values[i] = new(sql.NullBool)
-		case device.FieldName, device.FieldDescription, device.FieldType, device.FieldPublicKey, device.FieldPresharedKey:
+		case device.FieldName, device.FieldDescription, device.FieldType, device.FieldPublicKey, device.FieldPresharedKey, device.FieldUserID:
 			values[i] = new(sql.NullString)
 		case device.FieldAllowedIps:
 			values[i] = new(types.CidrSlice)
@@ -83,8 +84,6 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 			values[i] = new(types.InetSlice)
 		case device.FieldID:
 			values[i] = new(uuid.UUID)
-		case device.ForeignKeys[0]: // user_devices
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -160,12 +159,11 @@ func (d *Device) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				d.AllowedIps = *value
 			}
-		case device.ForeignKeys[0]:
+		case device.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_devices", values[i])
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				d.user_devices = new(string)
-				*d.user_devices = value.String
+				d.UserID = value.String
 			}
 		default:
 			d.selectValues.Set(columns[i], values[i])
@@ -234,6 +232,9 @@ func (d *Device) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("allowed_ips=")
 	builder.WriteString(fmt.Sprintf("%v", d.AllowedIps))
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(d.UserID)
 	builder.WriteByte(')')
 	return builder.String()
 }

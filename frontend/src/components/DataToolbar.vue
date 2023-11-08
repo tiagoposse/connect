@@ -46,15 +46,10 @@ import { useDataStore } from '@/stores/data';
 import { computed, ref } from 'vue';
 import { useDataDialogStore } from '@/stores/dialogs';
 
-const dialogStore = useDataDialogStore();
 const globals = useGlobalsStore();
 const dataStore = useDataStore();
 
 const search = ref('');
-
-// const open = () => {
-//   dataStore.create()
-// }
 
 const filters = computed({
   get() {
@@ -84,13 +79,6 @@ const applyFilter = () => {
 // };
 
 function openCreate() {
-  useDataDialogStore().open({
-    fn: async () => {
-      // dialogStore.setLoading(true)
-      // await dataStore.create()
-      // dialogStore.close()
-      // notifications.showSuccess("Removed.")
-    },
-  })
+  useDataDialogStore().open({})
 };
 </script>

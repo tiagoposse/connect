@@ -144,15 +144,10 @@ func (uu *UserUpdate) ClearDisabledReason() *UserUpdate {
 	return uu
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (uu *UserUpdate) SetGroupID(id string) *UserUpdate {
-	uu.mutation.SetGroupID(id)
+// SetGroupID sets the "group_id" field.
+func (uu *UserUpdate) SetGroupID(s string) *UserUpdate {
+	uu.mutation.SetGroupID(s)
 	return uu
-}
-
-// SetGroup sets the "group" edge to the Group entity.
-func (uu *UserUpdate) SetGroup(g *Group) *UserUpdate {
-	return uu.SetGroupID(g.ID)
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
@@ -200,15 +195,14 @@ func (uu *UserUpdate) AddAudit(a ...*Audit) *UserUpdate {
 	return uu.AddAuditIDs(ids...)
 }
 
+// SetGroup sets the "group" edge to the Group entity.
+func (uu *UserUpdate) SetGroup(g *Group) *UserUpdate {
+	return uu.SetGroupID(g.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
-}
-
-// ClearGroup clears the "group" edge to the Group entity.
-func (uu *UserUpdate) ClearGroup() *UserUpdate {
-	uu.mutation.ClearGroup()
-	return uu
 }
 
 // ClearDevices clears all "devices" edges to the Device entity.
@@ -272,6 +266,12 @@ func (uu *UserUpdate) RemoveAudit(a ...*Audit) *UserUpdate {
 		ids[i] = a[i].ID
 	}
 	return uu.RemoveAuditIDs(ids...)
+}
+
+// ClearGroup clears the "group" edge to the Group entity.
+func (uu *UserUpdate) ClearGroup() *UserUpdate {
+	uu.mutation.ClearGroup()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -381,35 +381,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.DisabledReasonCleared() {
 		_spec.ClearField(user.FieldDisabledReason, field.TypeString)
-	}
-	if uu.mutation.GroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.GroupTable,
-			Columns: []string{user.GroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.GroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.GroupTable,
-			Columns: []string{user.GroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if uu.mutation.DevicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -539,6 +510,35 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(audit.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.GroupCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupTable,
+			Columns: []string{user.GroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.GroupIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupTable,
+			Columns: []string{user.GroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -678,15 +678,10 @@ func (uuo *UserUpdateOne) ClearDisabledReason() *UserUpdateOne {
 	return uuo
 }
 
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (uuo *UserUpdateOne) SetGroupID(id string) *UserUpdateOne {
-	uuo.mutation.SetGroupID(id)
+// SetGroupID sets the "group_id" field.
+func (uuo *UserUpdateOne) SetGroupID(s string) *UserUpdateOne {
+	uuo.mutation.SetGroupID(s)
 	return uuo
-}
-
-// SetGroup sets the "group" edge to the Group entity.
-func (uuo *UserUpdateOne) SetGroup(g *Group) *UserUpdateOne {
-	return uuo.SetGroupID(g.ID)
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
@@ -734,15 +729,14 @@ func (uuo *UserUpdateOne) AddAudit(a ...*Audit) *UserUpdateOne {
 	return uuo.AddAuditIDs(ids...)
 }
 
+// SetGroup sets the "group" edge to the Group entity.
+func (uuo *UserUpdateOne) SetGroup(g *Group) *UserUpdateOne {
+	return uuo.SetGroupID(g.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
-}
-
-// ClearGroup clears the "group" edge to the Group entity.
-func (uuo *UserUpdateOne) ClearGroup() *UserUpdateOne {
-	uuo.mutation.ClearGroup()
-	return uuo
 }
 
 // ClearDevices clears all "devices" edges to the Device entity.
@@ -806,6 +800,12 @@ func (uuo *UserUpdateOne) RemoveAudit(a ...*Audit) *UserUpdateOne {
 		ids[i] = a[i].ID
 	}
 	return uuo.RemoveAuditIDs(ids...)
+}
+
+// ClearGroup clears the "group" edge to the Group entity.
+func (uuo *UserUpdateOne) ClearGroup() *UserUpdateOne {
+	uuo.mutation.ClearGroup()
+	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -946,35 +946,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if uuo.mutation.DisabledReasonCleared() {
 		_spec.ClearField(user.FieldDisabledReason, field.TypeString)
 	}
-	if uuo.mutation.GroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.GroupTable,
-			Columns: []string{user.GroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.GroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.GroupTable,
-			Columns: []string{user.GroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if uuo.mutation.DevicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1103,6 +1074,35 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(audit.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.GroupCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupTable,
+			Columns: []string{user.GroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.GroupIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupTable,
+			Columns: []string{user.GroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

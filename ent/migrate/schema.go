@@ -14,7 +14,7 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "key", Type: field.TypeString},
 		{Name: "scopes", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "varchar"}},
-		{Name: "user_keys", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
 	}
 	// APIKeysTable holds the schema information for the "api_keys" table.
 	APIKeysTable = &schema.Table{
@@ -35,7 +35,6 @@ var (
 		{Name: "id", Type: field.TypeString},
 		{Name: "action", Type: field.TypeString},
 		{Name: "author", Type: field.TypeString},
-		{Name: "user_audit", Type: field.TypeString},
 	}
 	// AuditsTable holds the schema information for the "audits" table.
 	AuditsTable = &schema.Table{
@@ -45,7 +44,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "audits_users_audit",
-				Columns:    []*schema.Column{AuditsColumns[3]},
+				Columns:    []*schema.Column{AuditsColumns[2]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -63,7 +62,7 @@ var (
 		{Name: "keep_alive", Type: field.TypeBool},
 		{Name: "endpoint", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "inet"}},
 		{Name: "allowed_ips", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "varchar"}},
-		{Name: "user_devices", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
 	}
 	// DevicesTable holds the schema information for the "devices" table.
 	DevicesTable = &schema.Table{
@@ -105,7 +104,7 @@ var (
 		{Name: "photo_url", Type: field.TypeString, Nullable: true},
 		{Name: "disabled", Type: field.TypeBool, Default: false},
 		{Name: "disabled_reason", Type: field.TypeString, Nullable: true},
-		{Name: "group_users", Type: field.TypeString},
+		{Name: "group_id", Type: field.TypeString},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

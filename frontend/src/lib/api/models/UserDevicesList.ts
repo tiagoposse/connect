@@ -57,6 +57,12 @@ export interface UserDevicesList {
     publicKey: string;
     /**
      * 
+     * @type {string}
+     * @memberof UserDevicesList
+     */
+    presharedKey: string;
+    /**
+     * 
      * @type {boolean}
      * @memberof UserDevicesList
      */
@@ -73,6 +79,12 @@ export interface UserDevicesList {
      * @memberof UserDevicesList
      */
     allowedIps: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDevicesList
+     */
+    userId: string;
 }
 
 /**
@@ -85,9 +97,11 @@ export function instanceOfUserDevicesList(value: object): boolean {
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "dns" in value;
     isInstance = isInstance && "publicKey" in value;
+    isInstance = isInstance && "presharedKey" in value;
     isInstance = isInstance && "keepAlive" in value;
     isInstance = isInstance && "endpoint" in value;
     isInstance = isInstance && "allowedIps" in value;
+    isInstance = isInstance && "userId" in value;
 
     return isInstance;
 }
@@ -108,9 +122,11 @@ export function UserDevicesListFromJSONTyped(json: any, ignoreDiscriminator: boo
         'type': json['type'],
         'dns': json['dns'],
         'publicKey': json['public_key'],
+        'presharedKey': json['preshared_key'],
         'keepAlive': json['keep_alive'],
         'endpoint': json['endpoint'],
         'allowedIps': json['allowed_ips'],
+        'userId': json['user_id'],
     };
 }
 
@@ -129,9 +145,11 @@ export function UserDevicesListToJSON(value?: UserDevicesList | null): any {
         'type': value.type,
         'dns': value.dns,
         'public_key': value.publicKey,
+        'preshared_key': value.presharedKey,
         'keep_alive': value.keepAlive,
         'endpoint': value.endpoint,
         'allowed_ips': value.allowedIps,
+        'user_id': value.userId,
     };
 }
 

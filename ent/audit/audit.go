@@ -26,7 +26,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_audit"
+	UserColumn = "author"
 )
 
 // Columns holds all SQL columns for audit fields.
@@ -36,21 +36,10 @@ var Columns = []string{
 	FieldAuthor,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "audits"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_audit",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}

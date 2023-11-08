@@ -71,11 +71,6 @@ func (Group) Fields() []ent.Field {
 // Edges of the user.
 func (Group) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("users", User.Type).Annotations(
-			entoas.CreateOperation(entoas.OperationGroups("create")),
-			entoas.ListOperation(entoas.OperationGroups("list")),
-			entoas.ReadOperation(entoas.OperationGroups("read")),
-			entoas.UpdateOperation(entoas.OperationGroups("update")),
-		),
+		edge.To("users", User.Type),
 	}
 }

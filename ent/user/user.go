@@ -3,6 +3,7 @@
 package user
 
 import (
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -30,44 +31,46 @@ const (
 	FieldDisabled = "disabled"
 	// FieldDisabledReason holds the string denoting the disabled_reason field in the database.
 	FieldDisabledReason = "disabled_reason"
-	// EdgeGroup holds the string denoting the group edge name in mutations.
-	EdgeGroup = "group"
+	// FieldGroupID holds the string denoting the group_id field in the database.
+	FieldGroupID = "group_id"
 	// EdgeDevices holds the string denoting the devices edge name in mutations.
 	EdgeDevices = "devices"
 	// EdgeKeys holds the string denoting the keys edge name in mutations.
 	EdgeKeys = "keys"
 	// EdgeAudit holds the string denoting the audit edge name in mutations.
 	EdgeAudit = "audit"
+	// EdgeGroup holds the string denoting the group edge name in mutations.
+	EdgeGroup = "group"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// GroupTable is the table that holds the group relation/edge.
-	GroupTable = "users"
-	// GroupInverseTable is the table name for the Group entity.
-	// It exists in this package in order to avoid circular dependency with the "group" package.
-	GroupInverseTable = "groups"
-	// GroupColumn is the table column denoting the group relation/edge.
-	GroupColumn = "group_users"
 	// DevicesTable is the table that holds the devices relation/edge.
 	DevicesTable = "devices"
 	// DevicesInverseTable is the table name for the Device entity.
 	// It exists in this package in order to avoid circular dependency with the "device" package.
 	DevicesInverseTable = "devices"
 	// DevicesColumn is the table column denoting the devices relation/edge.
-	DevicesColumn = "user_devices"
+	DevicesColumn = "user_id"
 	// KeysTable is the table that holds the keys relation/edge.
 	KeysTable = "api_keys"
 	// KeysInverseTable is the table name for the ApiKey entity.
 	// It exists in this package in order to avoid circular dependency with the "apikey" package.
 	KeysInverseTable = "api_keys"
 	// KeysColumn is the table column denoting the keys relation/edge.
-	KeysColumn = "user_keys"
+	KeysColumn = "user_id"
 	// AuditTable is the table that holds the audit relation/edge.
 	AuditTable = "audits"
 	// AuditInverseTable is the table name for the Audit entity.
 	// It exists in this package in order to avoid circular dependency with the "audit" package.
 	AuditInverseTable = "audits"
 	// AuditColumn is the table column denoting the audit relation/edge.
-	AuditColumn = "user_audit"
+	AuditColumn = "author"
+	// GroupTable is the table that holds the group relation/edge.
+	GroupTable = "users"
+	// GroupInverseTable is the table name for the Group entity.
+	// It exists in this package in order to avoid circular dependency with the "group" package.
+	GroupInverseTable = "groups"
+	// GroupColumn is the table column denoting the group relation/edge.
+	GroupColumn = "group_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -82,12 +85,7 @@ var Columns = []string{
 	FieldPhotoURL,
 	FieldDisabled,
 	FieldDisabledReason,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"group_users",
+	FieldGroupID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -97,15 +95,16 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "github.com/tiagoposse/connect/ent/runtime"
 var (
+	Hooks [1]ent.Hook
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 	// FirstnameValidator is a validator for the "firstname" field. It is called by the builders before save.
@@ -177,11 +176,9 @@ func ByDisabledReason(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisabledReason, opts...).ToFunc()
 }
 
-// ByGroupField orders the results by group field.
-func ByGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newGroupStep(), sql.OrderByField(field, opts...))
-	}
+// ByGroupID orders the results by the group_id field.
+func ByGroupID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupID, opts...).ToFunc()
 }
 
 // ByDevicesCount orders the results by devices count.
@@ -225,12 +222,12 @@ func ByAudit(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAuditStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newGroupStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(GroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, GroupTable, GroupColumn),
-	)
+
+// ByGroupField orders the results by group field.
+func ByGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGroupStep(), sql.OrderByField(field, opts...))
+	}
 }
 func newDevicesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -251,5 +248,12 @@ func newAuditStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuditInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AuditTable, AuditColumn),
+	)
+}
+func newGroupStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GroupInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GroupTable, GroupColumn),
 	)
 }

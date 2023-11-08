@@ -41,9 +41,9 @@ func (akc *ApiKeyCreate) SetScopes(c controller.Scopes) *ApiKeyCreate {
 	return akc
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (akc *ApiKeyCreate) SetUserID(id string) *ApiKeyCreate {
-	akc.mutation.SetUserID(id)
+// SetUserID sets the "user_id" field.
+func (akc *ApiKeyCreate) SetUserID(s string) *ApiKeyCreate {
+	akc.mutation.SetUserID(s)
 	return akc
 }
 
@@ -59,7 +59,9 @@ func (akc *ApiKeyCreate) Mutation() *ApiKeyMutation {
 
 // Save creates the ApiKey in the database.
 func (akc *ApiKeyCreate) Save(ctx context.Context) (*ApiKey, error) {
-	akc.defaults()
+	if err := akc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, akc.sqlSave, akc.mutation, akc.hooks)
 }
 
@@ -86,11 +88,12 @@ func (akc *ApiKeyCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (akc *ApiKeyCreate) defaults() {
+func (akc *ApiKeyCreate) defaults() error {
 	if _, ok := akc.mutation.Scopes(); !ok {
 		v := apikey.DefaultScopes
 		akc.mutation.SetScopes(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -108,6 +111,9 @@ func (akc *ApiKeyCreate) check() error {
 	}
 	if _, ok := akc.mutation.Scopes(); !ok {
 		return &ValidationError{Name: "scopes", err: errors.New(`ent: missing required field "ApiKey.scopes"`)}
+	}
+	if _, ok := akc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "ApiKey.user_id"`)}
 	}
 	if _, ok := akc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "ApiKey.user"`)}
@@ -165,7 +171,7 @@ func (akc *ApiKeyCreate) createSpec() (*ApiKey, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_keys = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -239,6 +245,9 @@ func (u *ApiKeyUpsertOne) UpdateNewValues() *ApiKeyUpsertOne {
 		}
 		if _, exists := u.create.mutation.Scopes(); exists {
 			s.SetIgnore(apikey.FieldScopes)
+		}
+		if _, exists := u.create.mutation.UserID(); exists {
+			s.SetIgnore(apikey.FieldUserID)
 		}
 	}))
 	return u
@@ -455,6 +464,9 @@ func (u *ApiKeyUpsertBulk) UpdateNewValues() *ApiKeyUpsertBulk {
 			}
 			if _, exists := b.mutation.Scopes(); exists {
 				s.SetIgnore(apikey.FieldScopes)
+			}
+			if _, exists := b.mutation.UserID(); exists {
+				s.SetIgnore(apikey.FieldUserID)
 			}
 		}
 	}))

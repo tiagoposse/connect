@@ -67,6 +67,7 @@ func eagerLoad(n *gen.Type, op entoas.Operation) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if len(t) > 0 {
 		es := make(Edges, len(t))
 		for i, e := range t {
@@ -313,19 +314,7 @@ func ogenToEnt(f *gen.Field, expr string, name string) string {
 	case field.TypeUint64:
 		return fmt.Sprintf("uint64(%s)", expr)
 	case field.TypeJSON, field.TypeOther:
-		// bs, _ := json.Marshal(f.Type)
-		// fmt.Println(string(bs))
-		// fmt.Printf("%#v\n", f.Type.RType)
-		// if regexp.MustCompile(`\*.+`).MatchString(f.Type.RType.Ident) {
-		// 	return fmt.Sprintf("JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
-		// }
-
-		// switch f.Type.RType.Ident {
-		// case "[]string":
-		// 	return fmt.Sprintf("*JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
-		// default:
 		return fmt.Sprintf("*JsonConvert(%s, &%s{}).(*%s)", expr, f.Type.RType.Ident, f.Type.RType.Ident)
-		// }
 	default:
 		return expr
 	}
@@ -407,7 +396,6 @@ func pagination(as gen.Annotations, name string) string {
 			if err := ant.Decode(as[ant.Name()]); err != nil {
 				panic(err)
 			}
-
 		}
 	}
 
@@ -421,7 +409,7 @@ func pagination(as gen.Annotations, name string) string {
 	case "itemsPerPage":
 		if ant.ItemsPerPage == nil {
 			return "ItemsPerPage"
-		} else {
+			} else {
 			return toCamelCase(ant.ItemsPerPage.Name)
 		}
 	case "total":

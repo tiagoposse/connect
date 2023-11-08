@@ -121,6 +121,12 @@ func (uc *UserCreate) SetNillableDisabledReason(s *string) *UserCreate {
 	return uc
 }
 
+// SetGroupID sets the "group_id" field.
+func (uc *UserCreate) SetGroupID(s string) *UserCreate {
+	uc.mutation.SetGroupID(s)
+	return uc
+}
+
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(s string) *UserCreate {
 	uc.mutation.SetID(s)
@@ -133,17 +139,6 @@ func (uc *UserCreate) SetNillableID(s *string) *UserCreate {
 		uc.SetID(*s)
 	}
 	return uc
-}
-
-// SetGroupID sets the "group" edge to the Group entity by ID.
-func (uc *UserCreate) SetGroupID(id string) *UserCreate {
-	uc.mutation.SetGroupID(id)
-	return uc
-}
-
-// SetGroup sets the "group" edge to the Group entity.
-func (uc *UserCreate) SetGroup(g *Group) *UserCreate {
-	return uc.SetGroupID(g.ID)
 }
 
 // AddDeviceIDs adds the "devices" edge to the Device entity by IDs.
@@ -191,6 +186,11 @@ func (uc *UserCreate) AddAudit(a ...*Audit) *UserCreate {
 	return uc.AddAuditIDs(ids...)
 }
 
+// SetGroup sets the "group" edge to the Group entity.
+func (uc *UserCreate) SetGroup(g *Group) *UserCreate {
+	return uc.SetGroupID(g.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -198,7 +198,9 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
-	uc.defaults()
+	if err := uc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -225,15 +227,19 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uc *UserCreate) defaults() {
+func (uc *UserCreate) defaults() error {
 	if _, ok := uc.mutation.Disabled(); !ok {
 		v := user.DefaultDisabled
 		uc.mutation.SetDisabled(v)
 	}
 	if _, ok := uc.mutation.ID(); !ok {
+		if user.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized user.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -282,6 +288,9 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.Disabled(); !ok {
 		return &ValidationError{Name: "disabled", err: errors.New(`ent: missing required field "User.disabled"`)}
+	}
+	if _, ok := uc.mutation.GroupID(); !ok {
+		return &ValidationError{Name: "group_id", err: errors.New(`ent: missing required field "User.group_id"`)}
 	}
 	if _, ok := uc.mutation.GroupID(); !ok {
 		return &ValidationError{Name: "group", err: errors.New(`ent: missing required edge "User.group"`)}
@@ -358,23 +367,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldDisabledReason, field.TypeString, value)
 		_node.DisabledReason = value
 	}
-	if nodes := uc.mutation.GroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   user.GroupTable,
-			Columns: []string{user.GroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.group_users = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := uc.mutation.DevicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -421,6 +413,23 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.GroupIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.GroupTable,
+			Columns: []string{user.GroupColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.GroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -592,6 +601,18 @@ func (u *UserUpsert) UpdateDisabledReason() *UserUpsert {
 // ClearDisabledReason clears the value of the "disabled_reason" field.
 func (u *UserUpsert) ClearDisabledReason() *UserUpsert {
 	u.SetNull(user.FieldDisabledReason)
+	return u
+}
+
+// SetGroupID sets the "group_id" field.
+func (u *UserUpsert) SetGroupID(v string) *UserUpsert {
+	u.Set(user.FieldGroupID, v)
+	return u
+}
+
+// UpdateGroupID sets the "group_id" field to the value that was provided on create.
+func (u *UserUpsert) UpdateGroupID() *UserUpsert {
+	u.SetExcluded(user.FieldGroupID)
 	return u
 }
 
@@ -783,6 +804,20 @@ func (u *UserUpsertOne) UpdateDisabledReason() *UserUpsertOne {
 func (u *UserUpsertOne) ClearDisabledReason() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDisabledReason()
+	})
+}
+
+// SetGroupID sets the "group_id" field.
+func (u *UserUpsertOne) SetGroupID(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetGroupID(v)
+	})
+}
+
+// UpdateGroupID sets the "group_id" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateGroupID() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateGroupID()
 	})
 }
 
@@ -1141,6 +1176,20 @@ func (u *UserUpsertBulk) UpdateDisabledReason() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearDisabledReason() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDisabledReason()
+	})
+}
+
+// SetGroupID sets the "group_id" field.
+func (u *UserUpsertBulk) SetGroupID(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetGroupID(v)
+	})
+}
+
+// UpdateGroupID sets the "group_id" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateGroupID() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateGroupID()
 	})
 }
 

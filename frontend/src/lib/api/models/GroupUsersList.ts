@@ -67,6 +67,12 @@ export interface GroupUsersList {
      * @memberof GroupUsersList
      */
     disabledReason?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GroupUsersList
+     */
+    groupId: string;
 }
 
 /**
@@ -80,6 +86,7 @@ export function instanceOfGroupUsersList(value: object): boolean {
     isInstance = isInstance && "lastname" in value;
     isInstance = isInstance && "provider" in value;
     isInstance = isInstance && "disabled" in value;
+    isInstance = isInstance && "groupId" in value;
 
     return isInstance;
 }
@@ -102,6 +109,7 @@ export function GroupUsersListFromJSONTyped(json: any, ignoreDiscriminator: bool
         'photoUrl': !exists(json, 'photo_url') ? undefined : json['photo_url'],
         'disabled': json['disabled'],
         'disabledReason': !exists(json, 'disabled_reason') ? undefined : json['disabled_reason'],
+        'groupId': json['group_id'],
     };
 }
 
@@ -122,6 +130,7 @@ export function GroupUsersListToJSON(value?: GroupUsersList | null): any {
         'photo_url': value.photoUrl,
         'disabled': value.disabled,
         'disabled_reason': value.disabledReason,
+        'group_id': value.groupId,
     };
 }
 

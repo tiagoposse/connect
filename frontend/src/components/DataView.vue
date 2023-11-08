@@ -2,12 +2,12 @@
   <v-data-table 
       fixed-header
       height="calc(100vh - 64px - 50px - 54px)"
-      style="--v-table-header-height: 42px; --v-table-row-height: 42px;"
-      v-if="globalsStore.view == 'list'"
-      :headers="dataStore.headers"
+      density="compact"
+      :headers="headers"
       :items="dataStore.items"
       :items-per-page="dataStore.itemsPerPage"
       :page="dataStore.page"
+      v-if="globalsStore.view == 'list'"
   >
     <template v-slot:item.scopes="{ item }">
       <v-chip-group class="align-content-end">
@@ -19,19 +19,25 @@
         <v-chip v-for="(val, index) in item.raw.rules" :key="index" :color="val.type === 'allow' ? 'success' : 'error'">{{ val }}</v-chip>
       </v-chip-group>
     </template>
+    <template v-slot:item.disabled="{ item }">
+      <v-checkbox density="compact" color="error" v-model="item.raw.disabled" disabled hide-details></v-checkbox>
+    </template>
+
+    <template v-slot:item.controls="{ index }">
+      <v-btn size="small" density="compact" icon="mdi-pencil" variant="plain" @click="() => openUpdate(index)"/>
+      <v-btn size="small" density="compact" icon="mdi-delete" variant="plain" @click="() => openRemove(index)"/>
+    </template>
     <template v-slot:bottom>
     </template>
   </v-data-table>
-  <v-row style="height: calc(100vh - 64px - 50px - 54px);" v-else-if="globalsStore.view == 'grid'">
-    <v-card class="v-col-sm-12 v-col-md-4 v-col-l-3 v-col-xl-2" v-for="item in dataStore.gridItems" :key="item.id">
-      <v-card-title>{{ item.title }}</v-card-title>
-      <v-card-subtitle v-if="item.subtitle != ''">{{ item.subtitle }}</v-card-subtitle>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn size="medium" icon="mdi-pencil-outline" @click="openUpdate(item.id)" class="mr-2" variant="plain" />
-        <v-btn size="medium" icon="mdi-delete-outline" @click="openRemove(item.id)" variant="plain" class="text-black" />
-      </v-card-actions>
-    </v-card>
+  <v-row style="height: calc(100vh - 64px - 26px - 54px); align-content: flex-start !important; overflow-y: auto;" v-else-if="globalsStore.view == 'grid'">
+    <v-col v-for="(item, index) in dataStore.items" :key="item.id" class="v-col-sm-12 v-col-md-4 v-col-l-3 v-col-xl-2 pa-1" style="align-content: 'flex-start';">
+      <slot name="card"
+        :item="item"
+        :update="() => openUpdate(index)"
+        :remove="() => openRemove(index)"
+      />
+    </v-col>
   </v-row>
 </template>
 
@@ -43,6 +49,7 @@ import { useNotificationsStore } from '@/stores/notifications';
 import {
   VDataTable,
 } from "vuetify/labs/VDataTable";
+import { computed } from 'vue';
 
 const confirmDialog = useConfirmDialogStore();
 const dataDialog = useDataDialogStore();
@@ -50,34 +57,31 @@ const notifications = useNotificationsStore();
 const dataStore = useDataStore();
 const globalsStore = useGlobalsStore();
 
-function openRemove(id: string) {
+const headers = computed(() => {
+  return dataStore.headers.concat(
+    {
+      title: 'Controls',
+      align: 'end',
+      sortable: false,
+      key: 'controls',
+    },)
+})
+
+function openRemove(index: number) {
   confirmDialog.open({
     fn: async () => {
       confirmDialog.setLoading(true)
-      await dataStore.remove(id)
+      await dataStore.remove(dataStore.items[index].id)
       confirmDialog.close()
       notifications.showSuccess("Removed.")
     },
   })
 };
 
-function openUpdate(id: string) {
-  let item: any;
-  for (const index of dataStore.items) {
-    if (dataStore.items[index].id === id) {
-      item = dataStore.items[index]
-      break
-    }
-  }
-
+function openUpdate(index: number) {
   dataDialog.open({
     title: 'Update?',
-    item: item,
-    fn: async () => {
-      dataDialog.setLoading(true)
-      await dataStore.update(id, item)
-      dataDialog.close()
-    },
+    item: dataStore.items[index],
   })
 };
 

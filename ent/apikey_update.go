@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/tiagoposse/connect/ent/apikey"
 	"github.com/tiagoposse/connect/ent/predicate"
-	"github.com/tiagoposse/connect/ent/user"
 )
 
 // ApiKeyUpdate is the builder for updating ApiKey entities.
@@ -28,26 +27,9 @@ func (aku *ApiKeyUpdate) Where(ps ...predicate.ApiKey) *ApiKeyUpdate {
 	return aku
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (aku *ApiKeyUpdate) SetUserID(id string) *ApiKeyUpdate {
-	aku.mutation.SetUserID(id)
-	return aku
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (aku *ApiKeyUpdate) SetUser(u *User) *ApiKeyUpdate {
-	return aku.SetUserID(u.ID)
-}
-
 // Mutation returns the ApiKeyMutation object of the builder.
 func (aku *ApiKeyUpdate) Mutation() *ApiKeyMutation {
 	return aku.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (aku *ApiKeyUpdate) ClearUser() *ApiKeyUpdate {
-	aku.mutation.ClearUser()
-	return aku
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -97,35 +79,6 @@ func (aku *ApiKeyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if aku.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   apikey.UserTable,
-			Columns: []string{apikey.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aku.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   apikey.UserTable,
-			Columns: []string{apikey.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, aku.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{apikey.Label}
@@ -146,26 +99,9 @@ type ApiKeyUpdateOne struct {
 	mutation *ApiKeyMutation
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (akuo *ApiKeyUpdateOne) SetUserID(id string) *ApiKeyUpdateOne {
-	akuo.mutation.SetUserID(id)
-	return akuo
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (akuo *ApiKeyUpdateOne) SetUser(u *User) *ApiKeyUpdateOne {
-	return akuo.SetUserID(u.ID)
-}
-
 // Mutation returns the ApiKeyMutation object of the builder.
 func (akuo *ApiKeyUpdateOne) Mutation() *ApiKeyMutation {
 	return akuo.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (akuo *ApiKeyUpdateOne) ClearUser() *ApiKeyUpdateOne {
-	akuo.mutation.ClearUser()
-	return akuo
 }
 
 // Where appends a list predicates to the ApiKeyUpdate builder.
@@ -244,35 +180,6 @@ func (akuo *ApiKeyUpdateOne) sqlSave(ctx context.Context) (_node *ApiKey, err er
 				ps[i](selector)
 			}
 		}
-	}
-	if akuo.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   apikey.UserTable,
-			Columns: []string{apikey.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := akuo.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   apikey.UserTable,
-			Columns: []string{apikey.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &ApiKey{config: akuo.config}
 	_spec.Assign = _node.assignValues

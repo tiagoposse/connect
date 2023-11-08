@@ -2,11 +2,7 @@
 
 package ogent
 
-import (
-	"fmt"
-
-	"github.com/tiagoposse/connect/ent"
-)
+import "github.com/tiagoposse/connect/ent"
 
 func NewApiKeyCreate(e *ent.ApiKey) *ApiKeyCreate {
 	if e == nil {
@@ -16,6 +12,7 @@ func NewApiKeyCreate(e *ent.ApiKey) *ApiKeyCreate {
 	ret.ID = e.ID
 	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]ApiKeyCreateScopesItem{}).(*[]ApiKeyCreateScopesItem)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -45,6 +42,7 @@ func NewApiKeyList(e *ent.ApiKey) *ApiKeyList {
 	ret.ID = e.ID
 	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]ApiKeyListScopesItem{}).(*[]ApiKeyListScopesItem)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -74,6 +72,7 @@ func NewApiKeyRead(e *ent.ApiKey) *ApiKeyRead {
 	ret.ID = e.ID
 	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]ApiKeyReadScopesItem{}).(*[]ApiKeyReadScopesItem)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -108,6 +107,7 @@ func NewApiKeyUserRead(e *ent.User) *ApiKeyUserRead {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -200,6 +200,7 @@ func NewAuditUserRead(e *ent.User) *AuditUserRead {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -236,6 +237,7 @@ func NewDeviceCreate(e *ent.Device) *DeviceCreate {
 	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -271,6 +273,7 @@ func NewDeviceList(e *ent.Device) *DeviceList {
 	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -306,6 +309,7 @@ func NewDeviceRead(e *ent.Device) *DeviceRead {
 	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -341,6 +345,7 @@ func NewDeviceUpdate(e *ent.Device) *DeviceUpdate {
 	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -375,6 +380,7 @@ func NewDeviceUserRead(e *ent.User) *DeviceUserRead {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -533,6 +539,7 @@ func NewGroupUsersList(e *ent.User) *GroupUsersList {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -567,6 +574,7 @@ func NewUserCreate(e *ent.User) *UserCreate {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -601,6 +609,7 @@ func NewUserList(e *ent.User) *UserList {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -635,6 +644,7 @@ func NewUserRead(e *ent.User) *UserRead {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -669,6 +679,7 @@ func NewUserUpdate(e *ent.User) *UserUpdate {
 	ret.PhotoURL = NewOptString(e.PhotoURL)
 	ret.Disabled = e.Disabled
 	ret.DisabledReason = NewOptString(e.DisabledReason)
+	ret.GroupID = e.GroupID
 	return &ret
 }
 
@@ -730,9 +741,11 @@ func NewUserDevicesList(e *ent.Device) *UserDevicesList {
 	ret.Type = e.Type
 	ret.DNS = *JsonConvert(e.DNS, &[]string{}).(*[]string)
 	ret.PublicKey = e.PublicKey
+	ret.PresharedKey = e.PresharedKey
 	ret.KeepAlive = e.KeepAlive
 	ret.Endpoint = e.Endpoint.String()
 	ret.AllowedIps = *JsonConvert(e.AllowedIps, &[]string{}).(*[]string)
+	ret.UserID = e.UserID
 	return &ret
 }
 
@@ -793,6 +806,7 @@ func NewUserKeysList(e *ent.ApiKey) *UserKeysList {
 	ret.ID = e.ID
 	ret.Name = e.Name
 	ret.Scopes = *JsonConvert(e.Scopes, &[]UserKeysListScopesItem{}).(*[]UserKeysListScopesItem)
+	ret.UserID = e.UserID
 	return &ret
 }
 

@@ -24,5 +24,5 @@ import DialogGroup from '@/components/DialogGroup.vue';
 import { useDataStore } from '@/stores/data';
 import { onBeforeMount } from 'vue';
 
-onBeforeMount(() => useDataStore().init('groups', GenericGroupsAPI))
+onBeforeMount(() => useDataStore().init('audit', GenericGroupsAPI))
 </script>

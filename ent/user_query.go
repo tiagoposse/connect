@@ -26,11 +26,10 @@ type UserQuery struct {
 	order            []user.OrderOption
 	inters           []Interceptor
 	predicates       []predicate.User
-	withGroup        *GroupQuery
 	withDevices      *DeviceQuery
 	withKeys         *ApiKeyQuery
 	withAudit        *AuditQuery
-	withFKs          bool
+	withGroup        *GroupQuery
 	withNamedDevices map[string]*DeviceQuery
 	withNamedKeys    map[string]*ApiKeyQuery
 	withNamedAudit   map[string]*AuditQuery
@@ -68,28 +67,6 @@ func (uq *UserQuery) Unique(unique bool) *UserQuery {
 func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	uq.order = append(uq.order, o...)
 	return uq
-}
-
-// QueryGroup chains the current query on the "group" edge.
-func (uq *UserQuery) QueryGroup() *GroupQuery {
-	query := (&GroupClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupTable, user.GroupColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryDevices chains the current query on the "devices" edge.
@@ -151,6 +128,28 @@ func (uq *UserQuery) QueryAudit() *AuditQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(audit.Table, audit.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.AuditTable, user.AuditColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGroup chains the current query on the "group" edge.
+func (uq *UserQuery) QueryGroup() *GroupQuery {
+	query := (&GroupClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, user.GroupTable, user.GroupColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -350,25 +349,14 @@ func (uq *UserQuery) Clone() *UserQuery {
 		order:       append([]user.OrderOption{}, uq.order...),
 		inters:      append([]Interceptor{}, uq.inters...),
 		predicates:  append([]predicate.User{}, uq.predicates...),
-		withGroup:   uq.withGroup.Clone(),
 		withDevices: uq.withDevices.Clone(),
 		withKeys:    uq.withKeys.Clone(),
 		withAudit:   uq.withAudit.Clone(),
+		withGroup:   uq.withGroup.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
-}
-
-// WithGroup tells the query-builder to eager-load the nodes that are connected to
-// the "group" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithGroup(opts ...func(*GroupQuery)) *UserQuery {
-	query := (&GroupClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withGroup = query
-	return uq
 }
 
 // WithDevices tells the query-builder to eager-load the nodes that are connected to
@@ -401,6 +389,17 @@ func (uq *UserQuery) WithAudit(opts ...func(*AuditQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withAudit = query
+	return uq
+}
+
+// WithGroup tells the query-builder to eager-load the nodes that are connected to
+// the "group" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithGroup(opts ...func(*GroupQuery)) *UserQuery {
+	query := (&GroupClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withGroup = query
 	return uq
 }
 
@@ -481,21 +480,14 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [4]bool{
-			uq.withGroup != nil,
 			uq.withDevices != nil,
 			uq.withKeys != nil,
 			uq.withAudit != nil,
+			uq.withGroup != nil,
 		}
 	)
-	if uq.withGroup != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -513,12 +505,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := uq.withGroup; query != nil {
-		if err := uq.loadGroup(ctx, query, nodes, nil,
-			func(n *User, e *Group) { n.Edges.Group = e }); err != nil {
-			return nil, err
-		}
 	}
 	if query := uq.withDevices; query != nil {
 		if err := uq.loadDevices(ctx, query, nodes,
@@ -538,6 +524,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadAudit(ctx, query, nodes,
 			func(n *User) { n.Edges.Audit = []*Audit{} },
 			func(n *User, e *Audit) { n.Edges.Audit = append(n.Edges.Audit, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withGroup; query != nil {
+		if err := uq.loadGroup(ctx, query, nodes, nil,
+			func(n *User, e *Group) { n.Edges.Group = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -565,14 +557,101 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
+func (uq *UserQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes []*User, init func(*User), assign func(*User, *Device)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(device.FieldUserID)
+	}
+	query.Where(predicate.Device(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.DevicesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadKeys(ctx context.Context, query *ApiKeyQuery, nodes []*User, init func(*User), assign func(*User, *ApiKey)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(apikey.FieldUserID)
+	}
+	query.Where(predicate.ApiKey(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.KeysColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadAudit(ctx context.Context, query *AuditQuery, nodes []*User, init func(*User), assign func(*User, *Audit)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(audit.FieldAuthor)
+	}
+	query.Where(predicate.Audit(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AuditColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.Author
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "author" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (uq *UserQuery) loadGroup(ctx context.Context, query *GroupQuery, nodes []*User, init func(*User), assign func(*User, *Group)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*User)
 	for i := range nodes {
-		if nodes[i].group_users == nil {
-			continue
-		}
-		fk := *nodes[i].group_users
+		fk := nodes[i].GroupID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -589,104 +668,11 @@ func (uq *UserQuery) loadGroup(ctx context.Context, query *GroupQuery, nodes []*
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "group_users" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "group_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
-	}
-	return nil
-}
-func (uq *UserQuery) loadDevices(ctx context.Context, query *DeviceQuery, nodes []*User, init func(*User), assign func(*User, *Device)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Device(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.DevicesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_devices
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_devices" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_devices" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadKeys(ctx context.Context, query *ApiKeyQuery, nodes []*User, init func(*User), assign func(*User, *ApiKey)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.ApiKey(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.KeysColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_keys
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_keys" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_keys" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadAudit(ctx context.Context, query *AuditQuery, nodes []*User, init func(*User), assign func(*User, *Audit)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Audit(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.AuditColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.user_audit
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_audit" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_audit" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }
@@ -715,6 +701,9 @@ func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != user.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if uq.withGroup != nil {
+			_spec.Node.AddColumnOnce(user.FieldGroupID)
 		}
 	}
 	if ps := uq.predicates; len(ps) > 0 {

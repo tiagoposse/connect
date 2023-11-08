@@ -24,7 +24,6 @@ type DeviceQuery struct {
 	inters     []Interceptor
 	predicates []predicate.Device
 	withUser   *UserQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -370,18 +369,11 @@ func (dq *DeviceQuery) prepareQuery(ctx context.Context) error {
 func (dq *DeviceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Device, error) {
 	var (
 		nodes       = []*Device{}
-		withFKs     = dq.withFKs
 		_spec       = dq.querySpec()
 		loadedTypes = [1]bool{
 			dq.withUser != nil,
 		}
 	)
-	if dq.withUser != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, device.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Device).scanValues(nil, columns)
 	}
@@ -413,10 +405,7 @@ func (dq *DeviceQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Device)
 	for i := range nodes {
-		if nodes[i].user_devices == nil {
-			continue
-		}
-		fk := *nodes[i].user_devices
+		fk := nodes[i].UserID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -433,7 +422,7 @@ func (dq *DeviceQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_devices" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -466,6 +455,9 @@ func (dq *DeviceQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != device.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if dq.withUser != nil {
+			_spec.Node.AddColumnOnce(device.FieldUserID)
 		}
 	}
 	if ps := dq.predicates; len(ps) > 0 {

@@ -78,7 +78,7 @@ export interface CreateUserRequest {
      * @type {string}
      * @memberof CreateUserRequest
      */
-    group: string;
+    groupId: string;
     /**
      * 
      * @type {Array<string>}
@@ -97,6 +97,12 @@ export interface CreateUserRequest {
      * @memberof CreateUserRequest
      */
     audit?: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateUserRequest
+     */
+    group: string;
 }
 
 /**
@@ -109,6 +115,7 @@ export function instanceOfCreateUserRequest(value: object): boolean {
     isInstance = isInstance && "lastname" in value;
     isInstance = isInstance && "provider" in value;
     isInstance = isInstance && "disabled" in value;
+    isInstance = isInstance && "groupId" in value;
     isInstance = isInstance && "group" in value;
 
     return isInstance;
@@ -133,10 +140,11 @@ export function CreateUserRequestFromJSONTyped(json: any, ignoreDiscriminator: b
         'photoUrl': !exists(json, 'photo_url') ? undefined : json['photo_url'],
         'disabled': json['disabled'],
         'disabledReason': !exists(json, 'disabled_reason') ? undefined : json['disabled_reason'],
-        'group': json['group'],
+        'groupId': json['group_id'],
         'devices': !exists(json, 'devices') ? undefined : json['devices'],
         'keys': !exists(json, 'keys') ? undefined : json['keys'],
         'audit': !exists(json, 'audit') ? undefined : json['audit'],
+        'group': json['group'],
     };
 }
 
@@ -158,10 +166,11 @@ export function CreateUserRequestToJSON(value?: CreateUserRequest | null): any {
         'photo_url': value.photoUrl,
         'disabled': value.disabled,
         'disabled_reason': value.disabledReason,
-        'group': value.group,
+        'group_id': value.groupId,
         'devices': value.devices,
         'keys': value.keys,
         'audit': value.audit,
+        'group': value.group,
     };
 }
 
