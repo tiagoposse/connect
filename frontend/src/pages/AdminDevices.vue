@@ -1,17 +1,12 @@
 <template>
-  <DataZone>
-    <template v-slot:dialog-content>
-      <DialogDevice />
-    </template>
-  </DataZone>
+  <DevicesView />
 </template>
 
 <script setup lang="ts">
-import DataZone from '@/components/DataZone.vue';
 import { GenericDevicesAPI } from '@/lib/apis';
-import DialogDevice from '@/components/DialogDevice.vue';
 import { useDataStore } from '@/stores/data';
 import { onBeforeMount } from 'vue';
+import DevicesView from '@/components/DevicesView.vue';
 
-onBeforeMount(() => useDataStore().init('devices', GenericDevicesAPI))
+onBeforeMount(() => useDataStore().init('users', GenericDevicesAPI))
 </script>

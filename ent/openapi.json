@@ -40,6 +40,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "Query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -76,7 +83,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -147,7 +162,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/api-keys/{id}": {
@@ -192,7 +215,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -228,7 +259,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/api-keys/{id}/user": {
@@ -273,7 +312,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/audits": {
@@ -312,22 +359,8 @@
             }
           },
           {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "action",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "author",
-            "in": "query",
+            "name": "filter",
+            "in": "Query",
             "schema": {
               "type": "string"
             }
@@ -367,7 +400,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/audits/{id}": {
@@ -412,7 +453,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -448,7 +497,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/audits/{id}/user": {
@@ -493,7 +550,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/auth/google/callback": {
@@ -695,50 +760,8 @@
             }
           },
           {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endpoint",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "allowed_ips",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "public_key",
-            "in": "query",
+            "name": "filter",
+            "in": "Query",
             "schema": {
               "type": "string"
             }
@@ -1115,7 +1138,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/groups": {
@@ -1154,29 +1185,8 @@
             }
           },
           {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scopes",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cidr",
-            "in": "query",
+            "name": "filter",
+            "in": "Query",
             "schema": {
               "type": "string"
             }
@@ -1586,6 +1596,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "Query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1622,7 +1639,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/logout": {
@@ -1784,50 +1809,8 @@
             }
           },
           {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "firstname",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "lastname",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "provider",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "email",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "disabled",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "disabled_reason",
-            "in": "query",
+            "name": "filter",
+            "in": "Query",
             "schema": {
               "type": "string"
             }
@@ -1867,7 +1850,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1970,7 +1961,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/users/{id}": {
@@ -2015,7 +2014,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -2051,7 +2058,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       },
       "patch": {
         "tags": [
@@ -2199,6 +2214,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "Query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2235,7 +2257,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/users/{id}/devices": {
@@ -2278,6 +2308,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "Query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2314,7 +2351,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/users/{id}/group": {
@@ -2359,7 +2404,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     },
     "/users/{id}/keys": {
@@ -2402,6 +2455,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "filter",
+            "in": "Query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2438,7 +2498,15 @@
           "500": {
             "$ref": "#/components/responses/500"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
       }
     }
   },
@@ -2625,6 +2693,10 @@
           "author": {
             "type": "string"
           },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
           "user": {
             "$ref": "#/components/schemas/User"
           }
@@ -2633,6 +2705,7 @@
           "id",
           "action",
           "author",
+          "timestamp",
           "user"
         ]
       },
@@ -2647,12 +2720,17 @@
           },
           "author": {
             "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
           "id",
           "action",
-          "author"
+          "author",
+          "timestamp"
         ]
       },
       "AuditRead": {
@@ -2666,12 +2744,17 @@
           },
           "author": {
             "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
           "id",
           "action",
-          "author"
+          "author",
+          "timestamp"
         ]
       },
       "Audit_UserRead": {
@@ -3644,12 +3727,17 @@
           },
           "author": {
             "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
           "id",
           "action",
-          "author"
+          "author",
+          "timestamp"
         ]
       },
       "User_DevicesList": {

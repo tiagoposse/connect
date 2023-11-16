@@ -76,5 +76,27 @@ func (h *SecurityHandler) ValidateApiKeyAuth(ctx context.Context, key string) (a
 }
 
 func (h *SecurityHandler) ValidateCookieAuth(ctx context.Context, key string) (authz.ISession, error) {
-	return h.ValidateSessionToken(ctx, key)
+	isess, err := h.ValidateSessionToken(ctx, key)
+	info := isess.(*sessions.Session).SessionInfo.(map[string]interface{})
+
+	scopes := authz.Scopes{}
+	for _, s := range info["scopes"].([]interface{}) {
+		scopes = append(scopes, authz.Scope(s.(string)))
+	}
+
+	return &sessions.Session{SessionInfo: SessionInfo{
+		ID: info["id"].(string),
+		Email: info["email"].(string),
+		Provider: info["provider"].(string),
+		Firstname: info["firstname"].(string),
+		Lastname: info["lastname"].(string),
+		PhotoURL: info["photo_url"].(string),
+		Scopes: scopes,
+		Group: info["group"].(string),
+	}}, err
+	// sess := &sessions.Session{
+	// 	SessionInfo: SessionInfo{
+	// 		ID: info["id"],
+	// 	},
+	// }
 }

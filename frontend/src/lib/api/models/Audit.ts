@@ -46,6 +46,12 @@ export interface Audit {
     author: string;
     /**
      * 
+     * @type {Date}
+     * @memberof Audit
+     */
+    timestamp: Date;
+    /**
+     * 
      * @type {User}
      * @memberof Audit
      */
@@ -60,6 +66,7 @@ export function instanceOfAudit(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "action" in value;
     isInstance = isInstance && "author" in value;
+    isInstance = isInstance && "timestamp" in value;
     isInstance = isInstance && "user" in value;
 
     return isInstance;
@@ -78,6 +85,7 @@ export function AuditFromJSONTyped(json: any, ignoreDiscriminator: boolean): Aud
         'id': json['id'],
         'action': json['action'],
         'author': json['author'],
+        'timestamp': (new Date(json['timestamp'])),
         'user': UserFromJSON(json['user']),
     };
 }
@@ -94,6 +102,7 @@ export function AuditToJSON(value?: Audit | null): any {
         'id': value.id,
         'action': value.action,
         'author': value.author,
+        'timestamp': (value.timestamp.toISOString()),
         'user': UserToJSON(value.user),
     };
 }

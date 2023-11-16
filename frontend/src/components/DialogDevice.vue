@@ -8,6 +8,9 @@
       <v-row>
         <v-col cols="12"><v-text-field v-model="payload.description" label="Notes"></v-text-field></v-col>
       </v-row>
+      <v-row v-if="!sameUser">
+        <v-col cols="12"><v-select v-model="payload.user" label="User" :items="existingUsers" autocomplete @input="fetchUsers" /></v-col>
+      </v-row>
       <v-expansion-panels class="pt-4 elevated-0">
         <v-expansion-panel title="Advanced Settings">
           <v-expansion-panel-text>
@@ -33,24 +36,60 @@
 import { generateKeyPair } from '@stablelib/x25519';
 import { encode as b64encode } from '@stablelib/base64';
 import type { CreateDeviceRequest } from '@/lib/api';
-import { API_URL, validationRules } from '@/lib/utils';
+import { API_URL, validationRules, type FilterArgs } from '@/lib/utils';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { ValidationError } from '@/lib/errors';
 import { useDataDialogStore } from '@/stores/dialogs';
+import { useIdentitiesStore } from '@/stores/identities';
 
+const identities = useIdentitiesStore();
 const dialogStore = useDataDialogStore();
 const authStore = useAuthStore();
 const created = ref(false);
 const form = ref();
 
-onMounted(() => {
-  if (Object.keys(dialogStore.item).length > 0) {
+const props = defineProps({
+  sameUser: {
+    type: Boolean,
+  }
+})
+
+const fetchUsers = async () => {
+  const filters: FilterArgs = {}
+  if (payload.value.user !== '') {
+    const spl = payload.value.user.split(' ')
+    
+  }
+  await identities.fetchUsers({
+    page: 1,
+    itemsPerPage: 20,
+    sortBy: "firstname",
+  }, filters)
+  identities.users.forEach((item) => {
+    existingUsers.value.push({ value: item.id, title: `${item.firstname} ${item.lastname}` })
+  })
+}
+
+
+const existingUsers = ref<{ value: string, title:string} []>([])
+onMounted(async () => {
+  if (dialogStore.item && Object.keys(dialogStore.item).length > 0) {
     payload.value = dialogStore.item
   } else {
     dialogStore.item = payload.value
   }
+
+  if (!props.sameUser) {
+    await identities.fetchUsers()
+    identities.users.forEach((item) => {
+      existingUsers.value.push({ value: item.id, title: `${item.firstname} ${item.lastname}` })
+    })
+  } else {
+    payload.value.user = authStore.userID
+  }
+
 
   dialogStore.registerCallback(async () => {
     const keyPair = generateKeyPair()
@@ -90,7 +129,7 @@ const payload = ref({
   name: '',
   type: 'laptop',
   dns: [] as string[],
-  user: authStore.userID,
+  user: '',
   description: '',
   endpoint: '',
   keepAlive: true,

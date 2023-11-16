@@ -37,6 +37,12 @@ export interface UserAuditList {
      * @memberof UserAuditList
      */
     author: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof UserAuditList
+     */
+    timestamp: Date;
 }
 
 /**
@@ -47,6 +53,7 @@ export function instanceOfUserAuditList(value: object): boolean {
     isInstance = isInstance && "id" in value;
     isInstance = isInstance && "action" in value;
     isInstance = isInstance && "author" in value;
+    isInstance = isInstance && "timestamp" in value;
 
     return isInstance;
 }
@@ -64,6 +71,7 @@ export function UserAuditListFromJSONTyped(json: any, ignoreDiscriminator: boole
         'id': json['id'],
         'action': json['action'],
         'author': json['author'],
+        'timestamp': (new Date(json['timestamp'])),
     };
 }
 
@@ -79,6 +87,7 @@ export function UserAuditListToJSON(value?: UserAuditList | null): any {
         'id': value.id,
         'action': value.action,
         'author': value.author,
+        'timestamp': (value.timestamp.toISOString()),
     };
 }
 

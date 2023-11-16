@@ -8,17 +8,19 @@
     </v-list-item>
     <v-divider />
     <v-list v-model="open" density="compact">
+      <v-list-item prepend-icon="mdi-account-circle" title="My profile" to="/profile"></v-list-item>
       <v-list-item prepend-icon="mdi-devices" title="My devices" to="/devices"></v-list-item>
 
       <v-list-group value="Admin">
         <template v-slot:activator="{ props }">
-          <v-list-item v-bind="props" prepend-icon="mdi-account-circle" title="Admin"></v-list-item>
+          <v-list-item v-bind="props" prepend-icon="mdi-security" title="Admin"></v-list-item>
         </template>
 
         <!-- <v-list-item key="overview" value="overview" title="Overview" to="/admin"></v-list-item> -->
         <v-list-item key="devices" prepend-icon="mdi-devices" value="devices" title="Devices" to="/admin/devices"></v-list-item>
         <v-list-item key="users" prepend-icon="mdi-account" value="users" title="Users" to="/admin/users"></v-list-item>
         <v-list-item key="groups" prepend-icon="mdi-account-group" value="groups" title="Groups" to="/admin/groups"></v-list-item>
+        <v-list-item key="audit" prepend-icon="mdi-radar" value="audit" title="Audit" to="/admin/audit"></v-list-item>
         <v-list-item key="connections" prepend-icon="mdi-connection" value="connections" title="Connections" to="/admin/connections"></v-list-item>
       </v-list-group>
     </v-list>

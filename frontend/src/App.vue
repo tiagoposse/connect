@@ -46,7 +46,7 @@
   </v-snackbar>
 
   <v-dialog :model-value="confirmStore.isOpen" width="40vw">
-    <v-card>
+    <v-card title="Confirm">
       <v-card-text><span class="text-h5">{{ confirmStore.title }}</span></v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -96,4 +96,9 @@ onMounted(async () => {
   max-width: 100vw !important;
   min-width: 100vw !important;
 }
+
+.no-opaque > div > div.v-field {
+  opacity: .8 !important;
+}
+
 </style>

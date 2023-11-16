@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -21,6 +22,8 @@ type Audit struct {
 	Action string `json:"action,omitempty"`
 	// Author holds the value of the "author" field.
 	Author string `json:"author,omitempty"`
+	// Timestamp holds the value of the "timestamp" field.
+	Timestamp time.Time `json:"timestamp,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AuditQuery when eager-loading is set.
 	Edges        AuditEdges `json:"edges"`
@@ -56,6 +59,8 @@ func (*Audit) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case audit.FieldID, audit.FieldAction, audit.FieldAuthor:
 			values[i] = new(sql.NullString)
+		case audit.FieldTimestamp:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -88,6 +93,12 @@ func (a *Audit) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field author", values[i])
 			} else if value.Valid {
 				a.Author = value.String
+			}
+		case audit.FieldTimestamp:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field timestamp", values[i])
+			} else if value.Valid {
+				a.Timestamp = value.Time
 			}
 		default:
 			a.selectValues.Set(columns[i], values[i])
@@ -135,6 +146,9 @@ func (a *Audit) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("author=")
 	builder.WriteString(a.Author)
+	builder.WriteString(", ")
+	builder.WriteString("timestamp=")
+	builder.WriteString(a.Timestamp.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

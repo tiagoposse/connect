@@ -11,6 +11,7 @@ services:
       - ../:/project
       - ./entrypoint-dev-wg.sh:/custom-services.d/entrypoint-dev-wg.sh
       - $HOME/.aws:/root/aws
+      - /Users/tiagoposse/personal:/Users/tiagoposse/personal
     environment:
       - SERVERURL=127.0.0.1
       - SERVERPORT=51820

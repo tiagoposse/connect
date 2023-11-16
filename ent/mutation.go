@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -586,6 +587,7 @@ type AuditMutation struct {
 	typ           string
 	id            *string
 	action        *string
+	timestamp     *time.Time
 	clearedFields map[string]struct{}
 	user          *string
 	cleareduser   bool
@@ -770,6 +772,42 @@ func (m *AuditMutation) ResetAuthor() {
 	m.user = nil
 }
 
+// SetTimestamp sets the "timestamp" field.
+func (m *AuditMutation) SetTimestamp(t time.Time) {
+	m.timestamp = &t
+}
+
+// Timestamp returns the value of the "timestamp" field in the mutation.
+func (m *AuditMutation) Timestamp() (r time.Time, exists bool) {
+	v := m.timestamp
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimestamp returns the old "timestamp" field's value of the Audit entity.
+// If the Audit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuditMutation) OldTimestamp(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimestamp is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimestamp requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimestamp: %w", err)
+	}
+	return oldValue.Timestamp, nil
+}
+
+// ResetTimestamp resets all changes to the "timestamp" field.
+func (m *AuditMutation) ResetTimestamp() {
+	m.timestamp = nil
+}
+
 // SetUserID sets the "user" edge to the User entity by id.
 func (m *AuditMutation) SetUserID(id string) {
 	m.user = &id
@@ -844,12 +882,15 @@ func (m *AuditMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AuditMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.action != nil {
 		fields = append(fields, audit.FieldAction)
 	}
 	if m.user != nil {
 		fields = append(fields, audit.FieldAuthor)
+	}
+	if m.timestamp != nil {
+		fields = append(fields, audit.FieldTimestamp)
 	}
 	return fields
 }
@@ -863,6 +904,8 @@ func (m *AuditMutation) Field(name string) (ent.Value, bool) {
 		return m.Action()
 	case audit.FieldAuthor:
 		return m.Author()
+	case audit.FieldTimestamp:
+		return m.Timestamp()
 	}
 	return nil, false
 }
@@ -876,6 +919,8 @@ func (m *AuditMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldAction(ctx)
 	case audit.FieldAuthor:
 		return m.OldAuthor(ctx)
+	case audit.FieldTimestamp:
+		return m.OldTimestamp(ctx)
 	}
 	return nil, fmt.Errorf("unknown Audit field %s", name)
 }
@@ -898,6 +943,13 @@ func (m *AuditMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAuthor(v)
+		return nil
+	case audit.FieldTimestamp:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimestamp(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Audit field %s", name)
@@ -953,6 +1005,9 @@ func (m *AuditMutation) ResetField(name string) error {
 		return nil
 	case audit.FieldAuthor:
 		m.ResetAuthor()
+		return nil
+	case audit.FieldTimestamp:
+		m.ResetTimestamp()
 		return nil
 	}
 	return fmt.Errorf("unknown Audit field %s", name)

@@ -132,14 +132,19 @@ func (ext *OperationExtension) Mutator(graph *gen.Graph, spec *ogen.Spec) error 
 			})
 		}
 
-		if fs, ok := filterMods[pathItem.Get.OperationID]; ok {
-			for _, filter := range fs {
-				newParams = append(newParams, &ogen.Parameter{
-					Name: filter.Name,
-					In: filter.In,
-					Schema: &ogen.Schema{Type: "string"},
-				})
-			}
+		if _, ok := filterMods[pathItem.Get.OperationID]; ok {
+			newParams = append(newParams, &ogen.Parameter{
+				Name: "filter",
+				In: "Query",
+				Schema: &ogen.Schema{Type: "string"},
+			})
+			// for _, filter := range fs {
+			// 	newParams = append(newParams, &ogen.Parameter{
+			// 		Name: filter.Name,
+			// 		In: filter.In,
+			// 		Schema: &ogen.Schema{Type: "string"},
+			// 	})
+			// }
 		}
 
 		if ant.ReturnTotal != nil {

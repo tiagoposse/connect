@@ -25,7 +25,19 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
-func NewController(client *ent.Client, cfg *config.Config) (*Controller, error) {
+type ControllerOption func (c *Controller)
+
+type IAuditController interface {
+	AuditAction(ctx context.Context, op string) error
+}
+
+func WithAuditController(a IAuditController) ControllerOption {
+	return func(c *Controller) {
+		c.audit = a
+	}
+}
+
+func NewController(client *ent.Client, cfg *config.Config, opts ...ControllerOption) (*Controller, error) {
 	google, err := auth.NewGoogleAuthController(cfg.Web.ExternalUrl, cfg.Auth.Google)
 	if err != nil {
 		return nil, err
@@ -36,14 +48,20 @@ func NewController(client *ent.Client, cfg *config.Config) (*Controller, error) 
 		log.Fatal(err)
 	}
 
-	return &Controller{
+	ctrl := &Controller{
 		OgentHandler: ogent.NewOgentHandler(client),
 		wg: wireguard.NewWireGuardManager(cfg.Wireguard),
 		client: client,
 		cfg: cfg,
 		google: google,
 		auth: secHandler,
-	}, nil
+	}
+
+	for _, o := range opts {
+		o(ctrl)
+	}
+
+	return ctrl, nil
 }
 
 type Controller struct {
@@ -53,6 +71,7 @@ type Controller struct {
 	google *auth.GoogleAuthController
 	cfg    *config.Config
 	auth   *ogauth.OgentAuthHandler
+	audit IAuditController
 }
 
 func (c *Controller) Init(ctx context.Context) error {

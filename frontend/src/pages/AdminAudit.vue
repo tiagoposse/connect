@@ -19,10 +19,10 @@
 
 <script setup lang="ts">
 import DataZone from '@/components/DataZone.vue';
-import { GenericGroupsAPI } from '@/lib/apis';
+import { GenericAuditAPI } from '@/lib/apis';
 import DialogGroup from '@/components/DialogGroup.vue';
 import { useDataStore } from '@/stores/data';
 import { onBeforeMount } from 'vue';
 
-onBeforeMount(() => useDataStore().init('audit', GenericGroupsAPI))
+onBeforeMount(() => useDataStore().init('audit', GenericAuditAPI))
 </script>

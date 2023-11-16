@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -32,6 +33,12 @@ func (ac *AuditCreate) SetAction(s string) *AuditCreate {
 // SetAuthor sets the "author" field.
 func (ac *AuditCreate) SetAuthor(s string) *AuditCreate {
 	ac.mutation.SetAuthor(s)
+	return ac
+}
+
+// SetTimestamp sets the "timestamp" field.
+func (ac *AuditCreate) SetTimestamp(t time.Time) *AuditCreate {
+	ac.mutation.SetTimestamp(t)
 	return ac
 }
 
@@ -119,6 +126,9 @@ func (ac *AuditCreate) check() error {
 			return &ValidationError{Name: "author", err: fmt.Errorf(`ent: validator failed for field "Audit.author": %w`, err)}
 		}
 	}
+	if _, ok := ac.mutation.Timestamp(); !ok {
+		return &ValidationError{Name: "timestamp", err: errors.New(`ent: missing required field "Audit.timestamp"`)}
+	}
 	if _, ok := ac.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Audit.user"`)}
 	}
@@ -161,6 +171,10 @@ func (ac *AuditCreate) createSpec() (*Audit, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.Action(); ok {
 		_spec.SetField(audit.FieldAction, field.TypeString, value)
 		_node.Action = value
+	}
+	if value, ok := ac.mutation.Timestamp(); ok {
+		_spec.SetField(audit.FieldTimestamp, field.TypeTime, value)
+		_node.Timestamp = value
 	}
 	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -253,6 +267,9 @@ func (u *AuditUpsertOne) UpdateNewValues() *AuditUpsertOne {
 		}
 		if _, exists := u.create.mutation.Author(); exists {
 			s.SetIgnore(audit.FieldAuthor)
+		}
+		if _, exists := u.create.mutation.Timestamp(); exists {
+			s.SetIgnore(audit.FieldTimestamp)
 		}
 	}))
 	return u
@@ -473,6 +490,9 @@ func (u *AuditUpsertBulk) UpdateNewValues() *AuditUpsertBulk {
 			}
 			if _, exists := b.mutation.Author(); exists {
 				s.SetIgnore(audit.FieldAuthor)
+			}
+			if _, exists := b.mutation.Timestamp(); exists {
+				s.SetIgnore(audit.FieldTimestamp)
 			}
 		}
 	}))

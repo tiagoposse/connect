@@ -145,6 +145,8 @@ github.com/gorilla/handlers v1.5.1 h1:9lRY6j8DEeeBT10CvO9hGW0gmky0BprnvDI5vfhUHH
 github.com/gorilla/handlers v1.5.1/go.mod h1:t8XrUpc4KVXb7HGyJ4/cEnwQiaxrX/hz1Zv/4g96P1Q=
 github.com/hashicorp/hcl/v2 v2.19.1 h1://i05Jqznmb2EXqa39Nsvyan2o5XyMowW5fnCKW5RPI=
 github.com/hashicorp/hcl/v2 v2.19.1/go.mod h1:ThLC89FV4p9MPW804KVbe/cEXoQ8NZEh+JtMeeGErHE=
+github.com/jhump/protoreflect v1.10.1 h1:iH+UZfsbRE6vpyZH7asAjTPWJf7RJbpZ9j/N3lDlKs0=
+github.com/jhump/protoreflect v1.10.1/go.mod h1:7GcYQDdMU/O/BBrl/cX6PNHpXh6cenjd8pneu5yW7Tg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/jonboulle/clockwork v0.2.2/go.mod h1:Pkfl5aHPm1nk2H9h0bjmnJD/BcgbGXUBGnn1kMkgxc8=
@@ -176,6 +178,8 @@ github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwp
 github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/mitchellh/go-wordwrap v1.0.1 h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
 github.com/mitchellh/go-wordwrap v1.0.1/go.mod h1:R62XHJLzvMFRBbcrT7m7WgmE1eOyTSsCt+hzestvNj0=
+github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
+github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/ogen-go/ogen v0.76.0 h1:tdYMXVi9Khui4PDU2aTMaNcWVrTCwqjhs/xYNbI5Zsw=
 github.com/ogen-go/ogen v0.76.0/go.mod h1:ZPh0dhw8iSh8NtB+V0oh082H1rzSkW7S2zhY9HYnlB4=
 github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 h1:KoWmjvw+nsYOo29YJK9vDA65RGE3NrOnUtO7a+RF9HU=
@@ -216,8 +220,6 @@ github.com/tiagoposse/entoas-fields-exclusion v0.0.0-20231018111014-2cb5449ad9a3
 github.com/tiagoposse/entoas-fields-exclusion v0.0.0-20231018111014-2cb5449ad9a3/go.mod h1:xT5S53ILnjSPPQ2xL/ZBSQ7Fbs1TVJq4c5g5EaC0N78=
 github.com/tiagoposse/go-auth v0.0.0-20231026103543-536eb5be9604 h1:UNQtnkLwowQE5d7gIrP30oTuPWXTlBp0q4N9vUWdR9s=
 github.com/tiagoposse/go-auth v0.0.0-20231026103543-536eb5be9604/go.mod h1:2Y4emLyKzopp/Qrg5KQuQwNVqnu1Qwu0AxF3iQfu/sk=
-github.com/tiagoposse/ogent-auth v0.0.0-20231018145057-f07425424dd2 h1:nJRHcr6bKzXdayNCXBY/aVsFqSgID6aqVxlaTybHAJg=
-github.com/tiagoposse/ogent-auth v0.0.0-20231018145057-f07425424dd2/go.mod h1:3HNaN9M40w3I9N2XC1xYvyTkMTXCNbdzQ1sGR+aj2WA=
 github.com/zclconf/go-cty v1.14.1 h1:t9fyA35fwjjUMcmL5hLER+e/rEPqrbCK1/OSE4SI9KA=
 github.com/zclconf/go-cty v1.14.1/go.mod h1:VvMs5i0vgZdhYawQNq5kePSpLAoz8u1xvZgrPIxfnZE=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=

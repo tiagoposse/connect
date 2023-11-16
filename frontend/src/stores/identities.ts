@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { CreateGroupRequest, UpdateGroupRequest, GroupList, CreateUserRequest, UpdateUserRequest, UserList } from '@/lib/api/models';
 import { GroupsAPI, UsersAPI } from '@/lib/apis';
-import type { CardItem } from '@/lib/utils';
+import type { CardItem, FilterArgs, PaginationArgs } from '@/lib/utils';
 import { hash } from '@stablelib/sha256';
 
 export const useIdentitiesStore = defineStore('identities', {
@@ -53,11 +53,14 @@ export const useIdentitiesStore = defineStore('identities', {
     },
   },
   actions: {
-    async fetchUsers() {
+    async fetchUsers(params?: PaginationArgs, filters?: FilterArgs) {
       const h = hash(new TextEncoder().encode(''))
       if (this.cache.indexOf(h) == -1) {
         this.cache.push(h)
-        this.groups = await GroupsAPI.listGroup();
+        this.users = await UsersAPI.listUser({
+          ...params,
+          ...filters,
+        });
       }
     },
     async addGroup(item: CreateGroupRequest) {

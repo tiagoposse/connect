@@ -4,36 +4,23 @@ import { AuditApi } from '@/lib/api';
 
 export const AuditAPI = new AuditApi(DefaultApiConfig);
 
-export const GenericGroupsAPI: GenericAPI = {
+export const GenericAuditAPI: GenericAPI = {
   create: async () => {},
   update: async () => {},
   remove: async () => {},
   fetch: async (params: PaginationArgs, filters: FilterArgs) => { return await AuditAPI.listAuditRaw({ ...params, ...filters }) },
   headers: [
     {
-      title: 'Name',
+      title: 'Author',
       align: 'start',
       sortable: true,
-      key: 'id',
+      key: 'author',
     },
     {
-      title: 'Cidr',
+      title: 'Action',
       align: 'end',
       sortable: true,
-      key: 'cidr',
-      width: "150px",
-    },
-    {
-      title: 'Scopes',
-      align: 'end',
-      sortable: false,
-      key: 'scopes',
-    },
-    {
-      title: 'Rules',
-      align: 'end',
-      sortable: true,
-      key: 'rules',
+      key: 'action',
     },
   ],
 }

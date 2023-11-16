@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 
+	audit "github.com/tiagoposse/connect/audit"
 	"github.com/tiagoposse/connect/ent"
 
 	"github.com/tiagoposse/connect/ent/ogent"
 	_ "github.com/tiagoposse/connect/ent/runtime"
 	"github.com/tiagoposse/connect/internal/config"
-	"github.com/tiagoposse/connect/internal/controller"
 	ctrl "github.com/tiagoposse/connect/internal/controller"
 	"github.com/tiagoposse/connect/internal/sessions"
 	"github.com/tiagoposse/connect/internal/utils"
@@ -68,7 +68,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	c, err := ctrl.NewController(client, cfg)
+	ac := audit.NewAuditController(client, []string{
+		"googleAuthStart",
+		"googleAuthCallback",
+		"userpassLogin",
+		"status",
+		"listUser",
+	})
+
+	c, err := ctrl.NewController(client, cfg, ctrl.WithAuditController(ac))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +86,12 @@ func main() {
 	}
 
 	// Start listening.
-	srv, err := ogent.NewServer(c, secHandler, ogent.WithPathPrefix("/api/v1"), ogent.WithMiddleware(controller.GetAuthAfterUrl))
+	srv, err := ogent.NewServer(
+		c,
+		secHandler,
+		ogent.WithPathPrefix("/api/v1"),
+		ogent.WithMiddleware(ctrl.GetAuthAfterUrl, ac.OgentMiddleware),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

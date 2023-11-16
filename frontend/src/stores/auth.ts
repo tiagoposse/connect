@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { AuthAPI } from '@/lib/apis';
+import { AuthAPI, UsersAPI } from '@/lib/apis';
+import type { UpdateUserRequest } from '@/lib/api';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -7,13 +8,21 @@ export const useAuthStore = defineStore('auth', {
     isAdmin: false,
     email: '',
     userID: '',
-    displayName: '',
+    lastname: '',
+    firstname: '',
     photoUrl: '',
+    provider: '',
+    group: '',
     scopes: [] as string[],
   }),
+  getters: {
+    displayName: (state) => {
+      return `${state.firstname} ${state.lastname}`
+    }
+  },
   actions: {
-    logout() {
-      AuthAPI.logout();
+    async logout() {
+      await AuthAPI.logout();
       this.$reset();
     },
     async status() {
@@ -21,9 +30,19 @@ export const useAuthStore = defineStore('auth', {
       this.scopes = data.scopes;
       this.email = data.email;
       this.userID = data.id
-      this.displayName = `${data.firstname} ${data.lastname}`;
+      this.lastname = data.lastname;
+      this.firstname = data.firstname;
       this.photoUrl = data.photoUrl
+      this.provider = data.provider
+      this.group = data.group
       this.isAuthenticated = true
+    },
+    async update(fields: UpdateUserRequest) {
+      await UsersAPI.updateUser({
+        id: this.userID,
+        updateUserRequest: fields
+      })
+      Object.assign(this, fields)
     }
   }
 });

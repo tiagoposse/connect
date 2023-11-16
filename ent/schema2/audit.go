@@ -34,6 +34,7 @@ func (Audit) Fields() []ent.Field {
 		}),
 		field.String("action").NotEmpty().Immutable(),
 		field.String("author").NotEmpty().Immutable(),
+		field.Time("timestamp").Immutable(),
 	}
 }
 
