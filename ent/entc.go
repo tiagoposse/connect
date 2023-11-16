@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/tiagoposse/connect/filter"
@@ -12,33 +11,16 @@ import (
 
 	"ariga.io/ogent"
 	"entgo.io/contrib/entoas"
-	"entgo.io/contrib/schemast"
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
 	"github.com/ogen-go/ogen"
 
 	exclusion "github.com/tiagoposse/entoas-fields-exclusion"
-	"github.com/tiagoposse/go-auth/audit"
 	authz "github.com/tiagoposse/go-auth/controller"
 	ogauth "github.com/tiagoposse/ogent-auth"
 )
 
-func main() {
-	ctx, err := schemast.Load("./ent/schema")
-	if err != nil {
-		log.Fatalf("failed: %v", err)
-	}
-
-	err = schemast.Mutate(ctx, audit.AuditSchemaMutator)
-
-	// A no-op since we did not manipulate the Context at all.
-	if err := ctx.Print("./ent/schema"); err != nil {
-		log.Fatalf("failed: %v", err)
-	}
-	if ctx.HasType("user") {
-		fmt.Println("schema directory contains a schema named User!")
-	}
-	
+func main() {	
 	spec := new(ogen.Spec)
 
 	auth, err := ogauth.NewAuthExtension(

@@ -5,8 +5,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"slices"
 
-	audit "github.com/tiagoposse/connect/audit"
+	"github.com/ogen-go/ogen/middleware"
 	"github.com/tiagoposse/connect/ent"
 
 	"github.com/tiagoposse/connect/ent/ogent"
@@ -68,15 +69,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ac := audit.NewAuditController(client, []string{
-		"googleAuthStart",
-		"googleAuthCallback",
-		"userpassLogin",
-		"status",
-		"listUser",
-	})
-
-	c, err := ctrl.NewController(client, cfg, ctrl.WithAuditController(ac))
+	c, err := ctrl.NewController(client, cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,12 +78,31 @@ func main() {
 		log.Fatal(err)
 	}
 
+	skipOps := []string{
+		"googleAuthStart",
+		"googleAuthCallback",
+		"userpassLogin",
+		"status",
+	}
+
 	// Start listening.
 	srv, err := ogent.NewServer(
 		c,
 		secHandler,
 		ogent.WithPathPrefix("/api/v1"),
-		ogent.WithMiddleware(ctrl.GetAuthAfterUrl, ac.OgentMiddleware),
+		ogent.WithMiddleware(ctrl.GetAuthAfterUrl, func(req middleware.Request, next middleware.Next) (resp middleware.Response, err error) {
+			resp, err = next(req)
+		
+			if err != nil {
+				return resp, err
+			}
+
+			if slices.Index(skipOps, req.OperationID) == -1 {
+				err = c.AuditAction(req.Context, req.OperationID)
+			}
+		
+			return resp, err
+		}),
 	)
 	if err != nil {
 		log.Fatal(err)

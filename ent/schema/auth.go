@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	// "github.com/tiagoposse/connect/ent/hook"
+	// "github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/ent/hook"
 	"github.com/tiagoposse/connect/ent/user"
 	"github.com/tiagoposse/connect/internal/types"

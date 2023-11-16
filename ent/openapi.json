@@ -1642,10 +1642,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       }
@@ -1853,10 +1853,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       },
@@ -1964,10 +1964,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       }
@@ -2017,10 +2017,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       },
@@ -2061,10 +2061,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       },
@@ -2260,10 +2260,10 @@
         },
         "security": [
           {
-            "ApiKeyAuth": []
+            "CookieAuth": []
           },
           {
-            "CookieAuth": []
+            "ApiKeyAuth": []
           }
         ]
       }

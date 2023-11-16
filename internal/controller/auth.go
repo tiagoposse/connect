@@ -83,7 +83,7 @@ func (c *Controller) UserpassLogin(ctx context.Context, req ogent.OptUserpassLog
 		SessionInfo: info,
 	})
 
-	c.audit.AuditAction(auditCtx, "userpassLogin")
+	c.AuditAction(auditCtx, "userpassLogin")
 	return &ogent.UserpassLoginOK{
 		SetCookie: fmt.Sprintf("Authorization=%s; Same-Site=Lax; HttpOnly; Secure; Path=/", token),
 	}, nil
@@ -112,7 +112,7 @@ func (c *Controller) GoogleAuthCallback(ctx context.Context, req ogent.OptGoogle
 	auditCtx := context.WithValue(ctx, authz.ContextSessionKey{}, &authz.Session{
 		SessionInfo: info,
 	})
-	c.audit.AuditAction(auditCtx, "ssoLoginGoogle")
+	c.AuditAction(auditCtx, "ssoLoginGoogle")
 
 	location, _ := url.Parse(req.Value.RelayState)
 	return &ogent.GoogleAuthCallbackMovedPermanently{

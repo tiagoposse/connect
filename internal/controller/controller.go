@@ -27,16 +27,6 @@ import (
 
 type ControllerOption func (c *Controller)
 
-type IAuditController interface {
-	AuditAction(ctx context.Context, op string) error
-}
-
-func WithAuditController(a IAuditController) ControllerOption {
-	return func(c *Controller) {
-		c.audit = a
-	}
-}
-
 func NewController(client *ent.Client, cfg *config.Config, opts ...ControllerOption) (*Controller, error) {
 	google, err := auth.NewGoogleAuthController(cfg.Web.ExternalUrl, cfg.Auth.Google)
 	if err != nil {
@@ -71,7 +61,6 @@ type Controller struct {
 	google *auth.GoogleAuthController
 	cfg    *config.Config
 	auth   *ogauth.OgentAuthHandler
-	audit IAuditController
 }
 
 func (c *Controller) Init(ctx context.Context) error {
