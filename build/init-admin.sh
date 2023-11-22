@@ -5,7 +5,6 @@ password="portal"
 hashed_password=$(echo -n "${password}${salt}" | sha256sum | awk '{print $1}')
 user_id="b5785cb7-6c95-4817-abd1-24b96fbec905"
 
-
 generate_user_cmd="INSERT INTO users (id, email, provider, password, salt, is_admin, photo_url, disabled, disabled_reason, firstname, lastname) VALUES ('$user_id', 'admin@local.io', 'local', '$hashed_password', '$salt', true, '', false, '', 'Admin', 'User')"
 
 API_KEY="fa00afd0309ff0f52f760d60195ffbe5"
