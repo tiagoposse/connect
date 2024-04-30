@@ -12,6 +12,7 @@ import (
 	"github.com/tiagoposse/connect/ent"
 	"github.com/tiagoposse/connect/internal/types"
 	"github.com/tiagoposse/connect/internal/utils"
+	resolvers "github.com/tiagoposse/go-secret-resolvers"
 
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
@@ -45,18 +46,17 @@ type Web struct {
 }
 
 type Auth struct {
-	Google       *GoogleAuth `yaml:"google"`
-	UserPassword bool        `yaml:"userpass"`
-	Session      *Session    `yaml:"session"`
-	Admin        *Admin      `yaml:"admin"`
+	Google       *GoogleAuth           `yaml:"google"`
+	UserPassword bool                  `yaml:"userpass"`
+	Session      *Session              `yaml:"session"`
+	Admin        *Admin                `yaml:"admin"`
 	Groups       map[string]*ent.Group `yaml:"groups"`
 }
 
 type Session struct {
-	SessionKey    *utils.ResolverField `yaml:"key"`
-	JwtExpiration utils.Duration       `yaml:"expiration"`
+	SessionKey    *resolvers.ResolverField `yaml:"key"`
+	JwtExpiration utils.Duration           `yaml:"expiration"`
 }
-
 
 type Admin struct {
 	Group string `yaml:"group"`
@@ -73,7 +73,7 @@ func NewConfig() (*Config, error) {
 			DnsServers:       types.InetSlice{types.Inet{IP: net.ParseIP("1.1.1.1")}},
 			Cidr:             netip.MustParsePrefix("10.254.0.0/16"),
 			SelfProvisioning: true,
-			KeepAlive: true,
+			KeepAlive:        true,
 		},
 		General: &General{
 			LogLevel: log.InfoLevel.String(),
@@ -92,10 +92,10 @@ func NewConfig() (*Config, error) {
 			},
 			Groups: map[string]*ent.Group{
 				"super-admins": {
-					Name: "Super Admins",
-					Cidr: types.Cidr{Prefix: netip.MustParsePrefix("0.0.0.0/32")},
+					Name:   "Super Admins",
+					Cidr:   types.Cidr{Prefix: netip.MustParsePrefix("0.0.0.0/32")},
 					Scopes: types.AllScopes,
-					Rules: []types.Rule{},
+					Rules:  []types.Rule{},
 				},
 			},
 			Admin: &Admin{
